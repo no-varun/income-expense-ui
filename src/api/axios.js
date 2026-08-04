@@ -1,7 +1,7 @@
 import axios from "axios";
 import storage from "../utils/storage";
 const BASE_URL =
-    import.meta.env.VITE_API_URL || "http://localhost:5002/api";
+    import.meta.env.VITE_API_URL || "https://income-expense-api.vercel.app/api";
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
