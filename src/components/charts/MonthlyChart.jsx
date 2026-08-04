@@ -44,6 +44,7 @@ const MonthlyChart = ({ data = [] }) => {
     const options = {
 
         responsive: true,
+        maintainAspectRatio: false,
 
         plugins: {
 
@@ -79,7 +80,7 @@ const MonthlyChart = ({ data = [] }) => {
 
             </div>
 
-            <div className="card-body">
+            <div className="card-body chart-body">
 
                 <Bar
                     data={chartData}

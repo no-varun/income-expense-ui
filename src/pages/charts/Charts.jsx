@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 
-import {
-    getMonthlyChart,
-    getYearlyChart,
-    getWeeklyChart,
-    getCategoryChart,
-    getPaymentModeChart,
-    getDashboardChart
-} from "../../api/chartApi";
+import { getMonthlyChart, getYearlyChart, getWeeklyChart, getCategoryChart, getPaymentModeChart, getDashboardChart } from "../../api/chartApi";
 
 import MonthlyChart from "../../components/charts/MonthlyChart";
 import WeeklyChart from "../../components/charts/WeeklyChart";
@@ -16,124 +9,95 @@ import CategoryChart from "../../components/charts/CategoryChart";
 import PaymentModeChart from "../../components/charts/PaymentModeChart";
 import DashboardChart from "../../components/charts/DashboardChart";
 
-const Charts = () => {
+const chartModules = {
+    monthly: {
+        title: "Monthly Chart",
+        load: getMonthlyChart,
+        render: data => <MonthlyChart data={data} />,
+        initialData: []
+    },
+    weekly: {
+        title: "Weekly Chart",
+        load: getWeeklyChart,
+        render: data => <WeeklyChart data={data} />,
+        initialData: {
+            income: [],
+            expense: []
+        }
+    },
+    yearly: {
+        title: "Yearly Chart",
+        load: getYearlyChart,
+        render: data => <YearlyChart data={data} />,
+        initialData: []
+    },
+    category: {
+        title: "Category Chart",
+        load: getCategoryChart,
+        render: data => <CategoryChart data={data} />,
+        initialData: {
+            income: [],
+            expense: []
+        }
+    },
+    "payment-mode": {
+        title: "Payment Mode Chart",
+        load: getPaymentModeChart,
+        render: data => <PaymentModeChart data={data} />,
+        initialData: {
+            income: [],
+            expense: []
+        }
+    },
+    dashboard: {
+        title: "Dashboard Chart",
+        load: getDashboardChart,
+        render: data => <DashboardChart data={data} />,
+        initialData: {
+            income: [],
+            expense: []
+        }
+    }
+};
+
+const Charts = ({ module = "monthly" }) => {
 
     const currentYear = new Date().getFullYear();
+
+    const chartModule = chartModules[module] || chartModules.monthly;
 
     const [year, setYear] = useState(currentYear);
 
     const [loading, setLoading] = useState(false);
 
-    const [monthly, setMonthly] = useState([]);
+    const [chartData, setChartData] = useState(chartModule.initialData);
 
-    const [weekly, setWeekly] = useState({
-        income: [],
-        expense: []
-    });
-
-    const [yearly, setYearly] = useState([]);
-
-    const [category, setCategory] = useState({
-        income: [],
-        expense: []
-    });
-
-    const [paymentMode, setPaymentMode] = useState({
-        income: [],
-        expense: []
-    });
-
-    const [dashboard, setDashboard] = useState({
-        income: [],
-        expense: []
-    });
-
-    const loadCharts = async () => {
+    const loadChart = async () => {
 
         try {
 
             setLoading(true);
 
-            const [
+            const response = module === "monthly"
+                ? await chartModule.load(year)
+                : await chartModule.load();
 
-                monthlyRes,
+            if (response.success) {
 
-                yearlyRes,
-
-                weeklyRes,
-
-                categoryRes,
-
-                paymentRes,
-
-                dashboardRes
-
-            ] = await Promise.all([
-
-                getMonthlyChart(year),
-
-                getYearlyChart(),
-
-                getWeeklyChart(),
-
-                getCategoryChart(),
-
-                getPaymentModeChart(),
-
-                getDashboardChart()
-
-            ]);
-
-            if (monthlyRes.success) {
-
-                setMonthly(monthlyRes.data);
+                setChartData(response.data);
 
             }
 
-            if (yearlyRes.success) {
-
-                setYearly(yearlyRes.data);
-
-            }
-
-            if (weeklyRes.success) {
-
-                setWeekly(weeklyRes.data);
-
-            }
-
-            if (categoryRes.success) {
-
-                setCategory(categoryRes.data);
-
-            }
-
-            if (paymentRes.success) {
-
-                setPaymentMode(paymentRes.data);
-
-            }
-
-            if (dashboardRes.success) {
-
-                setDashboard(dashboardRes.data);
-
-            }
-
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.log(error);
 
             alert(
                 error.response?.data?.message ||
-                "Unable to load charts."
+                "Unable to load chart."
             );
 
-        }
-
-        finally {
+        } finally {
 
             setLoading(false);
 
@@ -143,9 +107,10 @@ const Charts = () => {
 
     useEffect(() => {
 
-        loadCharts();
+        setChartData(chartModule.initialData);
+        loadChart();
 
-    }, [year]);
+    }, [module, year]);
 
     return (
 
@@ -155,45 +120,51 @@ const Charts = () => {
 
                 <h3>
 
-                    Analytics Dashboard
+                    {chartModule.title}
 
                 </h3>
 
-                <div className="d-flex">
+                {
 
-                    <select
+                    module === "monthly" &&
 
-                        className="form-select"
+                    <div className="d-flex">
 
-                        value={year}
+                        <select
 
-                        onChange={(e) => setYear(e.target.value)}
+                            className="form-select"
 
-                    >
+                            value={year}
 
-                        {
+                            onChange={(e) => setYear(Number(e.target.value))}
 
-                            Array.from(
-                                { length: 10 },
-                                (_, index) => currentYear - index
-                            ).map(item => (
+                        >
 
-                                <option
-                                    key={item}
-                                    value={item}
-                                >
+                            {
 
-                                    {item}
+                                Array.from(
+                                    { length: 10 },
+                                    (_, index) => currentYear - index
+                                ).map(item => (
 
-                                </option>
+                                    <option
+                                        key={item}
+                                        value={item}
+                                    >
 
-                            ))
+                                        {item}
 
-                        }
+                                    </option>
 
-                    </select>
+                                ))
 
-                </div>
+                            }
+
+                        </select>
+
+                    </div>
+
+                }
 
             </div>
 
@@ -213,37 +184,7 @@ const Charts = () => {
 
                     :
 
-                    (
-
-                        <>
-
-                            <MonthlyChart
-                                data={monthly}
-                            />
-
-                            <WeeklyChart
-                                data={weekly}
-                            />
-
-                            <YearlyChart
-                                data={yearly}
-                            />
-
-                            <CategoryChart
-                                data={category}
-                            />
-
-                            <PaymentModeChart
-                                data={paymentMode}
-                            />
-
-                            <DashboardChart
-                                data={dashboard}
-                            />
-
-                        </>
-
-                    )
+                    chartModule.render(chartData)
 
             }
 

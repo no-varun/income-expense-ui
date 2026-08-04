@@ -38,7 +38,7 @@ const CategoryChart = ({ data = { income: [], expense: [] } }) => {
 
                     </div>
 
-                    <div className="card-body">
+                    <div className="card-body chart-body chart-body-pie">
 
                         <Pie
 
@@ -63,6 +63,7 @@ const CategoryChart = ({ data = { income: [], expense: [] } }) => {
                             options={{
 
                                 responsive: true,
+                                maintainAspectRatio: false,
 
                                 plugins: {
 
@@ -100,7 +101,7 @@ const CategoryChart = ({ data = { income: [], expense: [] } }) => {
 
                     </div>
 
-                    <div className="card-body">
+                    <div className="card-body chart-body chart-body-pie">
 
                         <Pie
 
@@ -125,6 +126,7 @@ const CategoryChart = ({ data = { income: [], expense: [] } }) => {
                             options={{
 
                                 responsive: true,
+                                maintainAspectRatio: false,
 
                                 plugins: {
 

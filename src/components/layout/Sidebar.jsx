@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
     FaTachometerAlt,
@@ -7,17 +8,19 @@ import {
     FaChartBar,
     FaChartPie,
     FaUser,
-    FaSignOutAlt
+    FaSignOutAlt,
+    FaTimes
 } from "react-icons/fa";
-import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-import { useState } from "react";
+
 import { useAuth } from "../../context/AuthContext";
 
-const Sidebar = () => {
+const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
     const { logout } = useAuth();
 
     const navigate = useNavigate();
+
+    const [chartOpen, setChartOpen] = useState(false);
 
     const menu = [
 
@@ -52,12 +55,6 @@ const Sidebar = () => {
         },
 
         {
-            title: "Charts",
-            path: "/charts",
-            icon: <FaChartPie />
-        },
-
-        {
             title: "Profile",
             path: "/profile",
             icon: <FaUser />
@@ -75,114 +72,268 @@ const Sidebar = () => {
 
     return (
 
-        <aside
-            className="bg-dark text-white d-flex flex-column shadow"
-            style={{
-                width: "260px",
-                minHeight: "100vh",
-                position: "sticky",
-                top: 0
-            }}
-        >
+        <>
 
-            {/* Logo */}
+            {/* Mobile Overlay */}
 
-            <div className="py-4 text-center border-bottom">
+            {
 
-                <h3 className="fw-bold mb-0">
+                sidebarOpen &&
 
-                    💰 Income Tracker
+                <div
 
-                </h3>
+                    className="d-lg-none position-fixed top-0 start-0 w-100 h-100"
 
-                <small className="text-light">
+                    style={{
+                        background: "rgba(0,0,0,0.5)",
+                        zIndex: 1040
+                    }}
 
-                    Admin Panel
+                    onClick={() => setSidebarOpen(false)}
 
-                </small>
+                />
 
-            </div>
+            }
 
-            {/* Menu */}
+            <aside
+                className={`sidebar bg-dark text-white d-flex flex-column shadow ${sidebarOpen ? "sidebar-open" : ""
+                    }`}
+            >
 
-            <div className="flex-grow-1">
+                {/* Mobile Close */}
 
-                <ul className="nav flex-column py-3">
+                <div className="d-lg-none text-end p-3">
 
-                    {
+                    <button
 
-                        menu.map((item) => (
+                        className="btn btn-outline-light btn-sm"
 
-                            <li
-                                key={item.path}
-                                className="nav-item"
-                            >
+                        onClick={() => setSidebarOpen(false)}
 
-                                <NavLink
+                    >
 
-                                    to={item.path}
+                        <FaTimes />
 
-                                    end={item.path === "/"}
+                    </button>
 
-                                    className={({ isActive }) =>
+                </div>
 
-                                        `nav-link d-flex align-items-center px-4 py-3 ${
+                {/* Logo */}
 
-                                            isActive
+                <div className="py-3 text-center border-bottom">
+
+                    <h4 className="fw-bold">
+
+                        💰 Income Tracker
+
+                    </h4>
+
+                    <small>
+
+                        Admin Panel
+
+                    </small>
+
+                </div>
+
+                {/* Menu */}
+
+                <div className="flex-grow-1">
+
+                    <ul className="nav flex-column py-3">
+
+                        {
+
+                            menu.map(item => (
+
+                                <li
+
+                                    className="nav-item"
+
+                                    key={item.path}
+
+                                >
+
+                                    <NavLink
+
+                                        to={item.path}
+
+                                        end={item.path === "/"}
+
+                                        onClick={() => setSidebarOpen(false)}
+
+                                        className={({ isActive }) =>
+
+                                            `nav-link d-flex align-items-center px-4 py-3 ${isActive
 
                                                 ? "bg-primary text-white fw-bold"
 
                                                 : "text-light"
 
-                                        }`
+                                            }`
 
-                                    }
+                                        }
 
-                                >
-
-                                    <span
-                                        className="me-3 fs-5"
                                     >
 
-                                        {item.icon}
+                                        <span className="me-3">
 
-                                    </span>
+                                            {item.icon}
 
-                                    {item.title}
+                                        </span>
 
-                                </NavLink>
+                                        {item.title}
 
-                            </li>
+                                    </NavLink>
 
-                        ))
+                                </li>
 
-                    }
+                            ))
 
-                </ul>
+                        }
 
-            </div>
+                        {/* Charts */}
+                        {/* Charts */}
 
-            {/* Logout */}
+                        <li className="nav-item">
 
-            <div className="border-top p-3">
+                            <button
 
-                <button
+                                className="btn text-light w-100 text-start px-4 py-3"
 
-                    className="btn btn-danger w-100"
+                                onClick={() => setChartOpen(!chartOpen)}
 
-                    onClick={handleLogout}
+                            >
 
-                >
+                                <FaChartPie className="me-3" />
 
-                    <FaSignOutAlt className="me-2" />
+                                Charts
 
-                    Logout
+                            </button>
 
-                </button>
+                            {
 
-            </div>
+                                chartOpen &&
 
-        </aside>
+                                <ul className="nav flex-column">
+
+                                    <li>
+
+                                        <NavLink
+                                            to="/charts/monthly"
+                                            className="nav-link text-light ps-5"
+                                            onClick={() => setSidebarOpen(false)}
+                                        >
+                                            Monthly Chart
+                                        </NavLink>
+
+                                    </li>
+
+                                    <li>
+
+                                        <NavLink
+                                            to="/charts/weekly"
+                                            className="nav-link text-light ps-5"
+                                            onClick={() => setSidebarOpen(false)}
+                                        >
+                                            Weekly Chart
+                                        </NavLink>
+
+                                    </li>
+
+                                    <li>
+
+                                        {/* <NavLink
+                                            to="/charts/yearly"
+                                            className="nav-link text-light ps-5"
+                                            onClick={() => setSidebarOpen(false)}
+                                        >
+                                            Yearly Chart
+                                        </NavLink> */}
+
+                                    </li>
+
+                                    <li>
+
+                                        <NavLink
+                                            to="/charts/category"
+                                            className="nav-link text-light ps-5"
+                                            onClick={() => setSidebarOpen(false)}
+                                        >
+                                            Category Chart
+                                        </NavLink>
+
+                                    </li>
+
+                                    <li>
+
+                                        <NavLink
+                                            to="/charts/payment-mode"
+                                            className="nav-link text-light ps-5"
+                                            onClick={() => setSidebarOpen(false)}
+                                        >
+                                            Payment Mode Chart
+                                        </NavLink>
+
+                                    </li>
+
+                                    <li>
+
+                                        <NavLink
+                                            to="/charts/dashboard"
+                                            className="nav-link text-light ps-5"
+                                            onClick={() => setSidebarOpen(false)}
+                                        >
+                                            Dashboard Chart
+                                        </NavLink>
+
+                                    </li>
+
+                                </ul>
+
+                            }
+
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                {/* Logout */}
+
+                <div className="border-top p-3">
+
+                    <button
+
+                        className="btn btn-danger w-100"
+
+                        onClick={handleLogout}
+
+                    >
+
+                        <FaSignOutAlt className="me-2" />
+
+                        Logout
+
+                    </button>
+
+                </div>
+
+            </aside>
+
+            {/* Desktop Spacer */}
+
+            <div
+
+                className="d-none d-lg-block"
+
+                style={{
+                    width: "260px"
+                }}
+
+            />
+
+        </>
 
     );
 

@@ -143,7 +143,37 @@ const AppRoutes = () => {
                         
                         <Route
                             path="/charts"
-                            element={<Charts />}
+                            element={<Navigate to="/charts/monthly" replace />}
+                        />
+
+                        <Route
+                            path="/charts/monthly"
+                            element={<Charts module="monthly" />}
+                        />
+
+                        <Route
+                            path="/charts/weekly"
+                            element={<Charts module="weekly" />}
+                        />
+
+                        <Route
+                            path="/charts/yearly"
+                            element={<Charts module="yearly" />}
+                        />
+
+                        <Route
+                            path="/charts/category"
+                            element={<Charts module="category" />}
+                        />
+
+                        <Route
+                            path="/charts/payment-mode"
+                            element={<Charts module="payment-mode" />}
+                        />
+
+                        <Route
+                            path="/charts/dashboard"
+                            element={<Charts module="dashboard" />}
                         />
                        
 

@@ -94,6 +94,7 @@ const DashboardChart = ({ data = { income: [], expense: [] } }) => {
     const options = {
 
         responsive: true,
+        maintainAspectRatio: false,
 
         plugins: {
 
@@ -139,7 +140,7 @@ const DashboardChart = ({ data = { income: [], expense: [] } }) => {
 
             </div>
 
-            <div className="card-body">
+            <div className="card-body chart-body">
 
                 <Bar
 

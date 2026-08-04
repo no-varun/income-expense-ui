@@ -20,10 +20,9 @@ ChartJS.register(
 );
 
 const YearlyChart = ({ data = [] }) => {
-
     const chartData = {
 
-        labels: data.map(item => item.year),
+        labels: data?.map(item => item.year),
 
         datasets: [
 
@@ -48,6 +47,7 @@ const YearlyChart = ({ data = [] }) => {
     const options = {
 
         responsive: true,
+        maintainAspectRatio: false,
 
         plugins: {
 
@@ -93,7 +93,7 @@ const YearlyChart = ({ data = [] }) => {
 
             </div>
 
-            <div className="card-body">
+            <div className="card-body chart-body">
 
                 <Bar
                     data={chartData}

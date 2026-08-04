@@ -10,7 +10,7 @@ const RecentTransaction = ({ transactions }) => {
 
             </div>
 
-            <div className="card-body p-0">
+            <div className="card-body p-0 table-responsive">
 
                 <table className="table table-bordered mb-0">
 

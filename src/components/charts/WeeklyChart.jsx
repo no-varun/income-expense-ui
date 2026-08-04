@@ -80,6 +80,7 @@ const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
     const options = {
 
         responsive: true,
+        maintainAspectRatio: false,
 
         plugins: {
 
@@ -115,7 +116,7 @@ const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
 
             </div>
 
-            <div className="card-body">
+            <div className="card-body chart-body">
 
                 <Line
 

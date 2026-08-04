@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import Sidebar from "./Sidebar";
@@ -6,30 +7,45 @@ import Footer from "./Footer";
 
 const Layout = () => {
 
+    const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 992);
+
     return (
 
-        <div className="d-flex" style={{ minHeight: "100vh" }}>
+        <div
+            className="d-flex"
+            style={{
+                minHeight: "100vh",
+                overflowX: "hidden"
+            }}
+        >
 
-            <Sidebar />
+            <Sidebar
+                sidebarOpen={sidebarOpen}
+                setSidebarOpen={setSidebarOpen}
+            />
 
             <div
-                className="flex-grow-1 d-flex flex-column"
+              className="main-content flex-grow-1 d-flex flex-column"
                 style={{
                     minHeight: "100vh",
-                    background: "#f5f6fa"
+                    background: "#f5f6fa",
+                    minWidth: 0
                 }}
             >
 
-                <Header />
+                <Header
+                    sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
+                />
 
-                {/* Main Content */}
                 <main
-                    className="flex-grow-1 container-fluid p-4"
+                    className="flex-grow-1 p-3 p-md-4"
                 >
+
                     <Outlet />
+
                 </main>
 
-                {/* Footer */}
                 <Footer />
 
             </div>

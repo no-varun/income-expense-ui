@@ -39,7 +39,7 @@ const PaymentModeChart = ({ data = { income: [], expense: [] } }) => {
 
                     </div>
 
-                    <div className="card-body">
+                    <div className="card-body chart-body chart-body-pie">
 
                         <Doughnut
 
@@ -64,6 +64,7 @@ const PaymentModeChart = ({ data = { income: [], expense: [] } }) => {
                             options={{
 
                                 responsive: true,
+                                maintainAspectRatio: false,
 
                                 plugins: {
 
@@ -101,7 +102,7 @@ const PaymentModeChart = ({ data = { income: [], expense: [] } }) => {
 
                     </div>
 
-                    <div className="card-body">
+                    <div className="card-body chart-body chart-body-pie">
 
                         <Doughnut
 
@@ -126,6 +127,7 @@ const PaymentModeChart = ({ data = { income: [], expense: [] } }) => {
                             options={{
 
                                 responsive: true,
+                                maintainAspectRatio: false,
 
                                 plugins: {
 

@@ -10,7 +10,7 @@ const SummaryCard = ({
 
     return (
 
-        <div className="col-md-3 mb-3">
+        <div className="col-12 col-sm-6 col-xl-3 mb-3">
 
             <div className={`card text-white ${bg}`}>
 
