@@ -3,9 +3,11 @@ import axios from "./axios";
 /**
  * Get All Categories
  */
-export const getCategories = async () => {
+export const getCategories = async (params = {}) => {
 
-    return await axios.get("/categories");
+    return await axios.get("/categories", {
+        params
+    });
 
 };
 

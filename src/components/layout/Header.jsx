@@ -15,6 +15,10 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
         if (path.startsWith("/categories/edit")) return "Edit Category";
         if (path.startsWith("/categories")) return "Category";
 
+        if (path.startsWith("/items/add")) return "Add Item";
+        if (path.startsWith("/items/edit")) return "Edit Item";
+        if (path.startsWith("/items")) return "Items";
+
         if (path.startsWith("/income/add")) return "Add Income";
         if (path.startsWith("/income/edit")) return "Edit Income";
         if (path.startsWith("/income")) return "Income";

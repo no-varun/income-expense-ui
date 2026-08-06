@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import {
     FaTachometerAlt,
     FaTags,
+    FaBoxOpen,
     FaMoneyBillWave,
     FaWallet,
     FaChartBar,
@@ -34,6 +35,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             title: "Category",
             path: "/categories",
             icon: <FaTags />
+        },
+
+        {
+            title: "Items",
+            path: "/items",
+            icon: <FaBoxOpen />
         },
 
         {

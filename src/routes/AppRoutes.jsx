@@ -17,6 +17,11 @@ import CategoryList from "../pages/category/CategoryList";
 import AddCategory from "../pages/category/AddCategory";
 import EditCategory from "../pages/category/EditCategory";
 
+// Items
+import ItemList from "../pages/item/ItemList";
+import AddItem from "../pages/item/AddItem";
+import EditItem from "../pages/item/EditItem";
+
 // Income
 import IncomeList from "../pages/income/IncomeList";
 import AddIncome from "../pages/income/AddIncome";
@@ -91,6 +96,23 @@ const AppRoutes = () => {
                         <Route
                             path="/categories/edit/:id"
                             element={<EditCategory />}
+                        />
+
+                        {/* Items */}
+
+                        <Route
+                            path="/items"
+                            element={<ItemList />}
+                        />
+
+                        <Route
+                            path="/items/add"
+                            element={<AddItem />}
+                        />
+
+                        <Route
+                            path="/items/edit/:id"
+                            element={<EditItem />}
                         />
 
                         {/* Income */}
