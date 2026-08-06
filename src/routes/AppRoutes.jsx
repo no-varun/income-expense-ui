@@ -27,6 +27,11 @@ import IncomeList from "../pages/income/IncomeList";
 import AddIncome from "../pages/income/AddIncome";
 import EditIncome from "../pages/income/EditIncome";
 
+// Saving
+import SavingList from "../pages/saving/SavingList";
+import AddSaving from "../pages/saving/AddSaving";
+import EditSaving from "../pages/saving/EditSaving";
+
 // Expense
 import ExpenseList from "../pages/expense/ExpenseList";
 import AddExpense from "../pages/expense/AddExpense";
@@ -132,9 +137,28 @@ const AppRoutes = () => {
                             element={<EditIncome />}
                         />
 
+
+                        {/* Income */}
+
+                        <Route
+                            path="/saving"
+                            element={<SavingList />}
+                        />
+
+                        <Route
+                            path="/saving/add"
+                            element={<AddSaving />}
+                        />
+
+                        <Route
+                            path="/saving/edit/:id"
+                            element={<EditSaving />}
+                        />
+
+
                         {/* Expense */}
 
-                        
+
                         <Route
                             path="/expense"
                             element={<ExpenseList />}
@@ -149,23 +173,28 @@ const AppRoutes = () => {
                             path="/expense/edit/:id"
                             element={<EditExpense />}
                         />
-                       
+
 
                         {/* Reports */}
 
-                        
+
                         <Route
                             path="/reports"
                             element={<Reports />}
                         />
-                       
+
 
                         {/* Charts */}
 
-                        
+
                         <Route
                             path="/charts"
-                            element={<Navigate to="/charts/monthly" replace />}
+                            element={<Navigate to="/charts/daily" replace />}
+                        />
+
+                        <Route
+                            path="/charts/daily"
+                            element={<Charts module="daily" />}
                         />
 
                         <Route
@@ -176,6 +205,11 @@ const AppRoutes = () => {
                         <Route
                             path="/charts/weekly"
                             element={<Charts module="weekly" />}
+                        />
+
+                        <Route
+                            path="/charts/week-wise"
+                            element={<Charts module="week-wise" />}
                         />
 
                         <Route
@@ -197,16 +231,16 @@ const AppRoutes = () => {
                             path="/charts/dashboard"
                             element={<Charts module="dashboard" />}
                         />
-                       
+
 
                         {/* Profile */}
 
-                        
+
                         <Route
                             path="/profile"
                             element={<Profile />}
                         />
-                       
+
 
                     </Route>
 

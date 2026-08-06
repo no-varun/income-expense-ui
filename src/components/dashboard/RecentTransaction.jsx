@@ -1,3 +1,8 @@
+import {
+    getCategoryBadgeStyle,
+    getTransactionTypeBadgeClass
+} from "../../utils/badgeStyles";
+
 const RecentTransaction = ({ transactions }) => {
 
     return (
@@ -59,17 +64,20 @@ const RecentTransaction = ({ transactions }) => {
 
                                     <td>
 
-                                        {item.category?.name}
+                                        <span
+                                            className="badge"
+                                            style={getCategoryBadgeStyle(item.category)}
+                                        >
+
+                                            {item.category?.name || "-"}
+
+                                        </span>
 
                                     </td>
 
                                     <td>
 
-                                        <span className={
-                                            item.type === "Income"
-                                                ? "badge bg-success"
-                                                : "badge bg-danger"
-                                        }>
+                                        <span className={getTransactionTypeBadgeClass(item.type)}>
 
                                             {item.type}
 

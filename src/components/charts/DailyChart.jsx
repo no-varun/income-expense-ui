@@ -23,42 +23,43 @@ ChartJS.register(
     Legend
 );
 
-const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
+const DailyChart = ({
+    data = [],
+    month,
+    year
+}) => {
 
-    const expense = data.expense || [];
-    const totalExpense = expense.reduce(
-        (total, item) => total + Number(item.total || 0),
+    const rows = Array.isArray(data) ? data : [];
+    const totalExpense = rows.reduce(
+        (total, item) => total + Number(item.expense || 0),
         0
     );
+    const visibleRows = rows.filter(
+        item => Number(item.expense || 0) > 0
+    );
 
-    const labels = [
-        ...new Set([
-            ...expense.map(item => item._id)
-        ])
-    ].sort();
+    const getDisplayDate = (day) => {
+
+        if (!month || !year) {
+            return day;
+        }
+
+        return new Date(year, month - 1, day).toLocaleDateString();
+
+    };
 
     const chartData = {
 
-        labels,
+        labels: rows.map(item => item.day),
 
         datasets: [
 
             {
                 label: "Expense",
-
-                data: labels.map(label => {
-
-                    const row = expense.find(
-                        item => item._id === label
-                    );
-
-                    return row ? row.total : 0;
-
-                }),
+                data: rows.map(item => item.expense),
                 backgroundColor: expenseColor,
                 borderColor: expenseBorderColor,
                 borderWidth: 1
-
             }
 
         ]
@@ -73,19 +74,20 @@ const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
         plugins: {
 
             legend: {
-
                 position: "top"
-
             },
 
             title: {
-
                 display: true,
-
-                text: "Weekly Expense"
-
+                text: "Daily Expense"
             }
 
+        },
+
+        scales: {
+            y: {
+                beginAtZero: true
+            }
         }
 
     };
@@ -100,7 +102,7 @@ const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
 
                     <h5 className="mb-0">
 
-                        Weekly Expense
+                        Daily Expense
 
                     </h5>
 
@@ -109,11 +111,8 @@ const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
                 <div className="card-body chart-body">
 
                     <Bar
-
                         data={chartData}
-
                         options={options}
-
                     />
 
                 </div>
@@ -130,11 +129,15 @@ const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
 
                     </h5>
 
-                    <span className="badge bg-danger">
+                    <div>
 
-                        Total Expense: Rs. {totalExpense.toLocaleString()}
+                        <span className="badge bg-danger">
 
-                    </span>
+                            Total Expense: Rs. {totalExpense.toLocaleString()}
+
+                        </span>
+
+                    </div>
 
                 </div>
 
@@ -147,7 +150,6 @@ const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
                             <tr>
 
                                 <th>Date</th>
-
                                 <th>Total Expense</th>
 
                             </tr>
@@ -158,7 +160,7 @@ const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
 
                             {
 
-                                expense.length === 0 ? (
+                                visibleRows.length === 0 ? (
 
                                     <tr>
 
@@ -175,32 +177,27 @@ const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
 
                                 ) : (
 
-                                    expense.map(item => (
+                                    visibleRows.map(item => {
 
-                                        <tr key={item._id}>
+                                        const expense = Number(item.expense || 0);
 
-                                            <td>
+                                        return (
 
-                                                {
-                                                    new Date(item._id)
-                                                        .toLocaleDateString()
-                                                }
+                                            <tr key={item.date || item.day}>
 
-                                            </td>
+                                                <td>{item.date || getDisplayDate(item.day)}</td>
 
-                                            <td>
+                                                <td>
+                                                    <span className="badge bg-danger">
+                                                        Rs. {expense.toLocaleString()}
+                                                    </span>
+                                                </td>
 
-                                                <span className="badge bg-danger">
+                                            </tr>
 
-                                                    Rs. {Number(item.total || 0).toLocaleString()}
+                                        );
 
-                                                </span>
-
-                                            </td>
-
-                                        </tr>
-
-                                    ))
+                                    })
 
                                 )
 
@@ -220,4 +217,4 @@ const WeeklyChart = ({ data = { income: [], expense: [] } }) => {
 
 };
 
-export default WeeklyChart;
+export default DailyChart;

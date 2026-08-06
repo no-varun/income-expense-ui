@@ -7,6 +7,10 @@ import {
     importExpensesExcel
 } from "../../api/expenseApi";
 import Pagination from "../../components/common/Pagination";
+import {
+    getCategoryBadgeStyle,
+    getPaymentModeBadgeClass
+} from "../../utils/badgeStyles";
 
 const ExpenseList = () => {
 
@@ -21,6 +25,10 @@ const ExpenseList = () => {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [total, setTotal] = useState(0);
+    const [fromDateInput, setFromDateInput] = useState("");
+    const [toDateInput, setToDateInput] = useState("");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
 
     const loadExpense = useCallback(async () => {
 
@@ -31,7 +39,9 @@ const ExpenseList = () => {
             const response = await getExpenses({
                 page,
                 limit,
-                search
+                search,
+                from: fromDate,
+                to: toDate
             });
 
             if (response.success) {
@@ -54,7 +64,7 @@ const ExpenseList = () => {
 
         }
 
-    }, [limit, page, search]);
+    }, [fromDate, limit, page, search, toDate]);
 
     useEffect(() => {
 
@@ -66,6 +76,20 @@ const ExpenseList = () => {
 
         event.preventDefault();
         setSearch(searchInput.trim());
+        setFromDate(fromDateInput);
+        setToDate(toDateInput);
+        setPage(1);
+
+    };
+
+    const handleClearFilter = () => {
+
+        setSearchInput("");
+        setSearch("");
+        setFromDateInput("");
+        setToDateInput("");
+        setFromDate("");
+        setToDate("");
         setPage(1);
 
     };
@@ -155,7 +179,9 @@ const ExpenseList = () => {
             setExporting(true);
 
             const blob = await exportExpensesExcel({
-                search
+                search,
+                from: fromDate,
+                to: toDate
             });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
@@ -252,7 +278,7 @@ const ExpenseList = () => {
                         onSubmit={handleSearch}
                     >
 
-                        <div className="col-12 col-md-6 col-lg-4">
+                        <div className="col-12 col-lg-3">
 
                             <label className="form-label">
 
@@ -270,7 +296,41 @@ const ExpenseList = () => {
 
                         </div>
 
-                        <div className="col-6 col-md-3 col-lg-2">
+                        <div className="col-6 col-lg-2">
+
+                            <label className="form-label">
+
+                                From
+
+                            </label>
+
+                            <input
+                                type="date"
+                                className="form-control"
+                                value={fromDateInput}
+                                onChange={event => setFromDateInput(event.target.value)}
+                            />
+
+                        </div>
+
+                        <div className="col-6 col-lg-2">
+
+                            <label className="form-label">
+
+                                To
+
+                            </label>
+
+                            <input
+                                type="date"
+                                className="form-control"
+                                value={toDateInput}
+                                onChange={event => setToDateInput(event.target.value)}
+                            />
+
+                        </div>
+
+                        <div className="col-6 col-lg-2">
 
                             <label className="form-label">
 
@@ -295,14 +355,29 @@ const ExpenseList = () => {
 
                         </div>
 
-                        <div className="col-6 col-md-3 col-lg-2">
+                        <div className="col-6 col-lg-1">
 
                             <button
                                 type="submit"
                                 className="btn btn-dark w-100"
                             >
 
-                                Search
+                                Filter
+
+                            </button>
+
+                        </div>
+
+                        <div className="col-6 col-lg-2">
+
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary w-100"
+                                onClick={handleClearFilter}
+                                disabled={!searchInput && !search && !fromDateInput && !toDateInput && !fromDate && !toDate}
+                            >
+
+                                Clear
 
                             </button>
 
@@ -406,13 +481,24 @@ const ExpenseList = () => {
 
                                             <td>
 
-                                                {item.category?.name}
+                                                <span
+                                                    className="badge"
+                                                    style={getCategoryBadgeStyle(item.category)}
+                                                >
+
+                                                    {item.category?.name || "-"}
+
+                                                </span>
 
                                             </td>
 
                                             <td>
 
-                                                {item.paymentMode}
+                                                <span className={getPaymentModeBadgeClass(item.paymentMode)}>
+
+                                                    {item.paymentMode}
+
+                                                </span>
 
                                             </td>
 

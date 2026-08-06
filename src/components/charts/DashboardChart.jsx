@@ -9,6 +9,12 @@ import {
 } from "chart.js";
 
 import { Bar } from "react-chartjs-2";
+import {
+    expenseBorderColor,
+    expenseColor,
+    incomeBorderColor,
+    incomeColor
+} from "./chartColors";
 
 ChartJS.register(
     CategoryScale,
@@ -67,7 +73,10 @@ const DashboardChart = ({ data = { income: [], expense: [] } }) => {
 
                     return row ? row.total : 0;
 
-                })
+                }),
+                backgroundColor: incomeColor,
+                borderColor: incomeBorderColor,
+                borderWidth: 1
 
             },
 
@@ -83,7 +92,10 @@ const DashboardChart = ({ data = { income: [], expense: [] } }) => {
 
                     return row ? row.total : 0;
 
-                })
+                }),
+                backgroundColor: expenseColor,
+                borderColor: expenseBorderColor,
+                borderWidth: 1
 
             }
 
@@ -134,7 +146,7 @@ const DashboardChart = ({ data = { income: [], expense: [] } }) => {
 
                 <h5 className="mb-0">
 
-                    Dashboard Chart
+                    Dashboard Chart (₹)
 
                 </h5>
 

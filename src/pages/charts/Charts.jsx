@@ -1,15 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { getMonthlyChart, getYearlyChart, getWeeklyChart, getCategoryChart, getPaymentModeChart, getDashboardChart } from "../../api/chartApi";
+import { getDailyChart, getMonthlyChart, getYearlyChart, getWeeklyChart, getWeekWiseExpenseChart, getCategoryChart, getPaymentModeChart, getDashboardChart } from "../../api/chartApi";
 
+import DailyChart from "../../components/charts/DailyChart";
 import MonthlyChart from "../../components/charts/MonthlyChart";
 import WeeklyChart from "../../components/charts/WeeklyChart";
+import WeekWiseExpenseChart from "../../components/charts/WeekWiseExpenseChart";
 import YearlyChart from "../../components/charts/YearlyChart";
 import CategoryChart from "../../components/charts/CategoryChart";
 import PaymentModeChart from "../../components/charts/PaymentModeChart";
 import DashboardChart from "../../components/charts/DashboardChart";
 
 const chartModules = {
+    daily: {
+        title: "Daily Chart",
+        load: getDailyChart,
+        render: (data, filters) => (
+            <DailyChart
+                data={data}
+                month={filters.month}
+                year={filters.year}
+            />
+        ),
+        initialData: []
+    },
     monthly: {
         title: "Monthly Chart",
         load: getMonthlyChart,
@@ -24,6 +38,12 @@ const chartModules = {
             income: [],
             expense: []
         }
+    },
+    "week-wise": {
+        title: "Week Wise Expense Chart",
+        load: getWeekWiseExpenseChart,
+        render: data => <WeekWiseExpenseChart data={data} />,
+        initialData: []
     },
     yearly: {
         title: "Yearly Chart",
@@ -60,57 +80,116 @@ const chartModules = {
     }
 };
 
+const cloneInitialData = (data) => (
+    Array.isArray(data)
+        ? [...data]
+        : { ...data }
+);
+
+const normalizeChartData = (module, data, initialData) => {
+
+    if (module === "daily" || module === "monthly" || module === "week-wise" || module === "yearly") {
+        return Array.isArray(data)
+            ? data
+            : data?.data || data?.rows || [];
+    }
+
+    return data || cloneInitialData(initialData);
+
+};
+
 const Charts = ({ module = "monthly" }) => {
 
     const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+    const months = [
+        { value: 1, label: "January" },
+        { value: 2, label: "February" },
+        { value: 3, label: "March" },
+        { value: 4, label: "April" },
+        { value: 5, label: "May" },
+        { value: 6, label: "June" },
+        { value: 7, label: "July" },
+        { value: 8, label: "August" },
+        { value: 9, label: "September" },
+        { value: 10, label: "October" },
+        { value: 11, label: "November" },
+        { value: 12, label: "December" }
+    ];
 
-    const chartModule = chartModules[module] || chartModules.monthly;
+    const chartModule = useMemo(
+        () => chartModules[module] || chartModules.monthly,
+        [module]
+    );
 
     const [year, setYear] = useState(currentYear);
+    const [month, setMonth] = useState(currentMonth);
 
     const [loading, setLoading] = useState(false);
 
-    const [chartData, setChartData] = useState(chartModule.initialData);
-
-    const loadChart = async () => {
-
-        try {
-
-            setLoading(true);
-
-            const response = module === "monthly"
-                ? await chartModule.load(year)
-                : await chartModule.load();
-
-            if (response.success) {
-
-                setChartData(response.data);
-
-            }
-
-        } catch (error) {
-
-            console.log(error);
-
-            alert(
-                error.response?.data?.message ||
-                "Unable to load chart."
-            );
-
-        } finally {
-
-            setLoading(false);
-
-        }
-
-    };
+    const [chartData, setChartData] = useState(
+        cloneInitialData(chartModule.initialData)
+    );
 
     useEffect(() => {
 
-        setChartData(chartModule.initialData);
+        let ignore = false;
+
+        const loadChart = async () => {
+
+            try {
+
+                setLoading(true);
+                setChartData(cloneInitialData(chartModule.initialData));
+
+                const response = module === "daily" || module === "week-wise"
+                    ? await chartModule.load(month, year)
+                    : module === "monthly"
+                        ? await chartModule.load(year)
+                        : await chartModule.load();
+
+                if (!ignore && response.success) {
+
+                    setChartData(
+                        normalizeChartData(
+                            module,
+                            response.data,
+                            chartModule.initialData
+                        )
+                    );
+
+                }
+
+            } catch (error) {
+
+                if (!ignore) {
+
+                    console.log(error);
+
+                    alert(
+                        error.response?.data?.message ||
+                        "Unable to load chart."
+                    );
+
+                }
+
+            } finally {
+
+                if (!ignore) {
+                    setLoading(false);
+                }
+
+            }
+
+        };
+
         loadChart();
 
-    }, [module, year]);
+        return () => {
+            ignore = true;
+        };
+
+    }, [chartModule, module, month, year]);
 
     return (
 
@@ -126,9 +205,44 @@ const Charts = ({ module = "monthly" }) => {
 
                 {
 
-                    module === "monthly" &&
+                    (module === "daily" || module === "monthly" || module === "week-wise") &&
 
-                    <div className="d-flex">
+                    <div className="d-flex gap-2 flex-wrap">
+
+                        {
+
+                            (module === "daily" || module === "week-wise") &&
+
+                            <select
+
+                                className="form-select"
+
+                                value={month}
+
+                                onChange={(e) => setMonth(Number(e.target.value))}
+
+                            >
+
+                                {
+
+                                    months.map(item => (
+
+                                        <option
+                                            key={item.value}
+                                            value={item.value}
+                                        >
+
+                                            {item.label}
+
+                                        </option>
+
+                                    ))
+
+                                }
+
+                            </select>
+
+                        }
 
                         <select
 
@@ -184,7 +298,18 @@ const Charts = ({ module = "monthly" }) => {
 
                     :
 
-                    chartModule.render(chartData)
+                    (
+                        <div key={`${module}-${month}-${year}`}>
+
+                            {
+                                chartModule.render(chartData, {
+                                    month,
+                                    year
+                                })
+                            }
+
+                        </div>
+                    )
 
             }
 

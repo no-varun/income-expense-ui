@@ -1,3 +1,8 @@
+import {
+    getCategoryBadgeStyle,
+    getPaymentModeBadgeClass
+} from "../../utils/badgeStyles";
+
 const ReportTable = ({ reportType, reportData }) => {
 
     if (!reportData) {
@@ -115,7 +120,18 @@ const ReportTable = ({ reportType, reportData }) => {
 
                                             <tr key={index}>
 
-                                                <td>{item._id}</td>
+                                                <td>
+
+                                                    <span
+                                                        className="badge"
+                                                        style={getCategoryBadgeStyle({ name: item._id })}
+                                                    >
+
+                                                        {item._id || "-"}
+
+                                                    </span>
+
+                                                </td>
 
                                                 <td>{item.totalTransactions}</td>
 
@@ -171,7 +187,15 @@ const ReportTable = ({ reportType, reportData }) => {
 
                                             <tr key={index}>
 
-                                                <td>{item._id}</td>
+                                                <td>
+
+                                                    <span className={getPaymentModeBadgeClass(item._id)}>
+
+                                                        {item._id || "-"}
+
+                                                    </span>
+
+                                                </td>
 
                                                 <td>{item.totalTransactions}</td>
 
@@ -235,11 +259,30 @@ const ReportTable = ({ reportType, reportData }) => {
 
                                                     <td>{item.title}</td>
 
-                                                    <td>{item.category?.name}</td>
+                                                    <td>
+
+                                                        <span
+                                                            className="badge"
+                                                            style={getCategoryBadgeStyle(item.category)}
+                                                        >
+
+                                                            {item.category?.name || "-"}
+
+                                                        </span>
+
+                                                    </td>
 
                                                     <td>₹ {item.amount}</td>
 
-                                                    <td>{item.paymentMode}</td>
+                                                    <td>
+
+                                                        <span className={getPaymentModeBadgeClass(item.paymentMode)}>
+
+                                                            {item.paymentMode || "-"}
+
+                                                        </span>
+
+                                                    </td>
 
                                                     <td>
 
@@ -306,11 +349,30 @@ const ReportTable = ({ reportType, reportData }) => {
 
                                                     <td>{item.title}</td>
 
-                                                    <td>{item.category?.name}</td>
+                                                    <td>
+
+                                                        <span
+                                                            className="badge"
+                                                            style={getCategoryBadgeStyle(item.category)}
+                                                        >
+
+                                                            {item.category?.name || "-"}
+
+                                                        </span>
+
+                                                    </td>
 
                                                     <td>₹ {item.amount}</td>
 
-                                                    <td>{item.paymentMode}</td>
+                                                    <td>
+
+                                                        <span className={getPaymentModeBadgeClass(item.paymentMode)}>
+
+                                                            {item.paymentMode || "-"}
+
+                                                        </span>
+
+                                                    </td>
 
                                                     <td>
 

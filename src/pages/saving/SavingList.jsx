@@ -2,20 +2,20 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import {
-    getIncomes,
-    deleteIncome
-} from "../../api/incomeApi";
+    getSavings,
+    deleteSaving
+} from "../../api/savingApi";
 import Pagination from "../../components/common/Pagination";
 import {
     getCategoryBadgeStyle,
     getPaymentModeBadgeClass
 } from "../../utils/badgeStyles";
 
-const IncomeList = () => {
+const SavingList = () => {
 
     const [loading, setLoading] = useState(true);
 
-    const [incomes, setIncomes] = useState([]);
+    const [savings, setSavings] = useState([]);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [total, setTotal] = useState(0);
@@ -24,13 +24,13 @@ const IncomeList = () => {
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
 
-    const loadIncome = useCallback(async () => {
+    const loadSaving = useCallback(async () => {
 
         try {
 
             setLoading(true);
 
-            const response = await getIncomes({
+            const response = await getSavings({
                 page,
                 limit,
                 from: fromDate,
@@ -41,7 +41,7 @@ const IncomeList = () => {
 
                 const rows = response.data.data || response.data || [];
 
-                setIncomes(rows);
+                setSavings(rows);
                 setTotal(response.data.total || rows.length);
 
             }
@@ -60,13 +60,13 @@ const IncomeList = () => {
 
     useEffect(() => {
 
-        loadIncome();
+        loadSaving();
 
-    }, [loadIncome]);
+    }, [loadSaving]);
 
     const handleDelete = async (id) => {
 
-        if (!window.confirm("Delete this income?")) {
+        if (!window.confirm("Delete this saving?")) {
 
             return;
 
@@ -74,16 +74,16 @@ const IncomeList = () => {
 
         try {
 
-            const response = await deleteIncome(id);
+            const response = await deleteSaving(id);
 
             if (response.success) {
 
                 alert(response.message);
 
-                if (incomes.length === 1 && page > 1) {
+                if (savings.length === 1 && page > 1) {
                     setPage(page - 1);
                 } else {
-                    loadIncome();
+                    loadSaving();
                 }
 
             }
@@ -127,16 +127,16 @@ const IncomeList = () => {
 
                 <h3>
 
-                    Income List
+                    Saving List
 
                 </h3>
 
                 <Link
-                    to="/income/add"
+                    to="/saving/add"
                     className="btn btn-primary"
                 >
 
-                    Add Income
+                    Add Saving
 
                 </Link>
 
@@ -287,7 +287,7 @@ const IncomeList = () => {
 
                                     </tr>
 
-                                ) : incomes.length === 0 ?
+                                ) : savings.length === 0 ?
 
                                     (
 
@@ -308,7 +308,7 @@ const IncomeList = () => {
 
                                     :
 
-                                    incomes.map((item, index) => (
+                                    savings.map((item, index) => (
 
                                         <tr key={item._id}>
 
@@ -370,7 +370,7 @@ const IncomeList = () => {
 
                                                     className="btn btn-warning btn-sm me-2"
 
-                                                    to={`/income/edit/${item._id}`}
+                                                    to={`/saving/edit/${item._id}`}
 
                                                 >
 
@@ -433,4 +433,4 @@ const IncomeList = () => {
 
 };
 
-export default IncomeList;
+export default SavingList;

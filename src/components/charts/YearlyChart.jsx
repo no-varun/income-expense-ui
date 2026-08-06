@@ -9,6 +9,12 @@ import {
 } from "chart.js";
 
 import { Bar } from "react-chartjs-2";
+import {
+    expenseBorderColor,
+    expenseColor,
+    incomeBorderColor,
+    incomeColor
+} from "./chartColors";
 
 ChartJS.register(
     CategoryScale,
@@ -20,23 +26,32 @@ ChartJS.register(
 );
 
 const YearlyChart = ({ data = [] }) => {
+
+    const rows = Array.isArray(data) ? data : [];
+
     const chartData = {
 
-        labels: data?.map(item => item.year),
+        labels: rows.map(item => item.year),
 
         datasets: [
 
             {
                 label: "Income",
 
-                data: data.map(item => item.income)
+                data: rows.map(item => item.income),
+                backgroundColor: incomeColor,
+                borderColor: incomeBorderColor,
+                borderWidth: 1
 
             },
 
             {
                 label: "Expense",
 
-                data: data.map(item => item.expense)
+                data: rows.map(item => item.expense),
+                backgroundColor: expenseColor,
+                borderColor: expenseBorderColor,
+                borderWidth: 1
 
             }
 
@@ -87,7 +102,7 @@ const YearlyChart = ({ data = [] }) => {
 
                 <h5 className="mb-0">
 
-                    Yearly Income vs Expense
+                    Yearly Income vs Expense (₹)
 
                 </h5>
 

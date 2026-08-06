@@ -1,6 +1,24 @@
 import axios from "./axios";
 
 /**
+ * Daily Chart
+ * GET /api/charts/daily?month=8&year=2026
+ */
+export const getDailyChart = async (month, year) => {
+
+    return await axios.get(
+        "/charts/daily",
+        {
+            params: {
+                month,
+                year
+            }
+        }
+    );
+
+};
+
+/**
  * Monthly Chart
  * GET /api/charts/monthly?year=2026
  */
@@ -37,6 +55,24 @@ export const getWeeklyChart = async () => {
 
     return await axios.get(
         "/charts/weekly"
+    );
+
+};
+
+/**
+ * Week Wise Expense Chart
+ * GET /api/charts/week-wise?month=8&year=2026
+ */
+export const getWeekWiseExpenseChart = async (month, year) => {
+
+    return await axios.get(
+        "/charts/week-wise",
+        {
+            params: {
+                month,
+                year
+            }
+        }
     );
 
 };

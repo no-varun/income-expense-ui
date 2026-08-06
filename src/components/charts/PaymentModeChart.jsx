@@ -6,6 +6,7 @@ import {
 } from "chart.js";
 
 import { Doughnut } from "react-chartjs-2";
+import { getSliceColors } from "./chartColors";
 
 ChartJS.register(
     ArcElement,
@@ -33,7 +34,7 @@ const PaymentModeChart = ({ data = { income: [], expense: [] } }) => {
 
                         <h5 className="mb-0">
 
-                            Income Payment Modes
+                            Income Payment Modes (₹)
 
                         </h5>
 
@@ -53,7 +54,10 @@ const PaymentModeChart = ({ data = { income: [], expense: [] } }) => {
 
                                         label: "Income",
 
-                                        data: income.map(item => item.value)
+                                        data: income.map(item => item.value),
+                                        backgroundColor: getSliceColors(income.length),
+                                        borderColor: "#ffffff",
+                                        borderWidth: 2
 
                                     }
 
@@ -96,7 +100,7 @@ const PaymentModeChart = ({ data = { income: [], expense: [] } }) => {
 
                         <h5 className="mb-0">
 
-                            Expense Payment Modes
+                            Expense Payment Modes (₹)
 
                         </h5>
 
@@ -116,7 +120,10 @@ const PaymentModeChart = ({ data = { income: [], expense: [] } }) => {
 
                                         label: "Expense",
 
-                                        data: expense.map(item => item.value)
+                                        data: expense.map(item => item.value),
+                                        backgroundColor: getSliceColors(expense.length, 4),
+                                        borderColor: "#ffffff",
+                                        borderWidth: 2
 
                                     }
 

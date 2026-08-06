@@ -102,20 +102,10 @@ const CategoryForm = ({
                             Category Type
                         </label>
 
-                        <select
-                            className="form-select"
-                            name="type"
-                            value={form.type}
-                            onChange={handleChange}
-                        >
-
-                            <option value="INCOME">
-                                Income
-                            </option>
-
-                            <option value="EXPENSE">
-                                Expense
-                            </option>
+                        <select className="form-select" name="type" value={form.type} onChange={handleChange} >
+                            <option value="INCOME">Income</option>
+                            <option value="EXPENSE">Expense</option>
+                            <option value="SAVING">Saving</option>
 
                         </select>
 

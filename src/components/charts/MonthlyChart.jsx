@@ -9,6 +9,12 @@ import {
 } from "chart.js";
 
 import { Bar } from "react-chartjs-2";
+import {
+    expenseBorderColor,
+    expenseColor,
+    incomeBorderColor,
+    incomeColor
+} from "./chartColors";
 
 ChartJS.register(
     CategoryScale,
@@ -21,20 +27,28 @@ ChartJS.register(
 
 const MonthlyChart = ({ data = [] }) => {
 
+    const rows = Array.isArray(data) ? data : [];
+
     const chartData = {
 
-        labels: data.map(item => item.month),
+        labels: rows.map(item => item.month),
 
         datasets: [
 
             {
                 label: "Income",
-                data: data.map(item => item.income)
+                data: rows.map(item => item.income),
+                backgroundColor: incomeColor,
+                borderColor: incomeBorderColor,
+                borderWidth: 1
             },
 
             {
                 label: "Expense",
-                data: data.map(item => item.expense)
+                data: rows.map(item => item.expense),
+                backgroundColor: expenseColor,
+                borderColor: expenseBorderColor,
+                borderWidth: 1
             }
 
         ]
@@ -74,7 +88,7 @@ const MonthlyChart = ({ data = [] }) => {
 
                 <h5 className="mb-0">
 
-                    Monthly Income vs Expense
+                    Monthly Income vs Expense (₹)
 
                 </h5>
 

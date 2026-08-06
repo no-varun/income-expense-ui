@@ -1,23 +1,36 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import {
     getCategories,
     deleteCategory
 } from "../../api/categoryApi";
+import Pagination from "../../components/common/Pagination";
 
 const CategoryList = () => {
 
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [total, setTotal] = useState(0);
 
-    const loadCategories = async () => {
+    const loadCategories = useCallback(async () => {
 
         try {
 
-            const response = await getCategories();
+            setLoading(true);
+
+            const response = await getCategories({
+                page,
+                limit
+            });
+
             if (response.success) {
-                setCategories(response.data.rows || []);
+                const rows = response.data.rows || response.data.data || [];
+
+                setCategories(rows);
+                setTotal(response.data.total || rows.length);
             }
 
         } catch (error) {
@@ -35,13 +48,13 @@ const CategoryList = () => {
 
         }
 
-    };
+    }, [limit, page]);
 
     useEffect(() => {
 
         loadCategories();
 
-    }, []);
+    }, [loadCategories]);
 
     const handleDelete = async (id) => {
 
@@ -59,7 +72,11 @@ const CategoryList = () => {
 
                 alert(response.message);
 
-                loadCategories();
+                if (categories.length === 1 && page > 1) {
+                    setPage(page - 1);
+                } else {
+                    loadCategories();
+                }
 
             }
 
@@ -74,19 +91,9 @@ const CategoryList = () => {
 
     };
 
-    if (loading) {
-
-        return (
-
-            <div className="text-center mt-5">
-
-                Loading...
-
-            </div>
-
-        );
-
-    }
+    const totalPages = Math.ceil(total / limit) || 1;
+    const startRecord = total === 0 ? 0 : ((page - 1) * limit) + 1;
+    const endRecord = Math.min(page * limit, total);
 
     return (
 
@@ -114,6 +121,35 @@ const CategoryList = () => {
             <div className="card shadow">
 
                 <div className="card-body p-0">
+
+                    <div className="d-flex justify-content-end p-3">
+
+                        <div style={{ width: "140px" }}>
+
+                            <label className="form-label">
+
+                                Per page
+
+                            </label>
+
+                            <select
+                                className="form-select"
+                                value={limit}
+                                onChange={event => {
+                                    setLimit(Number(event.target.value));
+                                    setPage(1);
+                                }}
+                            >
+
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
 
                     <table className="table table-bordered table-hover mb-0">
 
@@ -159,7 +195,22 @@ const CategoryList = () => {
 
                             {
 
-                                categories.length === 0 ? (
+                                loading ? (
+
+                                    <tr>
+
+                                        <td
+                                            colSpan="5"
+                                            className="text-center"
+                                        >
+
+                                            Loading...
+
+                                        </td>
+
+                                    </tr>
+
+                                ) : categories.length === 0 ? (
 
                                     <tr>
 
@@ -184,7 +235,7 @@ const CategoryList = () => {
 
                                             <td>
 
-                                                {index + 1}
+                                                {((page - 1) * limit) + index + 1}
 
                                             </td>
 
@@ -195,19 +246,9 @@ const CategoryList = () => {
                                             </td>
 
                                             <td>
-
-                                                <span
-                                                    className={
-                                                        item.type === "Income"
-                                                            ? "badge bg-success"
-                                                            : "badge bg-danger"
-                                                    }
-                                                >
-
+                                                <span className={`badge ${item.type === "INCOME" ? "bg-success" : item.type === "EXPENSE" ? "bg-danger" : "bg-info"}`}>
                                                     {item.type}
-
                                                 </span>
-
                                             </td>
 
                                             <td>
@@ -259,6 +300,27 @@ const CategoryList = () => {
                         </tbody>
 
                     </table>
+
+                </div>
+
+                <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
+
+                    <small className="text-muted">
+
+                        Showing {startRecord} to {endRecord} of {total} records
+
+                    </small>
+
+                    <Pagination
+                        page={page}
+                        limit={limit}
+                        total={total}
+                        onPageChange={nextPage => {
+                            if (nextPage >= 1 && nextPage <= totalPages) {
+                                setPage(nextPage);
+                            }
+                        }}
+                    />
 
                 </div>
 

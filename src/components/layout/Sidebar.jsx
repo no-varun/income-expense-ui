@@ -10,7 +10,8 @@ import {
     FaChartPie,
     FaUser,
     FaSignOutAlt,
-    FaTimes
+    FaTimes,
+    FaSave
 } from "react-icons/fa";
 
 import { useAuth } from "../../context/AuthContext";
@@ -47,6 +48,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             title: "Income",
             path: "/income",
             icon: <FaMoneyBillWave />
+        },
+        {
+            title: "Saving",
+            path: "/saving",
+            icon: <FaSave />
         },
 
         {
@@ -227,6 +233,40 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                     <li>
 
                                         <NavLink
+                                            to="/charts/daily"
+                                            className="nav-link text-light ps-5"
+                                            onClick={() => setSidebarOpen(false)}
+                                        >
+                                            Daily Chart
+                                        </NavLink>
+
+                                    </li>
+                                    <li>
+
+                                        <NavLink
+                                            to="/charts/weekly"
+                                            className="nav-link text-light ps-5"
+                                            onClick={() => setSidebarOpen(false)}
+                                        >
+                                          This  Week Chart
+                                        </NavLink>
+
+                                    </li>
+                                    <li>
+
+                                        <NavLink
+                                            to="/charts/week-wise"
+                                            className="nav-link text-light ps-5"
+                                            onClick={() => setSidebarOpen(false)}
+                                        >
+                                            Week Wise Chart
+                                        </NavLink>
+
+                                    </li>
+
+                                    <li>
+
+                                        <NavLink
                                             to="/charts/monthly"
                                             className="nav-link text-light ps-5"
                                             onClick={() => setSidebarOpen(false)}
@@ -236,27 +276,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
                                     </li>
 
+
+
+
                                     <li>
 
                                         <NavLink
-                                            to="/charts/weekly"
-                                            className="nav-link text-light ps-5"
-                                            onClick={() => setSidebarOpen(false)}
-                                        >
-                                            Weekly Chart
-                                        </NavLink>
-
-                                    </li>
-
-                                    <li>
-
-                                        {/* <NavLink
                                             to="/charts/yearly"
                                             className="nav-link text-light ps-5"
                                             onClick={() => setSidebarOpen(false)}
                                         >
                                             Yearly Chart
-                                        </NavLink> */}
+                                        </NavLink>
 
                                     </li>
 
