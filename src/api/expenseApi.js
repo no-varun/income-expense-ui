@@ -46,3 +46,31 @@ export const deleteExpense = async (id) => {
     return await axios.delete(`/expense/${id}`);
 
 };
+
+/**
+ * Export Expense Excel
+ */
+export const exportExpensesExcel = async (params = {}) => {
+
+    return await axios.get("/expense/export/excel", {
+        params,
+        responseType: "blob"
+    });
+
+};
+
+/**
+ * Import Expense Excel
+ */
+export const importExpensesExcel = async (file) => {
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return await axios.post("/expense/import/excel", formData, {
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    });
+
+};
