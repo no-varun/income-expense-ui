@@ -64,20 +64,18 @@ const IncomeForm = ({
 
         try {
 
-            const response = await getCategories();
+            const response = await getCategories({
+
+                limit: 100,
+
+                type: "INCOME"
+
+            });
 
             if (response.success) {
 
-                const rows =
-                    response.data.rows || response.data || [];
-
-                setCategories(
-
-                    rows.filter(
-                        item => item.type === "INCOME"
-                    )
-
-                );
+                const rows =response.data.rows || response.data || [];
+                setCategories(rows);
 
             }
 
