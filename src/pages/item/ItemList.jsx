@@ -25,8 +25,7 @@ const ItemList = () => {
         try {
 
             const response = await getCategories({
-                limit: 100,
-                type: "EXPENSE"
+                limit: 1000
             });
 
             if (response.success) {

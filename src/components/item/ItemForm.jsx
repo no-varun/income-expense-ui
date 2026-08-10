@@ -11,24 +11,36 @@ const ItemForm = ({
     const navigate = useNavigate();
 
     const [categories, setCategories] = useState([]);
+
     const [form, setForm] = useState({
         name: "",
+        type: "",
         category: "",
         description: "",
         status: true
     });
 
-    const loadCategories = async () => {
+    const loadCategories = async (type = "") => {
 
         try {
 
-            const response = await getCategories({
-                limit: 100,
-                type: "EXPENSE"
-            });
+            const params = {
+                limit: 100
+            };
+
+            // Send type only when selected
+            if (type) {
+                params.type = type;
+            }
+
+            const response = await getCategories(params);
 
             if (response.success) {
-                setCategories(response.data.rows || response.data.data || []);
+                setCategories(
+                    response.data.rows ||
+                    response.data.data ||
+                    []
+                );
             }
 
         } catch (error) {
@@ -42,35 +54,70 @@ const ItemForm = ({
 
     };
 
+    // Load all categories initially
     useEffect(() => {
 
         loadCategories();
 
     }, []);
 
+    // Load initial values when editing
     useEffect(() => {
 
         if (Object.keys(initialValues).length > 0) {
 
+            const initialType =
+                initialValues.type || "";
+
             setForm({
                 name: initialValues.name || "",
-                category: initialValues.category?._id || initialValues.category || "",
-                description: initialValues.description || "",
-                status: initialValues.status ?? true
+                type: initialType,
+                category:
+                    initialValues.category?._id ||
+                    initialValues.category ||
+                    "",
+                description:
+                    initialValues.description || "",
+                status:
+                    initialValues.status ?? true
             });
 
+            // Load categories according to existing type
+            loadCategories(initialType);
         }
 
     }, [initialValues]);
 
     const handleChange = (event) => {
 
-        const { name, value, type, checked } = event.target;
+        const {
+            name,
+            value,
+            type,
+            checked
+        } = event.target;
 
-        setForm({
-            ...form,
-            [name]: type === "checkbox" ? checked : value
-        });
+        // When category type changes
+        if (name === "type") {
+
+            setForm(prev => ({
+                ...prev,
+                type: value,
+                category: ""
+            }));
+
+            loadCategories(value);
+
+            return;
+        }
+
+        setForm(prev => ({
+            ...prev,
+            [name]:
+                type === "checkbox"
+                    ? checked
+                    : value
+        }));
 
     };
 
@@ -80,6 +127,11 @@ const ItemForm = ({
 
         if (!form.name.trim()) {
             alert("Item name is required.");
+            return;
+        }
+
+        if (!form.type) {
+            alert("Category type is required.");
             return;
         }
 
@@ -120,6 +172,7 @@ const ItemForm = ({
 
                 <form onSubmit={handleSubmit}>
 
+                    {/* Item Name */}
                     <div className="mb-3">
 
                         <label className="form-label">
@@ -138,6 +191,46 @@ const ItemForm = ({
 
                     </div>
 
+                    {/* Category Type */}
+                    <div className="mb-3">
+
+                        <label className="form-label">
+                            Category Type
+                        </label>
+
+                        <select
+                            className="form-select"
+                            name="type"
+                            value={form.type}
+                            onChange={handleChange}
+                            required
+                        >
+
+                            <option value="">
+                                Select category type
+                            </option>
+
+                            <option value="INCOME">
+                                Income
+                            </option>
+
+                            <option value="EXPENSE">
+                                Expense
+                            </option>
+
+                            <option value="SAVING">
+                                Saving
+                            </option>
+
+                            <option value="DEBT">
+                                Debt
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    {/* Category */}
                     <div className="mb-3">
 
                         <label className="form-label">
@@ -150,29 +243,33 @@ const ItemForm = ({
                             value={form.category}
                             onChange={handleChange}
                             required
+                            disabled={!form.type}
                         >
 
                             <option value="">
-                                Select category
+                                {
+                                    form.type
+                                        ? "Select category"
+                                        : "Select category type first"
+                                }
                             </option>
 
-                            {
-                                categories.map(category => (
+                            {categories.map(category => (
 
-                                    <option
-                                        key={category._id}
-                                        value={category._id}
-                                    >
-                                        {category.name}
-                                    </option>
+                                <option
+                                    key={category._id}
+                                    value={category._id}
+                                >
+                                    {category.name}
+                                </option>
 
-                                ))
-                            }
+                            ))}
 
                         </select>
 
                     </div>
 
+                    {/* Description */}
                     <div className="mb-3">
 
                         <label className="form-label">
@@ -190,6 +287,7 @@ const ItemForm = ({
 
                     </div>
 
+                    {/* Status */}
                     <div className="form-check form-switch mb-3">
 
                         <input
@@ -211,12 +309,16 @@ const ItemForm = ({
 
                     </div>
 
+                    {/* Submit */}
                     <button
                         type="submit"
                         className="btn btn-primary"
                         disabled={loading}
                     >
-                        {loading ? "Please wait..." : "Save Item"}
+                        {loading
+                            ? "Please wait..."
+                            : "Save Item"
+                        }
                     </button>
 
                 </form>
@@ -226,7 +328,6 @@ const ItemForm = ({
         </div>
 
     );
-
 };
 
 export default ItemForm;

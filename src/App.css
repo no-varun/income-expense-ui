@@ -2,351 +2,455 @@
    Global
 ========================== */
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 html,
 body,
-#root{
-    height:100%;
+#root {
+    min-height: 100%;
+    width: 100%;
 }
 
-body{
-    font-family:"Segoe UI",sans-serif;
-    background:#f5f6fa;
-    overflow-x:hidden;
+body {
+    font-family: "Segoe UI", sans-serif;
+    background: #f5f6fa;
+    overflow-x: hidden;
 }
 
 img,
 svg,
-canvas{
-    max-width:100%;
+canvas {
+    max-width: 100%;
 }
 
-a{
-    text-decoration:none;
+a {
+    text-decoration: none;
 }
+
 
 /* ==========================
    Sidebar
 ========================== */
 
-.sidebar{
+.sidebar {
+    width: 260px;
+    height: 100vh;
 
-    width:260px;
-    height:100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
 
-    position:fixed;
-    top:0;
-    left:0;
+    background: #212529;
 
-    background:#212529;
+    transition: left 0.3s ease;
 
-    transition:all .3s ease;
+    z-index: 1050;
 
-    z-index:1050;
+    overflow-y: auto;
+    overflow-x: hidden;
 
-    overflow-y:auto;
-
+    flex-shrink: 0;
 }
 
-/* Desktop */
 
-.main-content{
+/* ==========================
+   Main Content
+========================== */
 
-    min-height:100vh;
+.main-content {
+    min-height: 100vh;
 
-    transition:.3s;
+    /*
+     * Sidebar is fixed and takes 260px.
+     * Keep content beside it on desktop.
+     */
+    margin-left: 260px;
 
+    width: calc(100% - 260px);
+
+    min-width: 0;
+
+    transition:
+        margin-left 0.3s ease,
+        width 0.3s ease;
+
+    overflow-x: hidden;
 }
 
-/* Mobile */
-
-@media(max-width:991px){
-
-    .sidebar{
-
-        left:-260px;
-
-    }
-
-    .sidebar.sidebar-open{
-
-        left:0;
-
-    }
-
-    .main-content{
-
-        margin-left:0;
-
-    }
-
-}
 
 /* ==========================
    Header
 ========================== */
 
-.header{
+.header {
+    height: 70px;
 
-    height:70px;
+    background: #fff;
 
-    background:#fff;
+    position: sticky;
+    top: 0;
 
-    position:sticky;
+    z-index: 1000;
 
-    top:0;
+    border-bottom: 1px solid #dee2e6;
 
-    z-index:1000;
-
-    border-bottom:1px solid #dee2e6;
-
+    width: 100%;
 }
+
 
 /* ==========================
    Footer
 ========================== */
 
-.footer{
+.footer {
+    background: #fff;
 
-    background:#fff;
-
-    border-top:1px solid #dee2e6;
-
+    border-top: 1px solid #dee2e6;
 }
+
 
 /* ==========================
    Sidebar Menu
 ========================== */
 
-.sidebar .nav-link{
+.sidebar .nav-link {
+    color: #fff;
 
-    color:#fff;
-
-    transition:.25s;
-
+    transition:
+        background 0.25s ease,
+        color 0.25s ease;
 }
 
-.sidebar .nav-link:hover{
-
-    background:#2c3136;
-
+.sidebar .nav-link:hover {
+    background: #2c3136;
 }
 
-.sidebar .nav-link.active{
-
-    background:#0d6efd;
-
-    color:#fff;
-
+.sidebar .nav-link.active {
+    background: #0d6efd;
+    color: #fff;
 }
 
-.sidebar button{
-
-    color:#fff;
-
+.sidebar button {
+    color: #fff;
 }
+
 
 /* ==========================
    Cards
 ========================== */
 
-.card{
+.card {
+    border: none;
+    border-radius: 8px;
 
-    border:none;
+    max-width: 100%;
 
-    border-radius:8px;
-
+    min-width: 0;
 }
 
-.card-body{
-    min-width:0;
+.card-body {
+    min-width: 0;
+    max-width: 100%;
 }
 
-.chart-body{
-    height:360px;
-    position:relative;
+
+/* ==========================
+   Chart
+========================== */
+
+.chart-body {
+    height: 360px;
+    position: relative;
+
+    width: 100%;
+    min-width: 0;
+
+    overflow: hidden;
 }
 
-.chart-body-pie{
-    height:320px;
+.chart-body-pie {
+    height: 320px;
+
+    width: 100%;
+    min-width: 0;
+
+    position: relative;
+
+    overflow: hidden;
 }
+
+
+/* ==========================
+   Chart / Row Safety
+========================== */
+
+.main-content .container,
+.main-content .container-fluid {
+    max-width: 100%;
+    min-width: 0;
+}
+
+.main-content .row {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.main-content .row > * {
+    min-width: 0;
+}
+
 
 /* ==========================
    Responsive Table
 ========================== */
 
-.table-responsive{
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-
+    max-width: 100%;
 }
 
-.table{
-    vertical-align:middle;
+.table {
+    vertical-align: middle;
 }
+
 
 /* ==========================
    Forms
 ========================== */
 
 .form-control,
-.form-select{
-
-    border-radius:8px;
-
+.form-select {
+    border-radius: 8px;
 }
+
 
 /* ==========================
    Buttons
 ========================== */
 
-.btn{
-
-    border-radius:8px;
-
+.btn {
+    border-radius: 8px;
 }
+
 
 /* ==========================
    Scrollbar
 ========================== */
 
-::-webkit-scrollbar{
-
-    width:8px;
-
+::-webkit-scrollbar {
+    width: 8px;
 }
 
-::-webkit-scrollbar-thumb{
-
-    background:#adb5bd;
-
-    border-radius:20px;
-
+::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 20px;
 }
+
+
+/* ==========================
+   Mobile / Tablet
+========================== */
+
+@media (max-width: 991px) {
+
+    .sidebar {
+        left: -260px;
+        width: 260px;
+    }
+
+    .sidebar.sidebar-open {
+        left: 0;
+    }
+
+    /*
+     * On mobile sidebar overlays the page,
+     * therefore content must use full width.
+     */
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        min-width: 0;
+
+        overflow-x: hidden;
+    }
+}
+
 
 /* ==========================
    Responsive Screens
 ========================== */
 
-@media(max-width:767px){
+@media (max-width: 767px) {
 
-    .header{
-        height:62px;
+    .header {
+        height: 62px;
     }
 
-    main{
-        padding:1rem !important;
+    main {
+        padding: 1rem !important;
+        min-width: 0;
+        max-width: 100%;
     }
 
-    h3{
-        font-size:1.25rem;
+    h3 {
+        font-size: 1.25rem;
     }
 
-    h4{
-        font-size:1.05rem;
+    h4 {
+        font-size: 1.05rem;
     }
 
-    h5{
-        font-size:1rem;
+    h5 {
+        font-size: 1rem;
     }
 
     .container,
-    .container-fluid{
-        padding-left:0;
-        padding-right:0;
+    .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+
+        max-width: 100%;
+        min-width: 0;
     }
 
-    .card{
-        box-shadow:0 0.25rem 0.75rem rgba(0,0,0,.08) !important;
+    .card {
+        max-width: 100%;
+        min-width: 0;
+
+        box-shadow:
+            0 0.25rem 0.75rem
+            rgba(0, 0, 0, 0.08) !important;
     }
 
-    .card-body{
-        padding:1rem;
+    .card-body {
+        padding: 1rem;
+
+        max-width: 100%;
+        min-width: 0;
     }
 
-    .chart-body{
-        height:300px;
+    .chart-body {
+        height: 300px;
     }
 
-    .chart-body-pie{
-        height:280px;
+    .chart-body-pie {
+        height: 280px;
     }
 
-    .card-header{
-        padding:.85rem 1rem;
+    .card-header {
+        padding: 0.85rem 1rem;
+
+        min-width: 0;
     }
 
-    .d-flex.justify-content-between{
-        gap:.75rem;
-        flex-wrap:wrap;
+    .d-flex.justify-content-between {
+        gap: 0.75rem;
+        flex-wrap: wrap;
     }
 
     .d-flex.justify-content-between > .btn,
     .d-flex.justify-content-between > div,
-    .d-flex.justify-content-between > a{
-        flex-shrink:0;
+    .d-flex.justify-content-between > a {
+        flex-shrink: 0;
     }
 
-    .table{
-        min-width:680px;
-        font-size:.875rem;
+    /*
+     * Tables remain horizontally scrollable
+     * instead of breaking the page width.
+     */
+    .table {
+        min-width: 680px;
+        font-size: 0.875rem;
     }
 
     .table th,
-    .table td{
-        white-space:nowrap;
+    .table td {
+        white-space: nowrap;
     }
 
     .card-body:has(> .table),
-    .card-body:has(> table){
-        overflow-x:auto;
-        -webkit-overflow-scrolling:touch;
+    .card-body:has(> table) {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
-    .btn{
-        min-height:38px;
+    .btn {
+        min-height: 38px;
     }
 
-    .btn-sm{
-        min-height:32px;
+    .btn-sm {
+        min-height: 32px;
     }
 
     .form-control,
-    .form-select{
-        min-height:42px;
+    .form-select {
+        min-height: 42px;
     }
 
-    .sidebar{
-        max-width:85vw;
+    .sidebar {
+        max-width: 85vw;
     }
 
+    /*
+     * Important for Chart.js and flex/grid layouts.
+     */
+    .row {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .row > [class*="col-"] {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    canvas {
+        max-width: 100% !important;
+    }
 }
 
-@media(max-width:575px){
+
+/* ==========================
+   Small Mobile
+========================== */
+
+@media (max-width: 575px) {
 
     .card.shadow,
-    .card{
-        border-radius:8px;
+    .card {
+        border-radius: 8px;
     }
 
-    .row{
-        --bs-gutter-x:.75rem;
+    .row {
+        --bs-gutter-x: 0.75rem;
+
+        min-width: 0;
+        max-width: 100%;
     }
 
     .btn + .btn,
     .btn + a,
-    a + .btn{
-        margin-top:.35rem;
+    a + .btn {
+        margin-top: 0.35rem;
     }
 
-    .table{
-        min-width:620px;
+    .table {
+        min-width: 620px;
     }
 
+    /*
+     * Prevent long chart/card content
+     * from increasing page width.
+     */
+    .card-header,
+    .card-body {
+        min-width: 0;
+        max-width: 100%;
+    }
 }

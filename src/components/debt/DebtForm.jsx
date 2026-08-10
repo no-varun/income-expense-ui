@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getCategories } from "../../api/categoryApi";
 
-const IncomeForm = ({
+const DebtForm = ({
     initialValues = {},
     onSubmit,
     loading = false
@@ -35,25 +35,12 @@ const IncomeForm = ({
         if (Object.keys(initialValues).length > 0) {
 
             setForm({
-
                 title: initialValues.title || "",
-
                 amount: initialValues.amount || "",
-
-                category:
-                    initialValues.category?._id ||
-                    initialValues.category ||
-                    "",
-
-                paymentMode:
-                    initialValues.paymentMode || "Cash",
-
-                date: initialValues.date
-                    ? initialValues.date.substring(0, 10)
-                    : new Date().toISOString().split("T")[0],
-
+                category:initialValues.category?._id ||initialValues.category ||"",
+                paymentMode:initialValues.paymentMode || "Cash",
+                date: initialValues.date? initialValues.date.substring(0, 10): new Date().toISOString().split("T")[0],
                 note: initialValues.note || ""
-
             });
 
         }
@@ -64,15 +51,20 @@ const IncomeForm = ({
 
         try {
 
-            const response = await getCategories({
-                limit: 100,
-                type: "INCOME"
-            });
+            const response = await getCategories();
 
             if (response.success) {
 
-                const rows =response.data.rows || response.data || [];
-                setCategories(rows);
+                const rows =
+                    response.data.rows || response.data || [];
+
+                setCategories(
+
+                    rows.filter(
+                        item => item.type === "DEBT"
+                    )
+
+                );
 
             }
 
@@ -108,13 +100,6 @@ const IncomeForm = ({
 
         }
 
-        if (Number(form.amount) <= 0) {
-
-            alert("Amount should be greater than zero");
-
-            return;
-
-        }
 
         if (!form.category) {
 
@@ -142,13 +127,13 @@ const IncomeForm = ({
 
                 <h5 className="mb-0">
 
-                    Income Details
+                    Debt Details
 
                 </h5>
 
                 <button
                     className="btn btn-secondary btn-sm"
-                    onClick={() => navigate("/income")}
+                    onClick={() => navigate("/debt")}
                     type="button"
                 >
 
@@ -361,7 +346,7 @@ const IncomeForm = ({
 
                                 ? "Please wait..."
 
-                                : "Save Income"
+                                : "Save debt"
 
                         }
 
@@ -377,4 +362,4 @@ const IncomeForm = ({
 
 };
 
-export default IncomeForm;
+export default DebtForm;

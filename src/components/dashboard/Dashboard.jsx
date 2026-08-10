@@ -111,6 +111,17 @@ const Dashboard = () => {
                     bg="bg-warning"
                 />
 
+                <SummaryCard
+                    title="Total Debt"
+                    value={summary.totalDebt || 0}
+                    bg="bg-warning"
+                />
+
+                <SummaryCard
+                    title="Pending Debt"
+                    value={summary.totalPendingDebt || 0}
+                    bg="bg-warning"
+                />
             </div>
 
             <RecentTransaction transactions={transactions} />

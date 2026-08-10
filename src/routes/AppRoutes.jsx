@@ -37,6 +37,12 @@ import ExpenseList from "../pages/expense/ExpenseList";
 import AddExpense from "../pages/expense/AddExpense";
 import EditExpense from "../pages/expense/EditExpense";
 
+
+// Debt
+import DebtList from "../pages/debt/DebtList";
+import AddDebt from "../pages/debt/AddDebt";
+import EditDebt from "../pages/debt/EditDebt";
+
 // Reports
 import Reports from "../pages/reports/Reports";
 
@@ -173,6 +179,25 @@ const AppRoutes = () => {
                             path="/expense/edit/:id"
                             element={<EditExpense />}
                         />
+
+                        {/* Devt */}
+
+
+                        <Route
+                            path="/debt"
+                            element={<DebtList />}
+                        />
+
+                        <Route
+                            path="/debt/add"
+                            element={<AddDebt />}
+                        />
+
+                        <Route
+                            path="/debt/edit/:id"
+                            element={<EditDebt />}
+                        />
+
 
 
                         {/* Reports */}

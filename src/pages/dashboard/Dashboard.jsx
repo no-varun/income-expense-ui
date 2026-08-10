@@ -22,8 +22,8 @@ const Dashboard = () => {
 
       setSummary(summaryRes.data || {});
       setTransactions(transactionRes.data || []);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -35,35 +35,58 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="text-center mt-5">
-        Loading...
+      <div className="text-center py-5">
+        <h5>Loading...</h5>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid">
-      <h3 className="mb-4">Dashboard</h3>
+    <div className="container-fluid py-3">
 
-      {/* Overall & Today's Summary */}
-      <div className="row mb-3">
+      <h2 className="mb-4 fw-bold">Dashboard</h2>
 
-        <div className="col-lg-7">
-          <h5 className="mb-3">Overall</h5>
+      {/* ================= OVERALL ================= */}
 
-          <div className="row">
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-body">
+
+          <h4 className="mb-4">Overall Summary</h4>
+
+          <div className="row g-3">
+
             <SummaryCard
               title="Current Balance"
               value={summary.currentBalance || 0}
-              bg="bg-primary"
+              bg="bg-success"
             />
+
+            <SummaryCard
+              title="Total Debt"
+              value={summary.totalDebt || 0}
+              bg="bg-danger"
+            />
+
+            <SummaryCard
+              title="Pending Debt"
+              value={summary.totalPendingDebt || 0}
+              bg="bg-info"
+            />
+
           </div>
+
         </div>
+      </div>
 
-        <div className="col-lg-8">
-          <h5 className="mb-3">Today's Summary</h5>
+      {/* ================= TODAY ================= */}
 
-          <div className="row">
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-body">
+
+          <h4 className="mb-4">Today's Summary</h4>
+
+          <div className="row g-3">
+
             <SummaryCard
               title="Today's Income"
               value={summary.todayIncome || 0}
@@ -75,69 +98,100 @@ const Dashboard = () => {
               value={summary.todayExpense || 0}
               bg="bg-danger"
             />
+
           </div>
+
         </div>
-
       </div>
 
-      {/* Monthly Summary */}
-      <h5 className="mb-3">Monthly Summary</h5>
+      {/* ================= MONTH ================= */}
 
-      <div className="row mb-5">
-        <SummaryCard
-          title="Monthly Income"
-          value={summary.monthIncome || 0}
-          bg="bg-success"
-        />
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-body">
 
-        <SummaryCard
-          title="Monthly Expense"
-          value={summary.monthExpense || 0}
-          bg="bg-danger"
-        />
+          <h4 className="mb-4">Monthly Summary</h4>
 
-        <SummaryCard
-          title="Monthly Saving"
-          value={summary.monthSaving || 0}
-          bg="bg-info"
-        />
+          <div className="row g-3">
 
-        <SummaryCard
-          title="Monthly Profit"
-          value={summary.monthProfit || 0}
-          bg="bg-warning"
-        />
+            <SummaryCard
+              title="Monthly Income"
+              value={summary.monthIncome || 0}
+              bg="bg-success"
+            />
+
+            <SummaryCard
+              title="Monthly Expense"
+              value={summary.monthExpense || 0}
+              bg="bg-danger"
+            />
+
+            <SummaryCard
+              title="Monthly Saving"
+              value={summary.monthSaving || 0}
+              bg="bg-info"
+            />
+
+            <SummaryCard
+              title="Monthly Profit"
+              value={summary.monthProfit || 0}
+              bg="bg-warning"
+            />
+
+          </div>
+
+        </div>
       </div>
 
-      {/* Yearly Summary */}
-      <h5 className="mb-3">Yearly Summary</h5>
+      {/* ================= YEAR ================= */}
 
-      <div className="row mb-5">
-        <SummaryCard
-          title="Yearly Income"
-          value={summary.yearIncome || 0}
-          bg="bg-success"
-        />
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-body">
 
-        <SummaryCard
-          title="Yearly Expense"
-          value={summary.yearExpense || 0}
-          bg="bg-danger"
-        />
+          <h4 className="mb-4">Yearly Summary</h4>
 
-        <SummaryCard
-          title="Yearly Saving"
-          value={summary.yearSaving || 0}
-          bg="bg-info"
-        />
-        <SummaryCard
-          title="Total Saving"
-          value={summary.totalSaving || 0}
-          bg="bg-warning"
-        />
+          <div className="row g-3">
+
+            <SummaryCard
+              title="Yearly Income"
+              value={summary.yearIncome || 0}
+              bg="bg-success"
+            />
+
+            <SummaryCard
+              title="Yearly Expense"
+              value={summary.yearExpense || 0}
+              bg="bg-danger"
+            />
+
+            <SummaryCard
+              title="Yearly Saving"
+              value={summary.yearSaving || 0}
+              bg="bg-info"
+            />
+
+            <SummaryCard
+              title="Total Saving"
+              value={summary.totalSaving || 0}
+              bg="bg-warning"
+            />
+
+          </div>
+
+        </div>
       </div>
 
-      <RecentTransaction transactions={transactions} />
+      {/* ================= RECENT TRANSACTIONS ================= */}
+
+      <div className="card shadow-sm border-0">
+        <div className="card-body">
+
+          <h4 className="mb-4">Recent Transactions</h4>
+
+          <RecentTransaction transactions={transactions} />
+
+        </div>
+      </div>
+
     </div>
   );
 };

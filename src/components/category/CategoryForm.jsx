@@ -106,6 +106,7 @@ const CategoryForm = ({
                             <option value="INCOME">Income</option>
                             <option value="EXPENSE">Expense</option>
                             <option value="SAVING">Saving</option>
+                            <option value="DEBT">Debt</option>
 
                         </select>
 

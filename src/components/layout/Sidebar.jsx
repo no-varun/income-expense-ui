@@ -49,6 +49,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             path: "/income",
             icon: <FaMoneyBillWave />
         },
+
+        {
+            title: "Expense",
+            path: "/expense",
+            icon: <FaWallet />
+        },
         {
             title: "Saving",
             path: "/saving",
@@ -56,11 +62,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         },
 
         {
-            title: "Expense",
-            path: "/expense",
+            title: "Debts",
+            path: "/debt",
             icon: <FaWallet />
         },
-
         {
             title: "Reports",
             path: "/reports",
@@ -248,7 +253,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                             className="nav-link text-light ps-5"
                                             onClick={() => setSidebarOpen(false)}
                                         >
-                                          This  Week Chart
+                                            This  Week Chart
                                         </NavLink>
 
                                     </li>
@@ -360,16 +365,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             </aside>
 
             {/* Desktop Spacer */}
-
-            <div
-
+            {/* <div
                 className="d-none d-lg-block"
-
                 style={{
                     width: "260px"
                 }}
-
-            />
+            /> */}
 
         </>
 
