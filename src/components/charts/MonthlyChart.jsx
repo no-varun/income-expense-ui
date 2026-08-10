@@ -30,40 +30,30 @@ const MonthlyChart = ({ data = [] }) => {
 
     const rows = Array.isArray(data) ? data : [];
 
+    /*
+     * Format Amount
+     */
     const formatAmount = (value) => {
         return `₹${Number(value || 0).toLocaleString("en-IN", {
             maximumFractionDigits: 2
         })}`;
     };
 
-    const getTypeClass = (type) => {
-        switch (type) {
-            case "Income":
-                return "text-success";
-
-            case "Expense":
-                return "text-danger";
-
-            case "Saving":
-                return "text-primary";
-
-            case "Debt":
-                return "text-warning";
-
-            default:
-                return "text-muted";
-        }
-    };
 
     /*
      * Chart Data
      */
     const chartData = {
 
-        labels: rows.map(item => item.month),
+        labels: rows.map(
+            item => item.month
+        ),
 
         datasets: [
 
+            /*
+             * Income
+             */
             {
                 label: "Income",
 
@@ -77,6 +67,10 @@ const MonthlyChart = ({ data = [] }) => {
                 borderWidth: 1
             },
 
+
+            /*
+             * Expense
+             */
             {
                 label: "Expense",
 
@@ -90,6 +84,10 @@ const MonthlyChart = ({ data = [] }) => {
                 borderWidth: 1
             },
 
+
+            /*
+             * Saving
+             */
             {
                 label: "Saving",
 
@@ -103,6 +101,10 @@ const MonthlyChart = ({ data = [] }) => {
                 borderWidth: 1
             },
 
+
+            /*
+             * Debt
+             */
             {
                 label: "Debt",
 
@@ -116,6 +118,10 @@ const MonthlyChart = ({ data = [] }) => {
                 borderWidth: 1
             },
 
+
+            /*
+             * Pending Debt
+             */
             {
                 label: "Pending Debt",
 
@@ -181,6 +187,7 @@ const MonthlyChart = ({ data = [] }) => {
 
         },
 
+
         scales: {
 
             x: {
@@ -204,16 +211,6 @@ const MonthlyChart = ({ data = [] }) => {
         }
 
     };
-
-
-    /*
-     * Get transactions
-     */
-    const hasTransactions = rows.some(
-        item =>
-            Array.isArray(item.transactions) &&
-            item.transactions.length > 0
-    );
 
 
     return (
@@ -262,262 +259,118 @@ const MonthlyChart = ({ data = [] }) => {
 
             {/* ================= MONTHLY LIST ================= */}
 
-            {hasTransactions && (
+            {rows.length > 0 && (
 
                 <div className="card-body border-top">
 
                     <h5 className="mb-3">
-                        Monthly Transactions
+                        Monthly Summary
                     </h5>
 
 
-                    {rows.map((monthData) => {
+                    <div className="table-responsive">
 
-                        const transactions =
-                            Array.isArray(monthData.transactions)
-                                ? monthData.transactions
-                                : [];
+                        <table className="table table-hover table-bordered align-middle mb-0">
 
+                            <thead className="table-light">
 
-                        /*
-                         * Don't show empty months
-                         */
-                        if (transactions.length === 0) {
-                            return null;
-                        }
+                                <tr>
 
+                                    <th>
+                                        Month
+                                    </th>
 
-                        return (
+                                    <th className="text-end">
+                                        Income
+                                    </th>
 
-                            <div
-                                key={monthData.month}
-                                className="mb-4"
-                            >
+                                    <th className="text-end">
+                                        Expense
+                                    </th>
 
-                                {/* Month Header */}
+                                    <th className="text-end">
+                                        Saving
+                                    </th>
 
-                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <th className="text-end">
+                                        Total Debt
+                                    </th>
 
-                                    <h6 className="mb-0 fw-bold">
-                                        {monthData.month}
-                                    </h6>
+                                    <th className="text-end">
+                                        Pending Debt
+                                    </th>
 
-                                    <span className="text-muted">
-                                        {transactions.length} transaction
-                                        {transactions.length !== 1
-                                            ? "s"
-                                            : ""}
-                                    </span>
+                                </tr>
 
-                                </div>
+                            </thead>
 
 
-                                {/* Month Summary */}
+                            <tbody>
 
-                                <div className="row g-2 mb-3">
+                                {rows.map((item) => (
 
-                                    <div className="col-6 col-md-3">
+                                    <tr key={item.month}>
 
-                                        <div className="border rounded p-2">
+                                        {/* Month */}
 
-                                            <small className="text-muted">
-                                                Income
-                                            </small>
+                                        <td className="fw-bold">
+                                            {item.month}
+                                        </td>
 
-                                            <div className="text-success fw-bold">
-                                                {formatAmount(
-                                                    monthData.income
-                                                )}
-                                            </div>
 
-                                        </div>
+                                        {/* Income */}
 
-                                    </div>
-
-
-                                    <div className="col-6 col-md-3">
-
-                                        <div className="border rounded p-2">
-
-                                            <small className="text-muted">
-                                                Expense
-                                            </small>
-
-                                            <div className="text-danger fw-bold">
-                                                {formatAmount(
-                                                    monthData.expense
-                                                )}
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <div className="col-6 col-md-3">
-
-                                        <div className="border rounded p-2">
-
-                                            <small className="text-muted">
-                                                Saving
-                                            </small>
-
-                                            <div className="text-primary fw-bold">
-                                                {formatAmount(
-                                                    monthData.saving
-                                                )}
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <div className="col-6 col-md-3">
-
-                                        <div className="border rounded p-2">
-
-                                            <small className="text-muted">
-                                                Debt
-                                            </small>
-
-                                            <div className="text-warning fw-bold">
-                                                {formatAmount(
-                                                    monthData.totalDebt
-                                                )}
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {/* Transaction Table */}
-
-                                <div className="table-responsive">
-
-                                    <table className="table table-hover table-bordered align-middle mb-0">
-
-                                        <thead className="table-light">
-
-                                            <tr>
-
-                                                <th>
-                                                    Date
-                                                </th>
-
-                                                <th>
-                                                    Type
-                                                </th>
-
-                                                <th>
-                                                    Category
-                                                </th>
-
-                                                <th>
-                                                    Description
-                                                </th>
-
-                                                <th className="text-end">
-                                                    Amount
-                                                </th>
-
-                                            </tr>
-
-                                        </thead>
-
-
-                                        <tbody>
-
-                                            {transactions.map(
-                                                (transaction) => {
-
-                                                    const amount =
-                                                        Number(
-                                                            transaction.amount
-                                                        ) || 0;
-
-
-                                                    return (
-
-                                                        <tr
-                                                            key={
-                                                                transaction._id
-                                                            }
-                                                        >
-
-                                                            <td>
-                                                                {transaction.date
-                                                                    ? new Date(
-                                                                        transaction.date
-                                                                    ).toLocaleDateString(
-                                                                        "en-IN"
-                                                                    )
-                                                                    : "-"}
-                                                            </td>
-
-
-                                                            <td>
-
-                                                                <span
-                                                                    className={`fw-semibold ${getTypeClass(
-                                                                        transaction.type
-                                                                    )}`}
-                                                                >
-                                                                    {
-                                                                        transaction.type
-                                                                    }
-                                                                </span>
-
-                                                            </td>
-
-
-                                                            <td>
-                                                                {
-                                                                    transaction.category?.name ||
-                                                                    transaction.categoryName ||
-                                                                    "-"
-                                                                }
-                                                            </td>
-
-
-                                                            <td>
-                                                                {
-                                                                    transaction.description ||
-                                                                    transaction.note ||
-                                                                    "-"
-                                                                }
-                                                            </td>
-
-
-                                                            <td className="text-end fw-semibold">
-
-                                                                {formatAmount(
-                                                                    amount
-                                                                )}
-
-                                                            </td>
-
-                                                        </tr>
-
-                                                    );
-
-                                                }
+                                        <td className="text-end text-success fw-semibold">
+                                            {formatAmount(
+                                                item.income
                                             )}
+                                        </td>
 
-                                        </tbody>
 
-                                    </table>
+                                        {/* Expense */}
 
-                                </div>
+                                        <td className="text-end text-danger fw-semibold">
+                                            {formatAmount(
+                                                item.expense
+                                            )}
+                                        </td>
 
-                            </div>
 
-                        );
+                                        {/* Saving */}
 
-                    })}
+                                        <td className="text-end text-primary fw-semibold">
+                                            {formatAmount(
+                                                item.saving
+                                            )}
+                                        </td>
+
+
+                                        {/* Total Debt */}
+
+                                        <td className="text-end text-warning fw-semibold">
+                                            {formatAmount(
+                                                item.totalDebt
+                                            )}
+                                        </td>
+
+
+                                        {/* Pending Debt */}
+
+                                        <td className="text-end text-info fw-semibold">
+                                            {formatAmount(
+                                                item.pendingDebt
+                                            )}
+                                        </td>
+
+                                    </tr>
+
+                                ))}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
