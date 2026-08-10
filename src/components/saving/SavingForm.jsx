@@ -271,17 +271,6 @@ const SavingForm = ({
         }
 
 
-        if (Number(form.amount) <= 0) {
-
-            alert(
-                "Amount should be greater than zero"
-            );
-
-            return;
-
-        }
-
-
         if (!form.category) {
 
             alert(
