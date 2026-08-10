@@ -30,7 +30,14 @@ const YearlyChart = ({ data = [] }) => {
 
     const rows = Array.isArray(data) ? data : [];
 
+    const formatAmount = (value) => {
+        return `₹${Number(value || 0).toLocaleString("en-IN", {
+            maximumFractionDigits: 2
+        })}`;
+    };
+
     const chartData = {
+
         labels: rows.map(item => item.year),
 
         datasets: [
@@ -98,6 +105,7 @@ const YearlyChart = ({ data = [] }) => {
         ]
     };
 
+
     const options = {
 
         responsive: true,
@@ -117,7 +125,6 @@ const YearlyChart = ({ data = [] }) => {
 
             title: {
                 display: true,
-
                 text: "Yearly Income vs Expense"
             },
 
@@ -130,12 +137,7 @@ const YearlyChart = ({ data = [] }) => {
                         const value =
                             Number(context.raw) || 0;
 
-                        return `${context.dataset.label}: ₹${value.toLocaleString(
-                            "en-IN",
-                            {
-                                maximumFractionDigits: 2
-                            }
-                        )}`;
+                        return `${context.dataset.label}: ${formatAmount(value)}`;
                     }
                 }
             }
@@ -154,29 +156,35 @@ const YearlyChart = ({ data = [] }) => {
                 ticks: {
 
                     callback: (value) => {
-                        return `₹${Number(value).toLocaleString(
-                            "en-IN"
-                        )}`;
+                        return formatAmount(value);
                     }
                 }
             }
         }
     };
 
+
     return (
+
         <div className="card shadow mb-4">
 
+            {/* ================= CHART ================= */}
+
             <div className="card-header">
+
                 <h5 className="mb-0">
                     Yearly Income vs Expense (₹)
                 </h5>
+
             </div>
+
 
             <div
                 className="card-body chart-body"
                 style={{
                     minWidth: 0,
-                    position: "relative"
+                    position: "relative",
+                    height: "400px"
                 }}
             >
 
@@ -190,14 +198,125 @@ const YearlyChart = ({ data = [] }) => {
                 ) : (
 
                     <div className="d-flex justify-content-center align-items-center h-100 text-muted">
+
                         No yearly data available
+
                     </div>
 
                 )}
 
             </div>
 
+
+            {/* ================= YEARLY LIST ================= */}
+
+            {rows.length > 0 && (
+
+                <div className="card-body border-top">
+
+                    <h5 className="mb-3">
+                        Yearly Summary
+                    </h5>
+
+
+                    <div className="table-responsive">
+
+                        <table className="table table-hover table-bordered align-middle mb-0">
+
+                            <thead className="table-light">
+
+                                <tr>
+
+                                    <th>
+                                        Year
+                                    </th>
+
+                                    <th className="text-end">
+                                        Income
+                                    </th>
+
+                                    <th className="text-end">
+                                        Expense
+                                    </th>
+
+                                    <th className="text-end">
+                                        Saving
+                                    </th>
+
+                                    <th className="text-end">
+                                        Total Debt
+                                    </th>
+
+                                    <th className="text-end">
+                                        Pending Debt
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {rows.map((item) => (
+
+                                    <tr key={item.year}>
+
+                                        <td className="fw-bold">
+                                            {item.year}
+                                        </td>
+
+
+                                        <td className="text-end text-success fw-semibold">
+                                            {formatAmount(
+                                                item.income
+                                            )}
+                                        </td>
+
+
+                                        <td className="text-end text-danger fw-semibold">
+                                            {formatAmount(
+                                                item.expense
+                                            )}
+                                        </td>
+
+
+                                        <td className="text-end text-primary fw-semibold">
+                                            {formatAmount(
+                                                item.saving
+                                            )}
+                                        </td>
+
+
+                                        <td className="text-end text-warning fw-semibold">
+                                            {formatAmount(
+                                                item.totalDebt
+                                            )}
+                                        </td>
+
+
+                                        <td className="text-end text-info fw-semibold">
+                                            {formatAmount(
+                                                item.pendingDebt
+                                            )}
+                                        </td>
+
+                                    </tr>
+
+                                ))}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            )}
+
         </div>
+
     );
 };
 
