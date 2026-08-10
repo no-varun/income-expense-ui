@@ -126,7 +126,9 @@ const ExpenseForm = ({
 
                 status: true,
 
-                category: categoryId
+                category: categoryId,
+
+                type: "EXPENSE",
 
             });
 

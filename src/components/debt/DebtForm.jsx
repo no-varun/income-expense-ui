@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getCategories } from "../../api/categoryApi";
+import { getItems } from "../../api/itemApi";
 
 const DebtForm = ({
     initialValues = {},
@@ -12,6 +13,8 @@ const DebtForm = ({
     const navigate = useNavigate();
 
     const [categories, setCategories] = useState([]);
+    const [items, setItems] = useState([]);
+    const [itemsLoading, setItemsLoading] = useState(false);
 
     const [form, setForm] = useState({
 
@@ -24,77 +27,255 @@ const DebtForm = ({
 
     });
 
+
+    /*
+     * Load Debt Categories
+     */
     useEffect(() => {
 
         loadCategories();
 
     }, []);
 
+
+    /*
+     * Edit Mode
+     */
     useEffect(() => {
 
         if (Object.keys(initialValues).length > 0) {
 
+            const categoryId =
+                initialValues.category?._id ||
+                initialValues.category ||
+                "";
+
             setForm({
-                title: initialValues.title || "",
-                amount: initialValues.amount || "",
-                category:initialValues.category?._id ||initialValues.category ||"",
-                paymentMode:initialValues.paymentMode || "Cash",
-                date: initialValues.date? initialValues.date.substring(0, 10): new Date().toISOString().split("T")[0],
-                note: initialValues.note || ""
+
+                title:
+                    initialValues.title || "",
+
+                amount:
+                    initialValues.amount || "",
+
+                category:
+                    categoryId,
+
+                paymentMode:
+                    initialValues.paymentMode || "Cash",
+
+                date:
+                    initialValues.date
+                        ? initialValues.date.substring(0, 10)
+                        : new Date()
+                            .toISOString()
+                            .split("T")[0],
+
+                note:
+                    initialValues.note || ""
+
             });
+
+            /*
+             * Fetch items for existing category
+             */
+            if (categoryId) {
+                loadItems(categoryId);
+            }
 
         }
 
     }, [initialValues]);
 
+
+    /*
+     * Fetch Debt Categories
+     */
     const loadCategories = async () => {
 
         try {
 
-            const response = await getCategories();
+            const response = await getCategories({
+
+                limit: 100,
+
+                type: "DEBT"
+
+            });
 
             if (response.success) {
 
                 const rows =
-                    response.data.rows || response.data || [];
+                    response.data.rows ||
+                    response.data.data ||
+                    response.data ||
+                    [];
 
-                setCategories(
-
-                    rows.filter(
-                        item => item.type === "DEBT"
-                    )
-
-                );
+                setCategories(rows);
 
             }
 
         } catch (error) {
 
-            console.log(error);
+            console.error(
+                "Category fetch error:",
+                error
+            );
 
         }
 
     };
 
-    const handleChange = (e) => {
 
-        setForm({
+    /*
+     * Fetch Items According To Category
+     */
+    const loadItems = async (categoryId) => {
 
-            ...form,
+        try {
 
-            [e.target.name]: e.target.value
+            setItemsLoading(true);
 
-        });
+            setItems([]);
+
+            const response = await getItems({
+
+                limit: 1000,
+
+                category: categoryId,
+
+                type: "DEBT",
+
+                status: true
+
+            });
+
+            if (response.success) {
+
+                const rows =
+                    response.data.data ||
+                    response.data.rows ||
+                    response.data ||
+                    [];
+
+                setItems(rows);
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Item fetch error:",
+                error
+            );
+
+            setItems([]);
+
+        } finally {
+
+            setItemsLoading(false);
+
+        }
 
     };
 
+
+    /*
+     * Category Change
+     */
+    const handleCategoryChange = async (e) => {
+
+        const categoryId =
+            e.target.value;
+
+        setForm(prev => ({
+
+            ...prev,
+
+            category: categoryId,
+
+            title: ""
+
+        }));
+
+        setItems([]);
+
+
+        if (categoryId) {
+
+            await loadItems(categoryId);
+
+        }
+
+    };
+
+
+    /*
+     * Item Change
+     *
+     * Selected item name becomes title
+     */
+    const handleItemChange = (e) => {
+
+        const itemId =
+            e.target.value;
+
+        const selectedItem =
+            items.find(
+                item => item._id === itemId
+            );
+
+        setForm(prev => ({
+
+            ...prev,
+
+            title:
+                selectedItem?.name || ""
+
+        }));
+
+    };
+
+
+    /*
+     * Normal Input Change
+     */
+    const handleChange = (e) => {
+
+        setForm(prev => ({
+
+            ...prev,
+
+            [e.target.name]:
+                e.target.value
+
+        }));
+
+    };
+
+
+    /*
+     * Submit
+     */
     const handleSubmit = (e) => {
 
         e.preventDefault();
 
+
         if (!form.title.trim()) {
 
-            alert("Title is required");
+            alert("Please select item");
+
+            return;
+
+        }
+
+
+        if (Number(form.amount) <= 0) {
+
+            alert(
+                "Amount should be greater than zero"
+            );
 
             return;
 
@@ -103,25 +284,43 @@ const DebtForm = ({
 
         if (!form.category) {
 
-            alert("Please select category");
+            alert(
+                "Please select category"
+            );
 
             return;
 
         }
 
+
         onSubmit({
 
             ...form,
 
-            amount: Number(form.amount)
+            amount:
+                Number(form.amount)
 
         });
 
     };
 
+
+    /*
+     * Selected Item
+     *
+     * Used for edit mode.
+     */
+    const selectedItemId =
+        items.find(
+            item => item.name === form.title
+        )?._id || "";
+
+
     return (
 
         <div className="card shadow">
+
+            {/* ================= HEADER ================= */}
 
             <div className="card-header d-flex justify-content-between">
 
@@ -131,9 +330,12 @@ const DebtForm = ({
 
                 </h5>
 
+
                 <button
                     className="btn btn-secondary btn-sm"
-                    onClick={() => navigate("/debt")}
+                    onClick={() =>
+                        navigate("/debt")
+                    }
                     type="button"
                 >
 
@@ -143,82 +345,30 @@ const DebtForm = ({
 
             </div>
 
+
             <div className="card-body">
 
                 <form onSubmit={handleSubmit}>
 
-                    <div className="mb-3">
-
-                        <label>
-
-                            Title
-
-                        </label>
-
-                        <input
-
-                            type="text"
-
-                            className="form-control"
-
-                            name="title"
-
-                            value={form.title}
-
-                            onChange={handleChange}
-
-                            required
-
-                        />
-
-                    </div>
+                    {/* ================= CATEGORY ================= */}
 
                     <div className="mb-3">
 
-                        <label>
-
-                            Amount
-
-                        </label>
-
-                        <input
-
-                            type="number"
-
-                            className="form-control"
-
-                            name="amount"
-
-                            value={form.amount}
-
-                            onChange={handleChange}
-
-                            required
-
-                        />
-
-                    </div>
-
-                    <div className="mb-3">
-
-                        <label>
+                        <label className="form-label">
 
                             Category
 
                         </label>
 
+
                         <select
-
                             className="form-select"
-
                             name="category"
-
                             value={form.category}
-
-                            onChange={handleChange}
-
+                            onChange={
+                                handleCategoryChange
+                            }
                             required
-
                         >
 
                             <option value="">
@@ -227,128 +377,217 @@ const DebtForm = ({
 
                             </option>
 
-                            {
 
-                                categories.map(category => (
+                            {categories.map(
+                                category => (
 
                                     <option
-                                        key={category._id}
-                                        value={category._id}
+                                        key={
+                                            category._id
+                                        }
+                                        value={
+                                            category._id
+                                        }
                                     >
 
-                                        {category.name}
+                                        {
+                                            category.name
+                                        }
 
                                     </option>
 
-                                ))
-
-                            }
+                                )
+                            )}
 
                         </select>
 
                     </div>
 
+
+                    {/* ================= ITEM ================= */}
+
                     <div className="mb-3">
 
-                        <label>
+                        <label className="form-label">
+
+                            Item
+
+                        </label>
+
+
+                        <select
+                            className="form-select"
+                            value={selectedItemId}
+                            onChange={
+                                handleItemChange
+                            }
+                            disabled={
+                                !form.category ||
+                                itemsLoading
+                            }
+                            required
+                        >
+
+                            <option value="">
+
+                                {itemsLoading
+                                    ? "Loading items..."
+                                    : !form.category
+                                        ? "First select category"
+                                        : items.length === 0
+                                            ? "No items found"
+                                            : "Select Item"}
+
+                            </option>
+
+
+                            {items.map(item => (
+
+                                <option
+                                    key={item._id}
+                                    value={item._id}
+                                >
+
+                                    {item.name}
+
+                                </option>
+
+                            ))}
+
+                        </select>
+
+                    </div>
+
+
+                    {/* ================= AMOUNT ================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
+
+                            Amount
+
+                        </label>
+
+
+                        <input
+                            type="number"
+                            className="form-control"
+                            name="amount"
+                            value={form.amount}
+                            onChange={handleChange}
+                            required
+                            min="0"
+                            step="0.01"
+                        />
+
+                    </div>
+
+
+                    {/* ================= PAYMENT MODE ================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
 
                             Payment Mode
 
                         </label>
 
+
                         <select
-
                             className="form-select"
-
                             name="paymentMode"
-
                             value={form.paymentMode}
-
                             onChange={handleChange}
-
                         >
 
-                            <option>Cash</option>
+                            <option>
+                                Cash
+                            </option>
 
-                            <option>UPI</option>
+                            <option>
+                                UPI
+                            </option>
 
-                            <option>Card</option>
+                            <option>
+                                Card
+                            </option>
 
-                            <option>Bank Transfer</option>
+                            <option>
+                                Bank Transfer
+                            </option>
 
-                            <option>Cheque</option>
+                            <option>
+                                Cheque
+                            </option>
 
-                            <option>Other</option>
+                            <option>
+                                Other
+                            </option>
 
                         </select>
 
                     </div>
 
+
+                    {/* ================= DATE ================= */}
+
                     <div className="mb-3">
 
-                        <label>
+                        <label className="form-label">
 
                             Date
 
                         </label>
 
+
                         <input
-
                             type="date"
-
                             className="form-control"
-
                             name="date"
-
                             value={form.date}
-
                             onChange={handleChange}
-
                         />
 
                     </div>
 
+
+                    {/* ================= NOTE ================= */}
+
                     <div className="mb-3">
 
-                        <label>
+                        <label className="form-label">
 
                             Note
 
                         </label>
 
+
                         <textarea
-
                             rows="3"
-
                             className="form-control"
-
                             name="note"
-
                             value={form.note}
-
                             onChange={handleChange}
-
                         />
 
                     </div>
 
+
+                    {/* ================= SUBMIT ================= */}
+
                     <button
-
                         className="btn btn-primary"
-
-                        disabled={loading}
-
+                        disabled={
+                            loading ||
+                            itemsLoading
+                        }
                     >
 
-                        {
-
-                            loading
-
-                                ? "Please wait..."
-
-                                : "Save debt"
-
-                        }
+                        {loading
+                            ? "Please wait..."
+                            : "Save Debt"}
 
                     </button>
 
