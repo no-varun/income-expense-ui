@@ -403,6 +403,7 @@ const ExpenseList = () => {
 
                                 <th>Title</th>
 
+                                <th>Note</th>
                                 <th>Amount</th>
 
                                 <th>Category</th>
@@ -472,7 +473,11 @@ const ExpenseList = () => {
                                                 {item.title}
 
                                             </td>
+                                            <td>
 
+                                                {item.note}
+
+                                            </td>
                                             <td>
 
                                                 Rs. {item.amount}
