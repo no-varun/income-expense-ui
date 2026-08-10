@@ -464,7 +464,7 @@ const SavingForm = ({
                             value={form.amount}
                             onChange={handleChange}
                             required
-                            min="0"
+                            min="-1000"
                             step="0.01"
                         />
 
