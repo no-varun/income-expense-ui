@@ -15,48 +15,118 @@ const CategoryForm = ({
         description: ""
     });
 
+
+    /*
+     * =========================
+     * EDIT MODE
+     * =========================
+     */
+
     useEffect(() => {
 
         if (Object.keys(initialValues).length > 0) {
 
             setForm({
-                name: initialValues.name || "",
-                type: initialValues.type || "INCOME",
-                description: initialValues.description || ""
+
+                name:
+                    initialValues.name || "",
+
+                type:
+                    initialValues.type || "INCOME",
+
+                description:
+                    initialValues.description || ""
+
             });
 
         }
 
     }, [initialValues]);
 
+
+    /*
+     * =========================
+     * HANDLE CHANGE
+     * =========================
+     */
+
     const handleChange = (e) => {
 
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value
-        });
+        const {
+            name,
+            value
+        } = e.target;
+
+        setForm(prev => ({
+
+            ...prev,
+
+            [name]: value
+
+        }));
 
     };
+
+
+    /*
+     * =========================
+     * SUBMIT
+     * =========================
+     */
 
     const handleSubmit = (e) => {
 
         e.preventDefault();
 
+
         if (!form.name.trim()) {
-            alert("Category name is required.");
+
+            alert(
+                "Category name is required."
+            );
+
             return;
+
         }
 
+
+        if (!form.type) {
+
+            alert(
+                "Category type is required."
+            );
+
+            return;
+
+        }
+
+
         onSubmit({
+
             ...form,
-            type: form.type.toUpperCase()
+
+            name:
+                form.name.trim(),
+
+            type:
+                form.type.toUpperCase()
+
         });
 
     };
 
+
+    /*
+     * =========================
+     * RENDER
+     * =========================
+     */
+
     return (
 
         <div className="card shadow">
+
+            {/* ================= HEADER ================= */}
 
             <div className="card-header d-flex justify-content-between align-items-center">
 
@@ -64,25 +134,39 @@ const CategoryForm = ({
                     Category Details
                 </h5>
 
+
                 <button
                     type="button"
                     className="btn btn-secondary btn-sm"
-                    onClick={() => navigate("/categories")}
+                    onClick={() =>
+                        navigate("/categories")
+                    }
                 >
+
                     ← Back
+
                 </button>
 
             </div>
+
+
+            {/* ================= BODY ================= */}
 
             <div className="card-body">
 
                 <form onSubmit={handleSubmit}>
 
+
+                    {/* ================= NAME ================= */}
+
                     <div className="mb-3">
 
                         <label className="form-label">
+
                             Category Name
+
                         </label>
+
 
                         <input
                             type="text"
@@ -96,27 +180,57 @@ const CategoryForm = ({
 
                     </div>
 
+
+                    {/* ================= TYPE ================= */}
+
                     <div className="mb-3">
 
                         <label className="form-label">
+
                             Category Type
+
                         </label>
 
-                        <select className="form-select" name="type" value={form.type} onChange={handleChange} >
-                            <option value="INCOME">Income</option>
-                            <option value="EXPENSE">Expense</option>
-                            <option value="SAVING">Saving</option>
-                            <option value="DEBT">Debt</option>
+
+                        <select
+                            className="form-select"
+                            name="type"
+                            value={form.type}
+                            onChange={handleChange}
+                            required
+                        >
+
+                            <option value="INCOME">
+                                Income
+                            </option>
+
+                            <option value="EXPENSE">
+                                Expense
+                            </option>
+
+                            <option value="SAVING">
+                                Saving
+                            </option>
+
+                            <option value="DEBT">
+                                Debt
+                            </option>
 
                         </select>
 
                     </div>
 
+
+                    {/* ================= DESCRIPTION ================= */}
+
                     <div className="mb-3">
 
                         <label className="form-label">
+
                             Description
+
                         </label>
+
 
                         <textarea
                             className="form-control"
@@ -129,12 +243,19 @@ const CategoryForm = ({
 
                     </div>
 
+
+                    {/* ================= SUBMIT ================= */}
+
                     <button
                         type="submit"
                         className="btn btn-primary"
                         disabled={loading}
                     >
-                        {loading ? "Please wait..." : "Save Category"}
+
+                        {loading
+                            ? "Please wait..."
+                            : "Save Category"}
+
                     </button>
 
                 </form>

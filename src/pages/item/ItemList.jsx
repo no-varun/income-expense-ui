@@ -18,12 +18,8 @@ const ItemList = () => {
     const [searchInput, setSearchInput] = useState("");
     const [search, setSearch] = useState("");
 
-    // Type filter
     const [type, setType] = useState("");
-
-    // Category filter
     const [category, setCategory] = useState("");
-
     const [status, setStatus] = useState("");
 
     const [page, setPage] = useState(1);
@@ -32,8 +28,11 @@ const ItemList = () => {
 
 
     /*
-     * Load Categories
+     * =========================
+     * LOAD CATEGORIES
+     * =========================
      */
+
     const loadCategories = async () => {
 
         try {
@@ -44,17 +43,26 @@ const ItemList = () => {
 
             if (response.success) {
 
+                const rows =
+                    response.data?.rows ||
+                    response.data?.data ||
+                    response.data ||
+                    [];
+
                 setCategories(
-                    response.data.rows ||
-                    response.data.data ||
-                    []
+                    Array.isArray(rows)
+                        ? rows
+                        : []
                 );
 
             }
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Category fetch error:",
+                error
+            );
 
         }
 
@@ -62,8 +70,11 @@ const ItemList = () => {
 
 
     /*
-     * Filter categories according to selected type
+     * =========================
+     * FILTER CATEGORIES BY TYPE
+     * =========================
      */
+
     const filteredCategories = categories.filter(item => {
 
         if (!type) {
@@ -76,8 +87,11 @@ const ItemList = () => {
 
 
     /*
-     * Load Items
+     * =========================
+     * LOAD ITEMS
+     * =========================
      */
+
     const loadItems = useCallback(async () => {
 
         try {
@@ -112,26 +126,45 @@ const ItemList = () => {
 
             const response = await getItems(params);
 
+
             if (response.success) {
 
+                const rows =
+                    response.data?.data ||
+                    response.data?.rows ||
+                    response.data ||
+                    [];
+
                 setItems(
-                    response.data.data ||
-                    response.data.rows ||
-                    []
+                    Array.isArray(rows)
+                        ? rows
+                        : []
                 );
 
                 setTotal(
-                    response.data.total || 0
+                    response.data?.total ||
+                    rows.length ||
+                    0
                 );
+
+            } else {
+
+                setItems([]);
+                setTotal(0);
 
             }
 
         } catch (error) {
 
+            console.error(error);
+
             alert(
                 error.response?.data?.message ||
                 "Unable to fetch items."
             );
+
+            setItems([]);
+            setTotal(0);
 
         } finally {
 
@@ -150,8 +183,11 @@ const ItemList = () => {
 
 
     /*
-     * Load categories once
+     * =========================
+     * LOAD CATEGORIES ONCE
+     * =========================
      */
+
     useEffect(() => {
 
         loadCategories();
@@ -160,8 +196,11 @@ const ItemList = () => {
 
 
     /*
-     * Load items
+     * =========================
+     * LOAD ITEMS
+     * =========================
      */
+
     useEffect(() => {
 
         loadItems();
@@ -170,8 +209,11 @@ const ItemList = () => {
 
 
     /*
-     * Search / Filter
+     * =========================
+     * FILTER
+     * =========================
      */
+
     const handleFilter = (event) => {
 
         event.preventDefault();
@@ -186,11 +228,11 @@ const ItemList = () => {
 
 
     /*
-     * Type change
-     *
-     * Reset category because old category
-     * may belong to another type.
+     * =========================
+     * TYPE CHANGE
+     * =========================
      */
+
     const handleTypeChange = (event) => {
 
         const selectedType =
@@ -206,8 +248,11 @@ const ItemList = () => {
 
 
     /*
-     * Category change
+     * =========================
+     * CATEGORY CHANGE
+     * =========================
      */
+
     const handleCategoryChange = (event) => {
 
         setCategory(
@@ -220,8 +265,28 @@ const ItemList = () => {
 
 
     /*
-     * Delete Item
+     * =========================
+     * STATUS CHANGE
+     * =========================
      */
+
+    const handleStatusChange = (event) => {
+
+        setStatus(
+            event.target.value
+        );
+
+        setPage(1);
+
+    };
+
+
+    /*
+     * =========================
+     * DELETE
+     * =========================
+     */
+
     const handleDelete = async (id) => {
 
         if (!window.confirm("Delete this item?")) {
@@ -237,6 +302,9 @@ const ItemList = () => {
 
                 alert(response.message);
 
+                /*
+                 * Reload current page
+                 */
                 loadItems();
 
             }
@@ -253,6 +321,12 @@ const ItemList = () => {
     };
 
 
+    /*
+     * =========================
+     * PAGINATION
+     * =========================
+     */
+
     const totalPages =
         Math.ceil(total / limit) || 1;
 
@@ -268,15 +342,22 @@ const ItemList = () => {
         );
 
 
+    /*
+     * =========================
+     * RENDER
+     * =========================
+     */
+
     return (
 
         <div className="container-fluid">
+
 
             {/* ================= HEADER ================= */}
 
             <div className="d-flex justify-content-between align-items-center mb-3">
 
-                <h3>
+                <h3 className="mb-0">
                     Item List
                 </h3>
 
@@ -301,9 +382,10 @@ const ItemList = () => {
                         onSubmit={handleFilter}
                     >
 
-                        {/* Search */}
 
-                        <div className="col-12 col-md-3">
+                        {/* SEARCH */}
+
+                        <div className="col-12 col-lg-3">
 
                             <label className="form-label">
                                 Search
@@ -324,9 +406,9 @@ const ItemList = () => {
                         </div>
 
 
-                        {/* Type */}
+                        {/* TYPE */}
 
-                        <div className="col-12 col-md-2">
+                        <div className="col-12 col-lg-2">
 
                             <label className="form-label">
                                 Type
@@ -363,9 +445,9 @@ const ItemList = () => {
                         </div>
 
 
-                        {/* Category */}
+                        {/* CATEGORY */}
 
-                        <div className="col-12 col-md-3">
+                        <div className="col-12 col-lg-3">
 
                             <label className="form-label">
                                 Category
@@ -397,9 +479,9 @@ const ItemList = () => {
                         </div>
 
 
-                        {/* Status */}
+                        {/* STATUS */}
 
-                        <div className="col-6 col-md-2">
+                        <div className="col-6 col-lg-2">
 
                             <label className="form-label">
                                 Status
@@ -408,15 +490,7 @@ const ItemList = () => {
                             <select
                                 className="form-select"
                                 value={status}
-                                onChange={event => {
-
-                                    setStatus(
-                                        event.target.value
-                                    );
-
-                                    setPage(1);
-
-                                }}
+                                onChange={handleStatusChange}
                             >
 
                                 <option value="">
@@ -436,9 +510,9 @@ const ItemList = () => {
                         </div>
 
 
-                        {/* Per Page */}
+                        {/* PER PAGE */}
 
-                        <div className="col-6 col-md-1">
+                        <div className="col-6 col-lg-1">
 
                             <label className="form-label">
                                 Per page
@@ -477,13 +551,13 @@ const ItemList = () => {
                         </div>
 
 
-                        {/* Go */}
+                        {/* GO */}
 
-                        <div className="col-12">
+                        <div className="col-12 col-lg-1">
 
                             <button
                                 type="submit"
-                                className="btn btn-dark"
+                                className="btn btn-dark w-100"
                             >
                                 Go
                             </button>
@@ -580,9 +654,11 @@ const ItemList = () => {
                                         >
 
                                             <td>
-                                                {((page - 1) * limit) +
+                                                {
+                                                    ((page - 1) * limit) +
                                                     index +
-                                                    1}
+                                                    1
+                                                }
                                             </td>
 
 
@@ -595,9 +671,11 @@ const ItemList = () => {
 
                                                 <span className="badge bg-info">
 
-                                                    {item.type ||
+                                                    {
+                                                        item.type ||
                                                         item.category?.type ||
-                                                        "-"}
+                                                        "-"
+                                                    }
 
                                                 </span>
 
@@ -605,8 +683,10 @@ const ItemList = () => {
 
 
                                             <td>
-                                                {item.category?.name ||
-                                                    "-"}
+                                                {
+                                                    item.category?.name ||
+                                                    "-"
+                                                }
                                             </td>
 
 
@@ -620,9 +700,11 @@ const ItemList = () => {
                                                     }`}
                                                 >
 
-                                                    {item.status
-                                                        ? "Active"
-                                                        : "Inactive"}
+                                                    {
+                                                        item.status
+                                                            ? "Active"
+                                                            : "Inactive"
+                                                    }
 
                                                 </span>
 
@@ -630,8 +712,10 @@ const ItemList = () => {
 
 
                                             <td>
-                                                {item.description ||
-                                                    "-"}
+                                                {
+                                                    item.description ||
+                                                    "-"
+                                                }
                                             </td>
 
 
@@ -679,7 +763,13 @@ const ItemList = () => {
 
                     <small className="text-muted">
 
-                        Showing {startRecord} to {endRecord} of {total} records
+                        Showing{" "}
+                        {startRecord}
+                        {" "}to{" "}
+                        {endRecord}
+                        {" "}of{" "}
+                        {total}
+                        {" "}records
 
                     </small>
 
@@ -709,6 +799,7 @@ const ItemList = () => {
         </div>
 
     );
+
 };
 
 export default ItemList;

@@ -1,5 +1,6 @@
 import axios from "./axios";
 
+
 /**
  * Daily Chart
  * GET /api/charts/daily?month=8&year=2026
@@ -18,6 +19,7 @@ export const getDailyChart = async (month, year) => {
 
 };
 
+
 /**
  * Monthly Chart
  * GET /api/charts/monthly?year=2026
@@ -35,6 +37,7 @@ export const getMonthlyChart = async (year) => {
 
 };
 
+
 /**
  * Yearly Chart
  * GET /api/charts/yearly
@@ -46,6 +49,7 @@ export const getYearlyChart = async () => {
     );
 
 };
+
 
 /**
  * Weekly Chart
@@ -59,11 +63,15 @@ export const getWeeklyChart = async () => {
 
 };
 
+
 /**
  * Week Wise Expense Chart
  * GET /api/charts/week-wise?month=8&year=2026
  */
-export const getWeekWiseExpenseChart = async (month, year) => {
+export const getWeekWiseExpenseChart = async (
+    month,
+    year
+) => {
 
     return await axios.get(
         "/charts/week-wise",
@@ -77,38 +85,93 @@ export const getWeekWiseExpenseChart = async (month, year) => {
 
 };
 
+
 /**
  * Category Wise Chart
- * GET /api/charts/category
+ *
+ * All:
+ * GET /api/charts/category?year=all&month=all
+ *
+ * Year:
+ * GET /api/charts/category?year=2026&month=all
+ *
+ * Year + Month:
+ * GET /api/charts/category?year=2026&month=8
+ *
+ * All Years + Month:
+ * GET /api/charts/category?year=all&month=8
  */
-export const getCategoryChart = async () => {
+export const getCategoryChart = async (
+    year = "all",
+    month = "all"
+) => {
 
     return await axios.get(
-        "/charts/category"
+        "/charts/category",
+        {
+            params: {
+                year,
+                month
+            }
+        }
     );
 
 };
+
 
 /**
  * Payment Mode Wise Chart
- * GET /api/charts/payment-mode
+ *
+ * All:
+ * GET /api/charts/payment-mode?year=all&month=all
+ *
+ * Year:
+ * GET /api/charts/payment-mode?year=2026&month=all
+ *
+ * Year + Month:
+ * GET /api/charts/payment-mode?year=2026&month=8
+ *
+ * All Years + Month:
+ * GET /api/charts/payment-mode?year=all&month=8
  */
-export const getPaymentModeChart = async () => {
+export const getPaymentModeChart = async (
+    year = "all",
+    month = "all"
+) => {
 
     return await axios.get(
-        "/charts/payment-mode"
+        "/charts/payment-mode",
+        {
+            params: {
+                year,
+                month
+            }
+        }
     );
 
 };
 
+
 /**
  * Dashboard Chart
- * GET /api/charts/dashboard
+ *
+ * Default:
+ * GET /api/charts/dashboard?year=all
+ *
+ * Specific year:
+ * GET /api/charts/dashboard?year=2026
  */
-export const getDashboardChart = async () => {
+export const getDashboardChart = async (
+    year = "all"
+) => {
 
     return await axios.get(
-        "/charts/dashboard"
+        "/charts/dashboard",
+        {
+            params: {
+                year
+            }
+        }
     );
 
 };

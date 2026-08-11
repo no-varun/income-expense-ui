@@ -5,15 +5,33 @@ import {
     getCategories,
     deleteCategory
 } from "../../api/categoryApi";
+
 import Pagination from "../../components/common/Pagination";
 
 const CategoryList = () => {
 
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
+
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [total, setTotal] = useState(0);
+
+    /*
+     * =========================
+     * TYPE FILTER
+     * =========================
+     */
+
+    const [typeInput, setTypeInput] = useState("");
+    const [type, setType] = useState("");
+
+
+    /*
+     * =========================
+     * LOAD CATEGORIES
+     * =========================
+     */
 
     const loadCategories = useCallback(async () => {
 
@@ -22,20 +40,50 @@ const CategoryList = () => {
             setLoading(true);
 
             const response = await getCategories({
+
                 page,
-                limit
+                limit,
+
+                ...(type && {
+                    type
+                })
+
             });
 
-            if (response.success) {
-                const rows = response.data.rows || response.data.data || [];
 
-                setCategories(rows);
-                setTotal(response.data.total || rows.length);
+            if (response.success) {
+
+                const rows =
+                    response.data?.rows ||
+                    response.data?.data ||
+                    response.data ||
+                    [];
+
+                setCategories(
+                    Array.isArray(rows)
+                        ? rows
+                        : []
+                );
+
+                setTotal(
+                    response.data?.total ||
+                    rows.length ||
+                    0
+                );
+
+            } else {
+
+                setCategories([]);
+                setTotal(0);
+
             }
 
         } catch (error) {
 
             console.error(error);
+
+            setCategories([]);
+            setTotal(0);
 
             alert(
                 error.response?.data?.message ||
@@ -48,7 +96,18 @@ const CategoryList = () => {
 
         }
 
-    }, [limit, page]);
+    }, [
+        limit,
+        page,
+        type
+    ]);
+
+
+    /*
+     * =========================
+     * INITIAL / DATA LOAD
+     * =========================
+     */
 
     useEffect(() => {
 
@@ -56,26 +115,87 @@ const CategoryList = () => {
 
     }, [loadCategories]);
 
+
+    /*
+     * =========================
+     * TYPE FILTER
+     * =========================
+     */
+
+    const handleTypeChange = (event) => {
+
+        setTypeInput(
+            event.target.value
+        );
+
+        setType(
+            event.target.value
+        );
+
+        setPage(1);
+
+    };
+
+
+    /*
+     * =========================
+     * CLEAR FILTER
+     * =========================
+     */
+
+    const handleClearFilter = () => {
+
+        setTypeInput("");
+        setType("");
+
+        setPage(1);
+
+    };
+
+
+    /*
+     * =========================
+     * DELETE
+     * =========================
+     */
+
     const handleDelete = async (id) => {
 
         const confirmDelete = window.confirm(
             "Are you sure you want to delete this category?"
         );
 
-        if (!confirmDelete) return;
+        if (!confirmDelete) {
+            return;
+        }
+
 
         try {
 
-            const response = await deleteCategory(id);
+            const response =
+                await deleteCategory(id);
+
 
             if (response.success) {
 
-                alert(response.message);
+                alert(
+                    response.message
+                );
 
-                if (categories.length === 1 && page > 1) {
-                    setPage(page - 1);
+
+                if (
+                    categories.length === 1 &&
+                    page > 1
+                ) {
+
+                    setPage(
+                        page - 1
+                    );
+
                 } else {
+
                     loadCategories();
+
                 }
 
             }
@@ -91,21 +211,51 @@ const CategoryList = () => {
 
     };
 
-    const totalPages = Math.ceil(total / limit) || 1;
-    const startRecord = total === 0 ? 0 : ((page - 1) * limit) + 1;
-    const endRecord = Math.min(page * limit, total);
+
+    /*
+     * =========================
+     * PAGINATION
+     * =========================
+     */
+
+    const totalPages =
+        Math.ceil(
+            total / limit
+        ) || 1;
+
+
+    const startRecord =
+        total === 0
+            ? 0
+            : ((page - 1) * limit) + 1;
+
+
+    const endRecord =
+        Math.min(
+            page * limit,
+            total
+        );
+
+
+    /*
+     * =========================
+     * RENDER
+     * =========================
+     */
 
     return (
 
         <div className="container-fluid">
 
+
+            {/* ================= HEADER ================= */}
+
             <div className="d-flex justify-content-between align-items-center mb-4">
 
-                <h3>
-
+                <h3 className="mb-0">
                     Category List
-
                 </h3>
+
 
                 <Link
                     to="/categories/add"
@@ -118,13 +268,76 @@ const CategoryList = () => {
 
             </div>
 
+
+            {/* ================= CARD ================= */}
+
             <div className="card shadow">
 
-                <div className="card-body p-0">
 
-                    <div className="d-flex justify-content-end p-3">
+                {/* ================= FILTER ================= */}
 
-                        <div style={{ width: "140px" }}>
+                <div className="card-body">
+
+                    <div className="row g-2 align-items-end">
+
+
+                        {/* TYPE */}
+
+                        <div className="col-12 col-md-4">
+
+                            <label className="form-label">
+
+                                Type
+
+                            </label>
+
+
+                            <select
+                                className="form-select"
+                                value={typeInput}
+                                onChange={
+                                    handleTypeChange
+                                }
+                            >
+
+                                <option value="">
+
+                                    All Types
+
+                                </option>
+
+                                <option value="INCOME">
+
+                                    Income
+
+                                </option>
+
+                                <option value="EXPENSE">
+
+                                    Expense
+
+                                </option>
+
+                                <option value="SAVING">
+
+                                    Saving
+
+                                </option>
+
+                                <option value="DEBT">
+
+                                    Debt
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        {/* PER PAGE */}
+
+                        <div className="col-6 col-md-2">
 
                             <label className="form-label">
 
@@ -132,64 +345,101 @@ const CategoryList = () => {
 
                             </label>
 
+
                             <select
                                 className="form-select"
                                 value={limit}
                                 onChange={event => {
-                                    setLimit(Number(event.target.value));
+
+                                    setLimit(
+                                        Number(
+                                            event.target.value
+                                        )
+                                    );
+
                                     setPage(1);
+
                                 }}
                             >
 
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
+                                <option value="10">
+                                    10
+                                </option>
+
+                                <option value="25">
+                                    25
+                                </option>
+
+                                <option value="50">
+                                    50
+                                </option>
 
                             </select>
 
                         </div>
 
+
+                        {/* CLEAR */}
+
+                        <div className="col-6 col-md-2">
+
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary w-100"
+                                onClick={
+                                    handleClearFilter
+                                }
+                                disabled={
+                                    !typeInput
+                                }
+                            >
+
+                                Clear
+
+                            </button>
+
+                        </div>
+
                     </div>
 
+                </div>
+
+
+                {/* ================= TABLE ================= */}
+
+                <div className="card-body p-0 table-responsive">
+
                     <table className="table table-bordered table-hover mb-0">
+
 
                         <thead className="table-dark">
 
                             <tr>
 
                                 <th width="80">
-
                                     #
-
                                 </th>
 
                                 <th>
-
                                     Name
-
                                 </th>
 
                                 <th>
-
                                     Type
-
                                 </th>
 
                                 <th>
-
                                     Color
-
                                 </th>
 
                                 <th width="180">
-
                                     Action
-
                                 </th>
 
                             </tr>
 
                         </thead>
+
 
                         <tbody>
 
@@ -227,71 +477,111 @@ const CategoryList = () => {
 
                                 ) : (
 
-                                    categories.map((item, index) => (
+                                    categories.map(
+                                        (item, index) => (
 
-                                        <tr
-                                            key={item._id}
-                                        >
+                                            <tr
+                                                key={
+                                                    item._id
+                                                }
+                                            >
 
-                                            <td>
+                                                <td>
 
-                                                {((page - 1) * limit) + index + 1}
-
-                                            </td>
-
-                                            <td>
-
-                                                {item.name}
-
-                                            </td>
-
-                                            <td>
-                                                <span className={`badge ${item.type === "INCOME" ? "bg-success" : item.type === "EXPENSE" ? "bg-danger" : "bg-info"}`}>
-                                                    {item.type}
-                                                </span>
-                                            </td>
-
-                                            <td>
-
-                                                <span
-                                                    style={{
-                                                        width: "25px",
-                                                        height: "25px",
-                                                        display: "inline-block",
-                                                        borderRadius: "50%",
-                                                        background: item.color
-                                                    }}
-                                                />
-
-                                            </td>
-
-                                            <td>
-
-                                                <Link
-                                                    to={`/categories/edit/${item._id}`}
-                                                    className="btn btn-warning btn-sm me-2"
-                                                >
-
-                                                    Edit
-
-                                                </Link>
-
-                                                <button
-                                                    className="btn btn-danger btn-sm"
-                                                    onClick={() =>
-                                                        handleDelete(item._id)
+                                                    {
+                                                        ((page - 1) * limit) +
+                                                        index +
+                                                        1
                                                     }
-                                                >
 
-                                                    Delete
+                                                </td>
 
-                                                </button>
 
-                                            </td>
+                                                <td>
 
-                                        </tr>
+                                                    {
+                                                        item.name
+                                                    }
 
-                                    ))
+                                                </td>
+
+
+                                                <td>
+
+                                                    <span
+                                                        className={`
+                                                            badge
+                                                            ${
+                                                                item.type === "INCOME"
+                                                                    ? "bg-success"
+                                                                    : item.type === "EXPENSE"
+                                                                        ? "bg-danger"
+                                                                        : item.type === "SAVING"
+                                                                            ? "bg-warning text-dark"
+                                                                            : item.type === "DEBT"
+                                                                                ? "bg-info"
+                                                                                : "bg-secondary"
+                                                            }
+                                                        `}
+                                                    >
+
+                                                        {
+                                                            item.type
+                                                        }
+
+                                                    </span>
+
+                                                </td>
+
+
+                                                <td>
+
+                                                    <span
+                                                        style={{
+                                                            width: "25px",
+                                                            height: "25px",
+                                                            display: "inline-block",
+                                                            borderRadius: "50%",
+                                                            background:
+                                                                item.color
+                                                        }}
+                                                    />
+
+                                                </td>
+
+
+                                                <td>
+
+                                                    <Link
+                                                        to={`/categories/edit/${item._id}`}
+                                                        className="btn btn-warning btn-sm me-2"
+                                                    >
+
+                                                        Edit
+
+                                                    </Link>
+
+
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                item._id
+                                                            )
+                                                        }
+                                                    >
+
+                                                        Delete
+
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                        )
+                                    )
 
                                 )
 
@@ -303,22 +593,41 @@ const CategoryList = () => {
 
                 </div>
 
+
+                {/* ================= FOOTER ================= */}
+
                 <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
 
                     <small className="text-muted">
 
-                        Showing {startRecord} to {endRecord} of {total} records
+                        Showing{" "}
+                        {startRecord}
+                        {" "}to{" "}
+                        {endRecord}
+                        {" "}of{" "}
+                        {total}
+                        {" "}records
 
                     </small>
+
 
                     <Pagination
                         page={page}
                         limit={limit}
                         total={total}
                         onPageChange={nextPage => {
-                            if (nextPage >= 1 && nextPage <= totalPages) {
-                                setPage(nextPage);
+
+                            if (
+                                nextPage >= 1 &&
+                                nextPage <= totalPages
+                            ) {
+
+                                setPage(
+                                    nextPage
+                                );
+
                             }
+
                         }}
                     />
 

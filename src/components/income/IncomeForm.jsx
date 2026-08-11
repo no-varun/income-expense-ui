@@ -14,25 +14,62 @@ const IncomeForm = ({
 
     const [categories, setCategories] = useState([]);
     const [items, setItems] = useState([]);
-
     const [itemsLoading, setItemsLoading] = useState(false);
 
     const [form, setForm] = useState({
-
         title: "",
+        itemId: "",
         amount: "",
         category: "",
         paymentMode: "Cash",
         date: new Date().toISOString().split("T")[0],
         note: ""
-
     });
 
 
     /*
-     * Load Income Categories
+     * =========================
+     * LOAD CATEGORIES
+     * =========================
      */
+
     useEffect(() => {
+
+        const loadCategories = async () => {
+
+            try {
+
+                const response = await getCategories({
+                    limit: 100,
+                    type: "INCOME"
+                });
+
+                if (response.success) {
+
+                    const rows =
+                        response.data?.rows ||
+                        response.data?.data ||
+                        response.data ||
+                        [];
+
+                    setCategories(
+                        Array.isArray(rows)
+                            ? rows
+                            : []
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Category fetch error:",
+                    error
+                );
+
+            }
+
+        };
 
         loadCategories();
 
@@ -40,132 +77,54 @@ const IncomeForm = ({
 
 
     /*
-     * Set Initial Values in Edit Mode
+     * =========================
+     * LOAD ITEMS BY CATEGORY
+     * =========================
      */
-    useEffect(() => {
 
-        if (Object.keys(initialValues).length > 0) {
-
-            const categoryId =
-                initialValues.category?._id ||
-                initialValues.category ||
-                "";
-
-            const title =
-                initialValues.title || "";
-
-            setForm({
-
-                title,
-
-                amount:
-                    initialValues.amount || "",
-
-                category:
-                    categoryId,
-
-                paymentMode:
-                    initialValues.paymentMode || "Cash",
-
-                date:
-                    initialValues.date
-                        ? initialValues.date.substring(0, 10)
-                        : new Date()
-                            .toISOString()
-                            .split("T")[0],
-
-                note:
-                    initialValues.note || ""
-
-            });
-
-            /*
-             * Fetch items for selected category
-             */
-            if (categoryId) {
-                loadItems(categoryId);
-            }
-
-        }
-
-    }, [initialValues]);
-
-
-    /*
-     * Fetch Categories
-     */
-    const loadCategories = async () => {
-
-        try {
-
-            const response = await getCategories({
-
-                limit: 100,
-
-                type: "INCOME"
-
-            });
-
-
-            if (response.success) {
-
-                const rows =
-                    response.data.rows ||
-                    response.data.data ||
-                    response.data ||
-                    [];
-
-                setCategories(rows);
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Category fetch error:",
-                error
-            );
-
-        }
-
-    };
-
-
-    /*
-     * Fetch Items According To Category
-     */
     const loadItems = async (categoryId) => {
 
         try {
 
-            setItemsLoading(true);
+            if (!categoryId) {
 
+                setItems([]);
+
+                return [];
+
+            }
+
+            setItemsLoading(true);
             setItems([]);
 
             const response = await getItems({
-
                 limit: 1000,
-
                 category: categoryId,
-
                 type: "INCOME",
-
                 status: true
-
             });
-
 
             if (response.success) {
 
                 const rows =
-                    response.data.data ||
-                    response.data.rows ||
+                    response.data?.rows ||
+                    response.data?.data?.rows ||
+                    response.data?.data ||
                     response.data ||
                     [];
 
-                setItems(rows);
+                const itemRows =
+                    Array.isArray(rows)
+                        ? rows
+                        : [];
+
+                setItems(itemRows);
+
+                return itemRows;
 
             }
+
+            return [];
 
         } catch (error) {
 
@@ -175,6 +134,8 @@ const IncomeForm = ({
             );
 
             setItems([]);
+
+            return [];
 
         } finally {
 
@@ -186,15 +147,92 @@ const IncomeForm = ({
 
 
     /*
-     * Handle Input Change
+     * =========================
+     * EDIT MODE
+     * =========================
      */
+
+    useEffect(() => {
+
+        if (
+            !initialValues ||
+            Object.keys(initialValues).length === 0
+        ) {
+
+            return;
+
+        }
+
+        const categoryId =
+            initialValues.category?._id ||
+            initialValues.category ||
+            "";
+
+        const title =
+            initialValues.title || "";
+
+        setForm({
+
+            title,
+
+            itemId:
+                initialValues.item?._id ||
+                initialValues.itemId ||
+                "",
+
+            amount:
+                initialValues.amount ?? "",
+
+            category:
+                categoryId,
+
+            paymentMode:
+                initialValues.paymentMode ||
+                "Cash",
+
+            date:
+                initialValues.date
+                    ? initialValues.date.substring(0, 10)
+                    : new Date()
+                        .toISOString()
+                        .split("T")[0],
+
+            note:
+                initialValues.note ||
+                ""
+
+        });
+
+
+        /*
+         * Load items for existing category.
+         */
+
+        if (categoryId) {
+
+            loadItems(categoryId);
+
+        } else {
+
+            setItems([]);
+
+        }
+
+    }, [initialValues]);
+
+
+    /*
+     * =========================
+     * HANDLE NORMAL INPUT
+     * =========================
+     */
+
     const handleChange = (e) => {
 
         const {
             name,
             value
         } = e.target;
-
 
         setForm(prev => ({
 
@@ -208,16 +246,15 @@ const IncomeForm = ({
 
 
     /*
-     * Category Change
-     *
-     * First select category,
-     * then fetch items for that category.
+     * =========================
+     * CATEGORY CHANGE
+     * =========================
      */
+
     const handleCategoryChange = async (e) => {
 
         const categoryId =
             e.target.value;
-
 
         setForm(prev => ({
 
@@ -225,13 +262,13 @@ const IncomeForm = ({
 
             category: categoryId,
 
-            title: ""
+            title: "",
+
+            itemId: ""
 
         }));
 
-
         setItems([]);
-
 
         if (categoryId) {
 
@@ -243,25 +280,28 @@ const IncomeForm = ({
 
 
     /*
-     * Item / Title Change
-     *
-     * Selected item name becomes title.
+     * =========================
+     * ITEM CHANGE
+     * =========================
      */
+
     const handleItemChange = (e) => {
 
         const itemId =
             e.target.value;
 
-
         const selectedItem =
             items.find(
-                item => item._id === itemId
+                item =>
+                    String(item._id) ===
+                    String(itemId)
             );
-
 
         setForm(prev => ({
 
             ...prev,
+
+            itemId,
 
             title:
                 selectedItem?.name || ""
@@ -272,26 +312,20 @@ const IncomeForm = ({
 
 
     /*
-     * Submit
+     * =========================
+     * SUBMIT
+     * =========================
      */
+
     const handleSubmit = (e) => {
 
         e.preventDefault();
 
 
-        if (!form.title.trim()) {
-
-            alert("Please select item");
-
-            return;
-
-        }
-
-
-        if (Number(form.amount) <= 0) {
+        if (!form.category) {
 
             alert(
-                "Amount should be greater than zero"
+                "Please select category"
             );
 
             return;
@@ -299,10 +333,24 @@ const IncomeForm = ({
         }
 
 
-        if (!form.category) {
+        if (!form.itemId && !form.title.trim()) {
 
             alert(
-                "Please select category"
+                "Please select item"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !form.amount ||
+            Number(form.amount) <= 0
+        ) {
+
+            alert(
+                "Amount should be greater than zero"
             );
 
             return;
@@ -322,13 +370,34 @@ const IncomeForm = ({
     };
 
 
+    /*
+     * =========================
+     * SELECTED ITEM ID
+     *
+     * Needed for edit mode when
+     * only title exists.
+     * =========================
+     */
+
+    const selectedItemId =
+        form.itemId ||
+        items.find(
+            item =>
+                item.name === form.title
+        )?._id ||
+        "";
+
+
     return (
 
         <div className="card shadow">
 
-            {/* ================= HEADER ================= */}
 
-            <div className="card-header d-flex justify-content-between">
+            {/* =========================
+                HEADER
+            ========================= */}
+
+            <div className="card-header d-flex justify-content-between align-items-center">
 
                 <h5 className="mb-0">
 
@@ -338,11 +407,11 @@ const IncomeForm = ({
 
 
                 <button
+                    type="button"
                     className="btn btn-secondary btn-sm"
                     onClick={() =>
                         navigate("/income")
                     }
-                    type="button"
                 >
 
                     Back
@@ -356,7 +425,10 @@ const IncomeForm = ({
 
                 <form onSubmit={handleSubmit}>
 
-                    {/* ================= CATEGORY ================= */}
+
+                    {/* =========================
+                        CATEGORY
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -410,7 +482,9 @@ const IncomeForm = ({
                     </div>
 
 
-                    {/* ================= ITEM / TITLE ================= */}
+                    {/* =========================
+                        ITEM
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -423,13 +497,7 @@ const IncomeForm = ({
 
                         <select
                             className="form-select"
-                            value={
-                                items.find(
-                                    item =>
-                                        item.name ===
-                                        form.title
-                                )?._id || ""
-                            }
+                            value={selectedItemId}
                             onChange={
                                 handleItemChange
                             }
@@ -443,12 +511,20 @@ const IncomeForm = ({
                             <option value="">
 
                                 {itemsLoading
+
                                     ? "Loading items..."
+
                                     : !form.category
+
                                         ? "First select category"
+
                                         : items.length === 0
+
                                             ? "No items found"
-                                            : "Select Item"}
+
+                                            : "Select Item"
+
+                                }
 
                             </option>
 
@@ -471,7 +547,9 @@ const IncomeForm = ({
                     </div>
 
 
-                    {/* ================= AMOUNT ================= */}
+                    {/* =========================
+                        AMOUNT
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -488,15 +566,17 @@ const IncomeForm = ({
                             name="amount"
                             value={form.amount}
                             onChange={handleChange}
-                            required
                             min="0"
                             step="0.01"
+                            required
                         />
 
                     </div>
 
 
-                    {/* ================= PAYMENT MODE ================= */}
+                    {/* =========================
+                        PAYMENT MODE
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -516,27 +596,27 @@ const IncomeForm = ({
                             onChange={handleChange}
                         >
 
-                            <option>
+                            <option value="Cash">
                                 Cash
                             </option>
 
-                            <option>
+                            <option value="UPI">
                                 UPI
                             </option>
 
-                            <option>
+                            <option value="Card">
                                 Card
                             </option>
 
-                            <option>
+                            <option value="Bank Transfer">
                                 Bank Transfer
                             </option>
 
-                            <option>
+                            <option value="Cheque">
                                 Cheque
                             </option>
 
-                            <option>
+                            <option value="Other">
                                 Other
                             </option>
 
@@ -545,7 +625,9 @@ const IncomeForm = ({
                     </div>
 
 
-                    {/* ================= DATE ================= */}
+                    {/* =========================
+                        DATE
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -567,7 +649,9 @@ const IncomeForm = ({
                     </div>
 
 
-                    {/* ================= NOTE ================= */}
+                    {/* =========================
+                        NOTE
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -584,14 +668,18 @@ const IncomeForm = ({
                             name="note"
                             value={form.note}
                             onChange={handleChange}
+                            placeholder="Enter note"
                         />
 
                     </div>
 
 
-                    {/* ================= SUBMIT ================= */}
+                    {/* =========================
+                        SUBMIT
+                    ========================= */}
 
                     <button
+                        type="submit"
                         className="btn btn-primary"
                         disabled={
                             loading ||

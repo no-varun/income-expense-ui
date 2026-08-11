@@ -13,100 +13,72 @@ const ExpenseForm = ({
     const navigate = useNavigate();
 
     const [categories, setCategories] = useState([]);
-
     const [items, setItems] = useState([]);
 
     const [form, setForm] = useState({
-
         title: "",
-
         amount: "",
-
         category: "",
-
         paymentMode: "UPI",
-
         date: new Date().toISOString().split("T")[0],
-
         note: ""
-
     });
 
+
+    /*
+     * =========================
+     * LOAD CATEGORIES
+     * =========================
+     */
+
     useEffect(() => {
+
+        const loadCategories = async () => {
+
+            try {
+
+                const response = await getCategories({
+                    limit: 100,
+                    type: "EXPENSE"
+                });
+
+                if (response.success) {
+
+                    const rows =
+                        response.data?.rows ||
+                        response.data?.data ||
+                        response.data ||
+                        [];
+
+                    setCategories(
+                        Array.isArray(rows)
+                            ? rows
+                            : []
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Category load error:",
+                    error
+                );
+
+            }
+
+        };
 
         loadCategories();
 
     }, []);
 
-    useEffect(() => {
 
-        if (Object.keys(initialValues).length > 0) {
-
-            const categoryId =
-                initialValues.category?._id ||
-                initialValues.category ||
-                "";
-
-            setForm({
-
-                title: initialValues.title || "",
-
-                amount: initialValues.amount || "",
-
-                category: categoryId,
-
-                paymentMode:
-                    initialValues.paymentMode || "UPI",
-
-                date: initialValues.date
-                    ? initialValues.date.substring(0, 10)
-                    : new Date().toISOString().split("T")[0],
-
-                note: initialValues.note || ""
-
-            });
-
-            if (categoryId) {
-
-                loadItems(categoryId);
-
-            }
-
-        }
-
-    }, [initialValues]);
-
-    const loadCategories = async () => {
-
-        try {
-
-            const response = await getCategories({
-
-                limit: 100,
-
-                type: "EXPENSE"
-
-            });
-
-            if (response.success) {
-
-                const rows =
-                    response.data.rows ||
-                    response.data.data ||
-                    response.data ||
-                    [];
-
-                setCategories(rows);
-
-            }
-
-        } catch (error) {
-
-            console.log(error);
-
-        }
-
-    };
+    /*
+     * =========================
+     * LOAD ITEMS BY CATEGORY
+     * =========================
+     */
 
     const loadItems = async (categoryId) => {
 
@@ -128,48 +100,144 @@ const ExpenseForm = ({
 
                 category: categoryId,
 
-                type: "EXPENSE",
+                type: "EXPENSE"
 
             });
+
 
             if (response.success) {
 
                 const rows =
-                    response.data.rows ||
-                    response.data.data?.rows ||
-                    response.data.data ||
+                    response.data?.rows ||
+                    response.data?.data?.rows ||
+                    response.data?.data ||
                     response.data ||
                     [];
 
-                setItems(rows);
+                setItems(
+                    Array.isArray(rows)
+                        ? rows
+                        : []
+                );
+
+            } else {
+
+                setItems([]);
 
             }
 
         } catch (error) {
 
-            console.log(error);
+            console.error(
+                "Item load error:",
+                error
+            );
+
+            setItems([]);
 
         }
 
     };
 
+
+    /*
+     * =========================
+     * EDIT MODE
+     * =========================
+     */
+
+    useEffect(() => {
+
+        if (
+            !initialValues ||
+            Object.keys(initialValues).length === 0
+        ) {
+
+            return;
+
+        }
+
+
+        const categoryId =
+            initialValues.category?._id ||
+            initialValues.category ||
+            "";
+
+
+        setForm({
+
+            title:
+                initialValues.title ||
+                "",
+
+            amount:
+                initialValues.amount ??
+                "",
+
+            category:
+                categoryId,
+
+            paymentMode:
+                initialValues.paymentMode ||
+                "UPI",
+
+            date:
+                initialValues.date
+                    ? initialValues.date.substring(0, 10)
+                    : new Date()
+                        .toISOString()
+                        .split("T")[0],
+
+            note:
+                initialValues.note ||
+                ""
+
+        });
+
+
+        if (categoryId) {
+
+            loadItems(categoryId);
+
+        } else {
+
+            setItems([]);
+
+        }
+
+    }, [initialValues]);
+
+
+    /*
+     * =========================
+     * HANDLE CHANGE
+     * =========================
+     */
+
     const handleChange = async (e) => {
 
-        const { name, value } = e.target;
+        const {
+            name,
+            value
+        } = e.target;
 
-        const nextForm = {
 
-            ...form,
-
-            [name]: value
-
-        };
+        /*
+         * CATEGORY CHANGED
+         */
 
         if (name === "category") {
 
-            nextForm.title = "";
+            setForm(prev => ({
 
-            setForm(nextForm);
+                ...prev,
+
+                category: value,
+
+                title: ""
+
+            }));
+
 
             await loadItems(value);
 
@@ -177,37 +245,68 @@ const ExpenseForm = ({
 
         }
 
-        setForm(nextForm);
+
+        /*
+         * NORMAL FIELD
+         */
+
+        setForm(prev => ({
+
+            ...prev,
+
+            [name]: value
+
+        }));
 
     };
+
+
+    /*
+     * =========================
+     * SUBMIT
+     * =========================
+     */
 
     const handleSubmit = (e) => {
 
         e.preventDefault();
 
-        if (!form.title) {
-
-            alert("Please select Item");
-
-            return;
-
-        }
 
         if (!form.category) {
 
-            alert("Please select Category");
+            alert(
+                "Please select Category"
+            );
 
             return;
 
         }
 
-        if (Number(form.amount) <= 0) {
 
-            alert("Amount must be greater than zero");
+        if (!form.title) {
+
+            alert(
+                "Please select Item"
+            );
 
             return;
 
         }
+
+
+        if (
+            !form.amount ||
+            Number(form.amount) <= 0
+        ) {
+
+            alert(
+                "Amount must be greater than zero"
+            );
+
+            return;
+
+        }
+
 
         onSubmit({
 
@@ -219,9 +318,15 @@ const ExpenseForm = ({
 
     };
 
+
     return (
 
         <div className="card shadow">
+
+
+            {/* =========================
+                HEADER
+            ========================= */}
 
             <div className="card-header d-flex justify-content-between align-items-center">
 
@@ -231,14 +336,13 @@ const ExpenseForm = ({
 
                 </h5>
 
+
                 <button
-
                     type="button"
-
                     className="btn btn-secondary btn-sm"
-
-                    onClick={() => navigate("/expense")}
-
+                    onClick={() =>
+                        navigate("/expense")
+                    }
                 >
 
                     Back
@@ -247,9 +351,15 @@ const ExpenseForm = ({
 
             </div>
 
+
             <div className="card-body">
 
                 <form onSubmit={handleSubmit}>
+
+
+                    {/* =========================
+                        CATEGORY
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -259,18 +369,13 @@ const ExpenseForm = ({
 
                         </label>
 
+
                         <select
-
                             className="form-select"
-
                             name="category"
-
                             value={form.category}
-
                             onChange={handleChange}
-
                             required
-
                         >
 
                             <option value="">
@@ -279,29 +384,38 @@ const ExpenseForm = ({
 
                             </option>
 
+
                             {
+                                categories.map(
+                                    category => (
 
-                                categories.map(category => (
+                                        <option
+                                            key={
+                                                category._id
+                                            }
+                                            value={
+                                                category._id
+                                            }
+                                        >
 
-                                    <option
+                                            {
+                                                category.name
+                                            }
 
-                                        key={category._id}
+                                        </option>
 
-                                        value={category._id}
-
-                                    >
-
-                                        {category.name}
-
-                                    </option>
-
-                                ))
-
+                                    )
+                                )
                             }
 
                         </select>
 
                     </div>
+
+
+                    {/* =========================
+                        ITEM
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -311,51 +425,58 @@ const ExpenseForm = ({
 
                         </label>
 
+
                         <select
-
                             className="form-select"
-
                             name="title"
-
                             value={form.title}
-
                             onChange={handleChange}
-
                             required
-
-                            disabled={!form.category}
-
+                            disabled={
+                                !form.category
+                            }
                         >
 
                             <option value="">
 
-                                Select Item
+                                {
+                                    form.category
+                                        ? "Select Item"
+                                        : "Select Category First"
+                                }
 
                             </option>
 
-                            {
 
+                            {
                                 items.map(item => (
 
                                     <option
-
-                                        key={item._id}
-
-                                        value={item.name}
-
+                                        key={
+                                            item._id
+                                        }
+                                        value={
+                                            item.name
+                                        }
                                     >
 
-                                        {item.name}
+                                        {
+                                            item.name
+                                        }
 
                                     </option>
 
                                 ))
-
                             }
 
                         </select>
 
                     </div>
+
+
+                    {/* =========================
+                        AMOUNT
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -365,23 +486,24 @@ const ExpenseForm = ({
 
                         </label>
 
+
                         <input
-
                             type="number"
-
                             className="form-control"
-
                             name="amount"
-
                             value={form.amount}
-
                             onChange={handleChange}
-
+                            min="0"
+                            step="0.01"
                             required
-
                         />
 
                     </div>
+
+
+                    {/* =========================
+                        PAYMENT MODE
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -391,31 +513,48 @@ const ExpenseForm = ({
 
                         </label>
 
+
                         <select
-
                             className="form-select"
-
                             name="paymentMode"
-
-                            value={form.paymentMode}
-
+                            value={
+                                form.paymentMode
+                            }
                             onChange={handleChange}
-
                         >
 
-                            <option>UPI</option>
-                            <option>Cash</option>
-                            <option>Card</option>
+                            <option value="UPI">
+                                UPI
+                            </option>
 
-                            <option>Bank Transfer</option>
+                            <option value="Cash">
+                                Cash
+                            </option>
 
-                            <option>Cheque</option>
+                            <option value="Card">
+                                Card
+                            </option>
 
-                            <option>Other</option>
+                            <option value="Bank Transfer">
+                                Bank Transfer
+                            </option>
+
+                            <option value="Cheque">
+                                Cheque
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
 
                         </select>
 
                     </div>
+
+
+                    {/* =========================
+                        DATE
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -425,21 +564,21 @@ const ExpenseForm = ({
 
                         </label>
 
+
                         <input
-
                             type="date"
-
                             className="form-control"
-
                             name="date"
-
                             value={form.date}
-
                             onChange={handleChange}
-
                         />
 
                     </div>
+
+
+                    {/* =========================
+                        NOTE
+                    ========================= */}
 
                     <div className="mb-3">
 
@@ -449,38 +588,33 @@ const ExpenseForm = ({
 
                         </label>
 
+
                         <textarea
-
                             className="form-control"
-
                             rows="3"
-
                             name="note"
-
                             value={form.note}
-
                             onChange={handleChange}
-
+                            placeholder="Enter note"
                         />
 
                     </div>
 
+
+                    {/* =========================
+                        SUBMIT
+                    ========================= */}
+
                     <button
-
+                        type="submit"
                         className="btn btn-primary"
-
                         disabled={loading}
-
                     >
 
                         {
-
                             loading
-
                                 ? "Please wait..."
-
                                 : "Save Expense"
-
                         }
 
                     </button>
@@ -494,5 +628,6 @@ const ExpenseForm = ({
     );
 
 };
+
 
 export default ExpenseForm;

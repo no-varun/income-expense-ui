@@ -1,34 +1,174 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useRef,
+    useState
+} from "react";
+
 import { Link } from "react-router-dom";
+
 import {
     deleteExpense,
     exportExpensesExcel,
     getExpenses,
     importExpensesExcel
 } from "../../api/expenseApi";
+
+import { getCategories } from "../../api/categoryApi";
+
 import Pagination from "../../components/common/Pagination";
+
 import {
     getCategoryBadgeStyle,
     getPaymentModeBadgeClass
 } from "../../utils/badgeStyles";
 
+
 const ExpenseList = () => {
 
     const fileInputRef = useRef(null);
 
-    const [loading, setLoading] = useState(true);
-    const [importing, setImporting] = useState(false);
-    const [exporting, setExporting] = useState(false);
+
+    /*
+     * =========================
+     * DATA STATES
+     * =========================
+     */
+
     const [expenses, setExpenses] = useState([]);
+
+    const [categories, setCategories] = useState([]);
+
+
+    /*
+     * =========================
+     * LOADING STATES
+     * =========================
+     */
+
+    const [loading, setLoading] = useState(true);
+
+    const [importing, setImporting] = useState(false);
+
+    const [exporting, setExporting] = useState(false);
+
+    const [categoryLoading, setCategoryLoading] = useState(false);
+
+
+    /*
+     * =========================
+     * SEARCH
+     * =========================
+     */
+
     const [searchInput, setSearchInput] = useState("");
+
     const [search, setSearch] = useState("");
+
+
+    /*
+     * =========================
+     * CATEGORY
+     *
+     * categoryInput = dropdown value
+     * category = applied filter
+     * =========================
+     */
+
+    const [categoryInput, setCategoryInput] = useState("");
+
+    const [category, setCategory] = useState("");
+
+
+    /*
+     * =========================
+     * DATE
+     * =========================
+     */
+
+    const [fromDateInput, setFromDateInput] =
+        useState("");
+
+    const [toDateInput, setToDateInput] =
+        useState("");
+
+    const [fromDate, setFromDate] =
+        useState("");
+
+    const [toDate, setToDate] =
+        useState("");
+
+
+    /*
+     * =========================
+     * PAGINATION
+     * =========================
+     */
+
     const [page, setPage] = useState(1);
+
     const [limit, setLimit] = useState(10);
+
     const [total, setTotal] = useState(0);
-    const [fromDateInput, setFromDateInput] = useState("");
-    const [toDateInput, setToDateInput] = useState("");
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
+
+
+    /*
+     * =========================
+     * LOAD CATEGORIES
+     * =========================
+     */
+
+    const loadCategories = useCallback(async () => {
+
+        try {
+
+            setCategoryLoading(true);
+
+
+            const response = await getCategories({
+                limit: 100,
+                type: "EXPENSE"
+            });
+
+
+            if (response.success) {
+
+                const rows =
+                    response.data?.rows ||
+                    response.data?.data ||
+                    response.data ||
+                    [];
+
+
+                setCategories(
+                    Array.isArray(rows)
+                        ? rows
+                        : []
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Category fetch error:",
+                error
+            );
+
+        } finally {
+
+            setCategoryLoading(false);
+
+        }
+
+    }, []);
+
+
+    /*
+     * =========================
+     * LOAD EXPENSES
+     * =========================
+     */
 
     const loadExpense = useCallback(async () => {
 
@@ -36,22 +176,44 @@ const ExpenseList = () => {
 
             setLoading(true);
 
-            const response = await getExpenses({
-                page,
-                limit,
-                search,
-                from: fromDate,
-                to: toDate
-            });
+
+            const response =
+                await getExpenses({
+
+                    page,
+
+                    limit,
+
+                    search,
+
+                    category,
+
+                    from: fromDate,
+
+                    to: toDate
+
+                });
+
 
             if (response.success) {
 
-                setExpenses(response.data.data || []);
-                setTotal(response.data.total || 0);
+                setExpenses(
+                    response.data?.data || []
+                );
+
+                setTotal(
+                    response.data?.total || 0
+                );
 
             }
 
         } catch (error) {
+
+            console.error(
+                "Expense fetch error:",
+                error
+            );
+
 
             alert(
                 error.response?.data?.message ||
@@ -64,51 +226,144 @@ const ExpenseList = () => {
 
         }
 
-    }, [fromDate, limit, page, search, toDate]);
+    }, [
+        category,
+        fromDate,
+        limit,
+        page,
+        search,
+        toDate
+    ]);
+
+
+    /*
+     * =========================
+     * INITIAL LOAD
+     * =========================
+     */
+
+    useEffect(() => {
+
+        loadCategories();
+
+    }, [
+        loadCategories
+    ]);
+
+
+    /*
+     * =========================
+     * LOAD EXPENSES WHEN
+     * FILTER/PAGE CHANGES
+     * =========================
+     */
 
     useEffect(() => {
 
         loadExpense();
 
-    }, [loadExpense]);
+    }, [
+        loadExpense
+    ]);
 
-    const handleSearch = (event) => {
+
+    /*
+     * =========================
+     * FILTER
+     * =========================
+     */
+
+    const handleSearch = event => {
 
         event.preventDefault();
-        setSearch(searchInput.trim());
-        setFromDate(fromDateInput);
-        setToDate(toDateInput);
+
+
+        setSearch(
+            searchInput.trim()
+        );
+
+
+        setCategory(
+            categoryInput
+        );
+
+
+        setFromDate(
+            fromDateInput
+        );
+
+
+        setToDate(
+            toDateInput
+        );
+
+
         setPage(1);
 
     };
+
+
+    /*
+     * =========================
+     * CLEAR FILTER
+     * =========================
+     */
 
     const handleClearFilter = () => {
 
         setSearchInput("");
+
         setSearch("");
+
+        setCategoryInput("");
+
+        setCategory("");
+
         setFromDateInput("");
+
         setToDateInput("");
+
         setFromDate("");
+
         setToDate("");
+
         setPage(1);
 
     };
 
-    const handleDelete = async (id) => {
 
-        if (!window.confirm("Delete this expense?")) {
+    /*
+     * =========================
+     * DELETE
+     * =========================
+     */
+
+    const handleDelete = async id => {
+
+        if (
+            !window.confirm(
+                "Delete this expense?"
+            )
+        ) {
 
             return;
 
         }
 
+
         try {
 
-            const response = await deleteExpense(id);
+            const response =
+                await deleteExpense(id);
+
 
             if (response.success) {
 
-                alert(response.message);
+                alert(
+                    response.message
+                );
+
+
                 loadExpense();
 
             }
@@ -124,34 +379,65 @@ const ExpenseList = () => {
 
     };
 
+
+    /*
+     * =========================
+     * IMPORT CLICK
+     * =========================
+     */
+
     const handleImportClick = () => {
 
         fileInputRef.current?.click();
 
     };
 
-    const handleImport = async (event) => {
 
-        const file = event.target.files?.[0];
+    /*
+     * =========================
+     * IMPORT EXCEL
+     * =========================
+     */
+
+    const handleImport = async event => {
+
+        const file =
+            event.target.files?.[0];
+
 
         if (!file) {
+
             return;
+
         }
+
 
         try {
 
             setImporting(true);
 
-            const response = await importExpensesExcel(file);
+
+            const response =
+                await importExpensesExcel(
+                    file
+                );
+
 
             if (response.success) {
 
-                alert(`${response.data.imported} expenses imported successfully.`);
+                alert(
+                    `${response.data.imported} expenses imported successfully.`
+                );
+
 
                 if (page === 1) {
+
                     loadExpense();
+
                 } else {
+
                     setPage(1);
+
                 }
 
             }
@@ -166,11 +452,19 @@ const ExpenseList = () => {
         } finally {
 
             setImporting(false);
+
             event.target.value = "";
 
         }
 
     };
+
+
+    /*
+     * =========================
+     * EXPORT EXCEL
+     * =========================
+     */
 
     const handleExport = async () => {
 
@@ -178,20 +472,50 @@ const ExpenseList = () => {
 
             setExporting(true);
 
-            const blob = await exportExpensesExcel({
-                search,
-                from: fromDate,
-                to: toDate
-            });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
+
+            const blob =
+                await exportExpensesExcel({
+
+                    search,
+
+                    category,
+
+                    from: fromDate,
+
+                    to: toDate
+
+                });
+
+
+            const url =
+                window.URL.createObjectURL(
+                    blob
+                );
+
+
+            const link =
+                document.createElement("a");
+
 
             link.href = url;
-            link.download = "expense-export.xlsx";
-            document.body.appendChild(link);
+
+            link.download =
+                "expense-export.xlsx";
+
+
+            document.body.appendChild(
+                link
+            );
+
+
             link.click();
+
             link.remove();
-            window.URL.revokeObjectURL(url);
+
+
+            window.URL.revokeObjectURL(
+                url
+            );
 
         } catch (error) {
 
@@ -208,23 +532,58 @@ const ExpenseList = () => {
 
     };
 
-    const totalPages = Math.ceil(total / limit) || 1;
-    const startRecord = total === 0 ? 0 : ((page - 1) * limit) + 1;
-    const endRecord = Math.min(page * limit, total);
+
+    /*
+     * =========================
+     * PAGINATION CALCULATIONS
+     * =========================
+     */
+
+    const totalPages =
+        Math.ceil(
+            total / limit
+        ) || 1;
+
+
+    const startRecord =
+        total === 0
+            ? 0
+            : ((page - 1) * limit) + 1;
+
+
+    const endRecord =
+        Math.min(
+            page * limit,
+            total
+        );
+
+
+    /*
+     * =========================
+     * RENDER
+     * =========================
+     */
 
     return (
 
         <div className="container-fluid">
 
-            <div className="d-flex justify-content-between align-items-center mb-3">
 
-                <h3>
+            {/* =========================
+                HEADER
+            ========================= */}
 
+            <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+
+                <h3 className="mb-0">
                     Expense List
-
                 </h3>
 
+
                 <div className="d-flex gap-2 flex-wrap">
+
+
+                    {/* Hidden file input */}
 
                     <input
                         ref={fileInputRef}
@@ -234,16 +593,28 @@ const ExpenseList = () => {
                         onChange={handleImport}
                     />
 
+
+                    {/* Import */}
+
                     <button
                         type="button"
                         className="btn btn-outline-success"
-                        onClick={handleImportClick}
+                        onClick={
+                            handleImportClick
+                        }
                         disabled={importing}
                     >
 
-                        {importing ? "Importing..." : "Import Excel"}
+                        {
+                            importing
+                                ? "Importing..."
+                                : "Import Excel"
+                        }
 
                     </button>
+
+
+                    {/* Export */}
 
                     <button
                         type="button"
@@ -252,9 +623,16 @@ const ExpenseList = () => {
                         disabled={exporting}
                     >
 
-                        {exporting ? "Exporting..." : "Export Excel"}
+                        {
+                            exporting
+                                ? "Exporting..."
+                                : "Export Excel"
+                        }
 
                     </button>
+
+
+                    {/* Add */}
 
                     <Link
                         to="/expense/add"
@@ -269,14 +647,24 @@ const ExpenseList = () => {
 
             </div>
 
+
+            {/* =========================
+                FILTER CARD
+            ========================= */}
+
             <div className="card mb-3">
 
                 <div className="card-body">
 
                     <form
                         className="row g-2 align-items-end"
-                        onSubmit={handleSearch}
+                        onSubmit={
+                            handleSearch
+                        }
                     >
+
+
+                        {/* SEARCH */}
 
                         <div className="col-12 col-lg-3">
 
@@ -286,15 +674,89 @@ const ExpenseList = () => {
 
                             </label>
 
+
                             <input
                                 type="search"
                                 className="form-control"
-                                value={searchInput}
-                                onChange={event => setSearchInput(event.target.value)}
+                                value={
+                                    searchInput
+                                }
+                                onChange={
+                                    event =>
+                                        setSearchInput(
+                                            event.target.value
+                                        )
+                                }
                                 placeholder="Search title"
                             />
 
                         </div>
+
+
+                        {/* CATEGORY */}
+
+                        <div className="col-12 col-lg-2">
+
+                            <label className="form-label">
+
+                                Category
+
+                            </label>
+
+
+                            <select
+                                className="form-select"
+                                value={
+                                    categoryInput
+                                }
+                                onChange={
+                                    event => {
+
+                                        setCategoryInput(
+                                            event.target.value
+                                        );
+
+                                    }
+                                }
+                                disabled={
+                                    categoryLoading
+                                }
+                            >
+
+                                <option value="">
+                                    All Categories
+                                </option>
+
+
+                                {
+                                    categories.map(
+                                        item => (
+
+                                            <option
+                                                key={
+                                                    item._id
+                                                }
+                                                value={
+                                                    item._id
+                                                }
+                                            >
+
+                                                {
+                                                    item.name
+                                                }
+
+                                            </option>
+
+                                        )
+                                    )
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        {/* FROM DATE */}
 
                         <div className="col-6 col-lg-2">
 
@@ -304,14 +766,25 @@ const ExpenseList = () => {
 
                             </label>
 
+
                             <input
                                 type="date"
                                 className="form-control"
-                                value={fromDateInput}
-                                onChange={event => setFromDateInput(event.target.value)}
+                                value={
+                                    fromDateInput
+                                }
+                                onChange={
+                                    event =>
+                                        setFromDateInput(
+                                            event.target.value
+                                        )
+                                }
                             />
 
                         </div>
+
+
+                        {/* TO DATE */}
 
                         <div className="col-6 col-lg-2">
 
@@ -321,16 +794,27 @@ const ExpenseList = () => {
 
                             </label>
 
+
                             <input
                                 type="date"
                                 className="form-control"
-                                value={toDateInput}
-                                onChange={event => setToDateInput(event.target.value)}
+                                value={
+                                    toDateInput
+                                }
+                                onChange={
+                                    event =>
+                                        setToDateInput(
+                                            event.target.value
+                                        )
+                                }
                             />
 
                         </div>
 
-                        <div className="col-6 col-lg-2">
+
+                        {/* PER PAGE */}
+
+                        <div className="col-6 col-lg-1">
 
                             <label className="form-label">
 
@@ -338,22 +822,43 @@ const ExpenseList = () => {
 
                             </label>
 
+
                             <select
                                 className="form-select"
                                 value={limit}
-                                onChange={event => {
-                                    setLimit(Number(event.target.value));
-                                    setPage(1);
-                                }}
+                                onChange={
+                                    event => {
+
+                                        setLimit(
+                                            Number(
+                                                event.target.value
+                                            )
+                                        );
+
+                                        setPage(1);
+
+                                    }
+                                }
                             >
 
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
+                                <option value="10">
+                                    10
+                                </option>
+
+                                <option value="25">
+                                    25
+                                </option>
+
+                                <option value="50">
+                                    50
+                                </option>
 
                             </select>
 
                         </div>
+
+
+                        {/* FILTER */}
 
                         <div className="col-6 col-lg-1">
 
@@ -368,13 +873,27 @@ const ExpenseList = () => {
 
                         </div>
 
-                        <div className="col-6 col-lg-2">
+
+                        {/* CLEAR */}
+
+                        <div className="col-6 col-lg-1">
 
                             <button
                                 type="button"
                                 className="btn btn-outline-secondary w-100"
-                                onClick={handleClearFilter}
-                                disabled={!searchInput && !search && !fromDateInput && !toDateInput && !fromDate && !toDate}
+                                onClick={
+                                    handleClearFilter
+                                }
+                                disabled={
+                                    !searchInput &&
+                                    !search &&
+                                    !categoryInput &&
+                                    !category &&
+                                    !fromDateInput &&
+                                    !toDateInput &&
+                                    !fromDate &&
+                                    !toDate
+                                }
                             >
 
                                 Clear
@@ -389,51 +908,77 @@ const ExpenseList = () => {
 
             </div>
 
+
+            {/* =========================
+                EXPENSE TABLE
+            ========================= */}
+
             <div className="card">
 
                 <div className="card-body table-responsive">
 
-                    <table className="table table-bordered">
+                    <table className="table table-bordered table-hover align-middle">
 
                         <thead>
 
                             <tr>
 
-                                <th>#</th>
+                                <th>
+                                    #
+                                </th>
 
-                                <th>Title</th>
+                                <th>
+                                    Title
+                                </th>
 
-                                <th>Note</th>
-                                <th>Amount</th>
+                                <th>
+                                    Note
+                                </th>
 
-                                <th>Category</th>
+                                <th>
+                                    Amount
+                                </th>
 
-                                <th>Payment</th>
+                                <th>
+                                    Category
+                                </th>
 
-                                <th>Date</th>
+                                <th>
+                                    Payment
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
 
                                 <th width="170">
-
                                     Action
-
                                 </th>
 
                             </tr>
 
                         </thead>
 
+
                         <tbody>
 
-                            {
 
+                            {/* LOADING */}
+
+                            {
                                 loading ? (
 
                                     <tr>
 
                                         <td
-                                            colSpan="7"
+                                            colSpan="8"
                                             className="text-center"
                                         >
+
+                                            <div
+                                                className="spinner-border spinner-border-sm me-2"
+                                                role="status"
+                                            />
 
                                             Loading...
 
@@ -441,13 +986,18 @@ const ExpenseList = () => {
 
                                     </tr>
 
-                                ) : expenses.length === 0 ? (
+                                )
+
+
+                                /* NO DATA */
+
+                                : expenses.length === 0 ? (
 
                                     <tr>
 
                                         <td
-                                            colSpan="7"
-                                            className="text-center"
+                                            colSpan="8"
+                                            className="text-center text-muted py-4"
                                         >
 
                                             No Record Found
@@ -456,94 +1006,186 @@ const ExpenseList = () => {
 
                                     </tr>
 
-                                ) : (
+                                )
 
-                                    expenses.map((item, index) => (
 
-                                        <tr key={item._id}>
+                                /* DATA */
 
-                                            <td>
+                                : (
 
-                                                {((page - 1) * limit) + index + 1}
+                                    expenses.map(
+                                        (
+                                            item,
+                                            index
+                                        ) => (
 
-                                            </td>
-
-                                            <td>
-
-                                                {item.title}
-
-                                            </td>
-                                            <td>
-
-                                                {item.note}
-
-                                            </td>
-                                            <td>
-
-                                                Rs. {item.amount}
-
-                                            </td>
-
-                                            <td>
-
-                                                <span
-                                                    className="badge"
-                                                    style={getCategoryBadgeStyle(item.category)}
-                                                >
-
-                                                    {item.category?.name || "-"}
-
-                                                </span>
-
-                                            </td>
-
-                                            <td>
-
-                                                <span className={getPaymentModeBadgeClass(item.paymentMode)}>
-
-                                                    {item.paymentMode}
-
-                                                </span>
-
-                                            </td>
-
-                                            <td>
-
-                                                {
-
-                                                    new Date(item.date)
-                                                        .toLocaleDateString()
-
+                                            <tr
+                                                key={
+                                                    item._id
                                                 }
+                                            >
 
-                                            </td>
+                                                {/* # */}
 
-                                            <td>
+                                                <td>
 
-                                                <Link
-                                                    className="btn btn-warning btn-sm me-2"
-                                                    to={`/expense/edit/${item._id}`}
-                                                >
+                                                    {
+                                                        (
+                                                            (page - 1) *
+                                                            limit
+                                                        ) +
+                                                        index +
+                                                        1
+                                                    }
 
-                                                    Edit
+                                                </td>
 
-                                                </Link>
 
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-danger btn-sm"
-                                                    onClick={() => handleDelete(item._id)}
-                                                >
+                                                {/* TITLE */}
 
-                                                    Delete
+                                                <td>
 
-                                                </button>
+                                                    {
+                                                        item.title ||
+                                                        "-"
+                                                    }
 
-                                            </td>
+                                                </td>
 
-                                        </tr>
 
-                                    ))
+                                                {/* NOTE */}
+
+                                                <td>
+
+                                                    {
+                                                        item.note ||
+                                                        "-"
+                                                    }
+
+                                                </td>
+
+
+                                                {/* AMOUNT */}
+
+                                                <td>
+
+                                                    Rs.{" "}
+
+                                                    {
+                                                        Number(
+                                                            item.amount ||
+                                                            0
+                                                        ).toLocaleString(
+                                                            "en-IN",
+                                                            {
+                                                                maximumFractionDigits:
+                                                                    2
+                                                            }
+                                                        )
+                                                    }
+
+                                                </td>
+
+
+                                                {/* CATEGORY */}
+
+                                                <td>
+
+                                                    <span
+                                                        className="badge"
+                                                        style={
+                                                            getCategoryBadgeStyle(
+                                                                item.category
+                                                            )
+                                                        }
+                                                    >
+
+                                                        {
+                                                            item.category?.name ||
+                                                            item.categoryName ||
+                                                            "-"
+                                                        }
+
+                                                    </span>
+
+                                                </td>
+
+
+                                                {/* PAYMENT */}
+
+                                                <td>
+
+                                                    <span
+                                                        className={
+                                                            getPaymentModeBadgeClass(
+                                                                item.paymentMode
+                                                            )
+                                                        }
+                                                    >
+
+                                                        {
+                                                            item.paymentMode ||
+                                                            "-"
+                                                        }
+
+                                                    </span>
+
+                                                </td>
+
+
+                                                {/* DATE */}
+
+                                                <td>
+
+                                                    {
+                                                        item.date
+                                                            ? new Date(
+                                                                item.date
+                                                            ).toLocaleDateString(
+                                                                "en-IN"
+                                                            )
+                                                            : "-"
+                                                    }
+
+                                                </td>
+
+
+                                                {/* ACTION */}
+
+                                                <td>
+
+                                                    <Link
+                                                        className="btn btn-warning btn-sm me-2"
+                                                        to={
+                                                            `/expense/edit/${item._id}`
+                                                        }
+                                                    >
+
+                                                        Edit
+
+                                                    </Link>
+
+
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                item._id
+                                                            )
+                                                        }
+                                                    >
+
+                                                        Delete
+
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                        )
+                                    )
 
                                 )
 
@@ -555,23 +1197,46 @@ const ExpenseList = () => {
 
                 </div>
 
+
+                {/* =========================
+                    FOOTER / PAGINATION
+                ========================= */}
+
                 <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
 
                     <small className="text-muted">
 
-                        Showing {startRecord} to {endRecord} of {total} records
+                        Showing{" "}
+                        {startRecord}
+                        {" "}to{" "}
+                        {endRecord}
+                        {" "}of{" "}
+                        {total}
+                        {" "}records
 
                     </small>
+
 
                     <Pagination
                         page={page}
                         limit={limit}
                         total={total}
-                        onPageChange={nextPage => {
-                            if (nextPage >= 1 && nextPage <= totalPages) {
-                                setPage(nextPage);
+                        onPageChange={
+                            nextPage => {
+
+                                if (
+                                    nextPage >= 1 &&
+                                    nextPage <= totalPages
+                                ) {
+
+                                    setPage(
+                                        nextPage
+                                    );
+
+                                }
+
                             }
-                        }}
+                        }
                     />
 
                 </div>
@@ -583,5 +1248,6 @@ const ExpenseList = () => {
     );
 
 };
+
 
 export default ExpenseList;

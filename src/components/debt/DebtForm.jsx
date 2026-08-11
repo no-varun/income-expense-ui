@@ -17,21 +17,55 @@ const DebtForm = ({
     const [itemsLoading, setItemsLoading] = useState(false);
 
     const [form, setForm] = useState({
-
         title: "",
         amount: "",
         category: "",
         paymentMode: "Cash",
         date: new Date().toISOString().split("T")[0],
         note: ""
-
     });
 
 
     /*
-     * Load Debt Categories
+     * ============================
+     * LOAD DEBT CATEGORIES
+     * ============================
      */
     useEffect(() => {
+
+        const loadCategories = async () => {
+
+            try {
+
+                const response = await getCategories({
+                    limit: 100,
+                    type: "DEBT"
+                });
+
+                if (response.success) {
+
+                    const rows =
+                        response.data.rows ||
+                        response.data.data ||
+                        response.data ||
+                        [];
+
+                    setCategories(rows);
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Category fetch error:",
+                    error
+                );
+
+                setCategories([]);
+
+            }
+
+        };
 
         loadCategories();
 
@@ -39,98 +73,67 @@ const DebtForm = ({
 
 
     /*
-     * Edit Mode
+     * ============================
+     * EDIT MODE
+     * ============================
      */
     useEffect(() => {
 
-        if (Object.keys(initialValues).length > 0) {
+        if (
+            !initialValues ||
+            Object.keys(initialValues).length === 0
+        ) {
+            return;
+        }
 
-            const categoryId =
-                initialValues.category?._id ||
-                initialValues.category ||
-                "";
+        const categoryId =
+            initialValues.category?._id ||
+            initialValues.category ||
+            "";
 
-            setForm({
+        setForm({
+            title: initialValues.title || "",
 
-                title:
-                    initialValues.title || "",
+            amount: initialValues.amount || "",
 
-                amount:
-                    initialValues.amount || "",
+            category: categoryId,
 
-                category:
-                    categoryId,
+            paymentMode:
+                initialValues.paymentMode ||
+                "Cash",
 
-                paymentMode:
-                    initialValues.paymentMode || "Cash",
+            date: initialValues.date
+                ? initialValues.date.substring(0, 10)
+                : new Date()
+                    .toISOString()
+                    .split("T")[0],
 
-                date:
-                    initialValues.date
-                        ? initialValues.date.substring(0, 10)
-                        : new Date()
-                            .toISOString()
-                            .split("T")[0],
+            note: initialValues.note || ""
+        });
 
-                note:
-                    initialValues.note || ""
-
-            });
-
-            /*
-             * Fetch items for existing category
-             */
-            if (categoryId) {
-                loadItems(categoryId);
-            }
-
+        if (categoryId) {
+            loadItems(categoryId);
+        } else {
+            setItems([]);
         }
 
     }, [initialValues]);
 
 
     /*
-     * Fetch Debt Categories
-     */
-    const loadCategories = async () => {
-
-        try {
-
-            const response = await getCategories({
-
-                limit: 100,
-
-                type: "DEBT"
-
-            });
-
-            if (response.success) {
-
-                const rows =
-                    response.data.rows ||
-                    response.data.data ||
-                    response.data ||
-                    [];
-
-                setCategories(rows);
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Category fetch error:",
-                error
-            );
-
-        }
-
-    };
-
-
-    /*
-     * Fetch Items According To Category
+     * ============================
+     * LOAD ITEMS BY CATEGORY
+     * ============================
      */
     const loadItems = async (categoryId) => {
+
+        if (!categoryId) {
+
+            setItems([]);
+
+            return;
+
+        }
 
         try {
 
@@ -153,12 +156,20 @@ const DebtForm = ({
             if (response.success) {
 
                 const rows =
-                    response.data.data ||
-                    response.data.rows ||
+                    response.data?.data ||
+                    response.data?.rows ||
                     response.data ||
                     [];
 
-                setItems(rows);
+                setItems(
+                    Array.isArray(rows)
+                        ? rows
+                        : []
+                );
+
+            } else {
+
+                setItems([]);
 
             }
 
@@ -181,25 +192,24 @@ const DebtForm = ({
 
 
     /*
-     * Category Change
+     * ============================
+     * CATEGORY CHANGE
+     * ============================
      */
     const handleCategoryChange = async (e) => {
 
-        const categoryId =
-            e.target.value;
+        const categoryId = e.target.value;
 
+        /*
+         * Clear old item when category changes
+         */
         setForm(prev => ({
-
             ...prev,
-
             category: categoryId,
-
             title: ""
-
         }));
 
         setItems([]);
-
 
         if (categoryId) {
 
@@ -211,55 +221,63 @@ const DebtForm = ({
 
 
     /*
-     * Item Change
-     *
-     * Selected item name becomes title
+     * ============================
+     * ITEM CHANGE
+     * ============================
      */
     const handleItemChange = (e) => {
 
-        const itemId =
-            e.target.value;
+        const itemId = e.target.value;
 
-        const selectedItem =
-            items.find(
-                item => item._id === itemId
-            );
+        const selectedItem = items.find(
+            item => item._id === itemId
+        );
 
         setForm(prev => ({
-
             ...prev,
-
-            title:
-                selectedItem?.name || ""
-
+            title: selectedItem?.name || ""
         }));
 
     };
 
 
     /*
-     * Normal Input Change
+     * ============================
+     * NORMAL INPUT CHANGE
+     * ============================
      */
     const handleChange = (e) => {
 
+        const {
+            name,
+            value
+        } = e.target;
+
         setForm(prev => ({
-
             ...prev,
-
-            [e.target.name]:
-                e.target.value
-
+            [name]: value
         }));
 
     };
 
 
     /*
-     * Submit
+     * ============================
+     * SUBMIT
+     * ============================
      */
     const handleSubmit = (e) => {
 
         e.preventDefault();
+
+
+        if (!form.category) {
+
+            alert("Please select category");
+
+            return;
+
+        }
 
 
         if (!form.title.trim()) {
@@ -282,37 +300,27 @@ const DebtForm = ({
         }
 
 
-        if (!form.category) {
-
-            alert(
-                "Please select category"
-            );
-
-            return;
-
-        }
-
-
         onSubmit({
-
             ...form,
-
-            amount:
-                Number(form.amount)
-
+            amount: Number(form.amount)
         });
 
     };
 
 
     /*
-     * Selected Item
+     * ============================
+     * SELECTED ITEM
+     * ============================
      *
-     * Used for edit mode.
+     * Finds item using title because
+     * backend currently stores item name
+     * in title.
      */
     const selectedItemId =
         items.find(
-            item => item.name === form.title
+            item =>
+                item.name === form.title
         )?._id || "";
 
 
@@ -320,44 +328,42 @@ const DebtForm = ({
 
         <div className="card shadow">
 
+
             {/* ================= HEADER ================= */}
 
-            <div className="card-header d-flex justify-content-between">
+            <div className="card-header d-flex justify-content-between align-items-center">
 
                 <h5 className="mb-0">
-
                     Debt Details
-
                 </h5>
 
 
                 <button
+                    type="button"
                     className="btn btn-secondary btn-sm"
                     onClick={() =>
                         navigate("/debt")
                     }
-                    type="button"
                 >
-
                     Back
-
                 </button>
 
             </div>
 
 
+            {/* ================= BODY ================= */}
+
             <div className="card-body">
 
                 <form onSubmit={handleSubmit}>
+
 
                     {/* ================= CATEGORY ================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Category
-
                         </label>
 
 
@@ -365,39 +371,25 @@ const DebtForm = ({
                             className="form-select"
                             name="category"
                             value={form.category}
-                            onChange={
-                                handleCategoryChange
-                            }
+                            onChange={handleCategoryChange}
                             required
                         >
 
                             <option value="">
-
                                 Select Category
-
                             </option>
 
 
-                            {categories.map(
-                                category => (
+                            {categories.map(category => (
 
-                                    <option
-                                        key={
-                                            category._id
-                                        }
-                                        value={
-                                            category._id
-                                        }
-                                    >
+                                <option
+                                    key={category._id}
+                                    value={category._id}
+                                >
+                                    {category.name}
+                                </option>
 
-                                        {
-                                            category.name
-                                        }
-
-                                    </option>
-
-                                )
-                            )}
+                            ))}
 
                         </select>
 
@@ -409,18 +401,14 @@ const DebtForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Item
-
                         </label>
 
 
                         <select
                             className="form-select"
                             value={selectedItemId}
-                            onChange={
-                                handleItemChange
-                            }
+                            onChange={handleItemChange}
                             disabled={
                                 !form.category ||
                                 itemsLoading
@@ -436,7 +424,8 @@ const DebtForm = ({
                                         ? "First select category"
                                         : items.length === 0
                                             ? "No items found"
-                                            : "Select Item"}
+                                            : "Select Item"
+                                }
 
                             </option>
 
@@ -447,9 +436,7 @@ const DebtForm = ({
                                     key={item._id}
                                     value={item._id}
                                 >
-
                                     {item.name}
-
                                 </option>
 
                             ))}
@@ -464,9 +451,7 @@ const DebtForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Amount
-
                         </label>
 
 
@@ -476,9 +461,9 @@ const DebtForm = ({
                             name="amount"
                             value={form.amount}
                             onChange={handleChange}
-                            required
                             min="0"
                             step="0.01"
+                            required
                         />
 
                     </div>
@@ -489,9 +474,7 @@ const DebtForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Payment Mode
-
                         </label>
 
 
@@ -502,27 +485,27 @@ const DebtForm = ({
                             onChange={handleChange}
                         >
 
-                            <option>
+                            <option value="Cash">
                                 Cash
                             </option>
 
-                            <option>
+                            <option value="UPI">
                                 UPI
                             </option>
 
-                            <option>
+                            <option value="Card">
                                 Card
                             </option>
 
-                            <option>
+                            <option value="Bank Transfer">
                                 Bank Transfer
                             </option>
 
-                            <option>
+                            <option value="Cheque">
                                 Cheque
                             </option>
 
-                            <option>
+                            <option value="Other">
                                 Other
                             </option>
 
@@ -536,9 +519,7 @@ const DebtForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Date
-
                         </label>
 
 
@@ -548,6 +529,7 @@ const DebtForm = ({
                             name="date"
                             value={form.date}
                             onChange={handleChange}
+                            required
                         />
 
                     </div>
@@ -558,9 +540,7 @@ const DebtForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Note
-
                         </label>
 
 
@@ -578,6 +558,7 @@ const DebtForm = ({
                     {/* ================= SUBMIT ================= */}
 
                     <button
+                        type="submit"
                         className="btn btn-primary"
                         disabled={
                             loading ||
@@ -587,7 +568,8 @@ const DebtForm = ({
 
                         {loading
                             ? "Please wait..."
-                            : "Save Debt"}
+                            : "Save Debt"
+                        }
 
                     </button>
 

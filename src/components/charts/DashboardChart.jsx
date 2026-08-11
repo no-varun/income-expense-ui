@@ -17,6 +17,7 @@ import {
     incomeColor
 } from "./chartColors";
 
+
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -26,6 +27,7 @@ ChartJS.register(
     Legend
 );
 
+
 const DashboardChart = ({
     data = {
         income: [],
@@ -33,31 +35,41 @@ const DashboardChart = ({
         Saving: [],
         Debt: [],
         pendingDebt: []
-    }
+    },
+    year = "all"
 }) => {
 
     /*
      * API data
      */
-    const income = data.income || [];
-    const expense = data.expense || [];
+    const income = data?.income || [];
+    const expense = data?.expense || [];
 
-    const saving = data.Saving || data.saving || [];
-    const debt = data.Debt || data.debt || [];
+    const saving =
+        data?.Saving ||
+        data?.saving ||
+        [];
+
+    const debt =
+        data?.Debt ||
+        data?.debt ||
+        [];
+
     const pendingDebt =
-        data.pendingDebt || data.PendingDebt || [];
+        data?.pendingDebt ||
+        data?.PendingDebt ||
+        [];
+
+
+    /*
+     * Check selected filter
+     */
+    const isAll =
+        String(year).toLowerCase() === "all";
 
 
     /*
      * Get all available months
-     *
-     * Example:
-     * income  -> [2, 3, 5, 6]
-     * expense -> [2, 3, 5, 6]
-     * saving  -> [1, 2, 3, ...]
-     *
-     * Result:
-     * [1, 2, 3, 4, 5, ...]
      */
     const labels = [
         ...new Set([
@@ -68,7 +80,12 @@ const DashboardChart = ({
             ...pendingDebt.map(item => Number(item._id))
         ])
     ]
-        .filter(month => month >= 1 && month <= 12)
+        .filter(
+            month =>
+                Number.isFinite(month) &&
+                month >= 1 &&
+                month <= 12
+        )
         .sort((a, b) => a - b);
 
 
@@ -76,39 +93,111 @@ const DashboardChart = ({
      * Month names
      */
     const monthLabels = labels.map(month => {
+
         return new Date(
             2000,
-            month - 1
+            month - 1,
+            1
         ).toLocaleString(
             "default",
             {
                 month: "short"
             }
         );
+
     });
 
 
     /*
-     * Helper
-     *
-     * Finds the total for a particular month.
+     * Find value for month
      */
-    const getMonthValue = (items, month) => {
+    const getMonthValue = (
+        items,
+        month
+    ) => {
 
         const row = items.find(
-            item => Number(item._id) === month
+            item =>
+                Number(item._id) === month
         );
 
         return row
             ? Number(row.total) || 0
             : 0;
+
     };
+
+
+    /*
+     * Create monthly rows
+     */
+    const rows = labels.map(
+        (month, index) => {
+
+            const incomeValue =
+                getMonthValue(
+                    income,
+                    month
+                );
+
+            const expenseValue =
+                getMonthValue(
+                    expense,
+                    month
+                );
+
+            const savingValue =
+                getMonthValue(
+                    saving,
+                    month
+                );
+
+            const debtValue =
+                getMonthValue(
+                    debt,
+                    month
+                );
+
+            const pendingDebtValue =
+                getMonthValue(
+                    pendingDebt,
+                    month
+                );
+
+
+            return {
+
+                month,
+
+                monthName:
+                    monthLabels[index],
+
+                income:
+                    incomeValue,
+
+                expense:
+                    expenseValue,
+
+                saving:
+                    savingValue,
+
+                debt:
+                    debtValue,
+
+                pendingDebt:
+                    pendingDebtValue
+
+            };
+
+        }
+    );
 
 
     /*
      * Chart data
      */
     const chartData = {
+
         labels: monthLabels,
 
         datasets: [
@@ -116,67 +205,109 @@ const DashboardChart = ({
             {
                 label: "Income",
 
-                data: labels.map(month =>
-                    getMonthValue(income, month)
+                data: labels.map(
+                    month =>
+                        getMonthValue(
+                            income,
+                            month
+                        )
                 ),
 
-                backgroundColor: incomeColor,
-                borderColor: incomeBorderColor,
+                backgroundColor:
+                    incomeColor,
+
+                borderColor:
+                    incomeBorderColor,
+
                 borderWidth: 1
             },
+
 
             {
                 label: "Expense",
 
-                data: labels.map(month =>
-                    getMonthValue(expense, month)
+                data: labels.map(
+                    month =>
+                        getMonthValue(
+                            expense,
+                            month
+                        )
                 ),
 
-                backgroundColor: expenseColor,
-                borderColor: expenseBorderColor,
+                backgroundColor:
+                    expenseColor,
+
+                borderColor:
+                    expenseBorderColor,
+
                 borderWidth: 1
             },
+
 
             {
                 label: "Saving",
 
-                data: labels.map(month =>
-                    getMonthValue(saving, month)
+                data: labels.map(
+                    month =>
+                        getMonthValue(
+                            saving,
+                            month
+                        )
                 ),
 
-                backgroundColor: "#198754",
-                borderColor: "#146c43",
+                backgroundColor:
+                    "#198754",
+
+                borderColor:
+                    "#146c43",
+
                 borderWidth: 1
             },
+
 
             {
                 label: "Debt",
 
-                data: labels.map(month =>
-                    getMonthValue(debt, month)
+                data: labels.map(
+                    month =>
+                        getMonthValue(
+                            debt,
+                            month
+                        )
                 ),
 
-                backgroundColor: "#ffc107",
-                borderColor: "#cc9a06",
+                backgroundColor:
+                    "#ffc107",
+
+                borderColor:
+                    "#cc9a06",
+
                 borderWidth: 1
             },
+
 
             {
                 label: "Pending Debt",
 
-                data: labels.map(month =>
-                    getMonthValue(
-                        pendingDebt,
-                        month
-                    )
+                data: labels.map(
+                    month =>
+                        getMonthValue(
+                            pendingDebt,
+                            month
+                        )
                 ),
 
-                backgroundColor: "#0dcaf0",
-                borderColor: "#0aa2c0",
+                backgroundColor:
+                    "#0dcaf0",
+
+                borderColor:
+                    "#0aa2c0",
+
                 borderWidth: 1
             }
 
         ]
+
     };
 
 
@@ -201,8 +332,13 @@ const DashboardChart = ({
             },
 
             title: {
+
                 display: true,
-                text: "Dashboard Income vs Expense"
+
+                text: isAll
+                    ? "Dashboard Income vs Expense - All"
+                    : `Dashboard Income vs Expense - ${year}`
+
             },
 
             tooltip: {
@@ -212,14 +348,20 @@ const DashboardChart = ({
                     label: context => {
 
                         const value =
-                            Number(context.raw) || 0;
+                            Number(
+                                context.raw
+                            ) || 0;
 
-                        return `${context.dataset.label}: ₹${value.toLocaleString(
-                            "en-IN",
-                            {
-                                maximumFractionDigits: 2
-                            }
-                        )}`;
+                        return (
+                            `${context.dataset.label}: ₹` +
+                            value.toLocaleString(
+                                "en-IN",
+                                {
+                                    maximumFractionDigits: 2
+                                }
+                            )
+                        );
+
                     }
 
                 }
@@ -231,7 +373,9 @@ const DashboardChart = ({
         scales: {
 
             x: {
+
                 stacked: false
+
             },
 
             y: {
@@ -241,9 +385,15 @@ const DashboardChart = ({
                 ticks: {
 
                     callback: value => {
-                        return `₹${Number(value).toLocaleString(
-                            "en-IN"
-                        )}`;
+
+                        return (
+                            `₹${Number(
+                                value
+                            ).toLocaleString(
+                                "en-IN"
+                            )}`
+                        );
+
                     }
 
                 }
@@ -251,47 +401,205 @@ const DashboardChart = ({
             }
 
         }
+
+    };
+
+
+    /*
+     * Currency formatter
+     */
+    const formatCurrency = value => {
+
+        return `₹${Number(
+            value || 0
+        ).toLocaleString(
+            "en-IN",
+            {
+                maximumFractionDigits: 2
+            }
+        )}`;
+
     };
 
 
     return (
+
         <div className="card shadow mb-4">
 
+            {/* Header */}
             <div className="card-header">
 
-                <h5 className="mb-0">
-                    Dashboard Chart (₹)
-                </h5>
+                <div className="d-flex justify-content-between align-items-center">
+
+                    <h5 className="mb-0">
+                        Dashboard Chart (₹)
+                    </h5>
+
+                    <span className="text-muted">
+                        {
+                            isAll
+                                ? "All"
+                                : year
+                        }
+                    </span>
+
+                </div>
 
             </div>
 
+
+            {/* Chart */}
             <div
-                className="card-body chart-body"
+                className="card-body"
                 style={{
                     minWidth: 0,
-                    position: "relative"
+                    position: "relative",
+                    height: "450px"
                 }}
             >
 
-                {labels.length > 0 ? (
+                {
+                    labels.length > 0 ? (
 
-                    <Bar
-                        data={chartData}
-                        options={options}
-                    />
+                        <Bar
+                            data={chartData}
+                            options={options}
+                        />
 
-                ) : (
+                    ) : (
 
-                    <div className="d-flex justify-content-center align-items-center h-100 text-muted">
-                        No chart data available
-                    </div>
+                        <div className="d-flex justify-content-center align-items-center h-100 text-muted">
 
-                )}
+                            No chart data available
+
+                        </div>
+
+                    )
+                }
 
             </div>
 
+
+            {/* Monthly List */}
+            {
+                rows.length > 0 && (
+
+                    <div className="card-body pt-0">
+
+                        <h6 className="mb-3">
+                            Monthly Summary
+                        </h6>
+
+
+                        <div className="table-responsive">
+
+                            <table className="table table-bordered table-hover align-middle mb-0">
+
+                                <thead className="table-light">
+
+                                    <tr>
+
+                                        <th>
+                                            Month
+                                        </th>
+
+                                        <th className="text-end">
+                                            Income
+                                        </th>
+
+                                        <th className="text-end">
+                                            Expense
+                                        </th>
+
+                                        <th className="text-end">
+                                            Saving
+                                        </th>
+
+                                        <th className="text-end">
+                                            Debt
+                                        </th>
+
+                                        <th className="text-end">
+                                            Pending Debt
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    {
+                                        rows.map(row => (
+
+                                            <tr
+                                                key={row.month}
+                                            >
+
+                                                <td>
+                                                    <strong>
+                                                        {row.monthName}
+                                                    </strong>
+                                                </td>
+
+
+                                                <td className="text-end">
+                                                    {formatCurrency(
+                                                        row.income
+                                                    )}
+                                                </td>
+
+
+                                                <td className="text-end">
+                                                    {formatCurrency(
+                                                        row.expense
+                                                    )}
+                                                </td>
+
+
+                                                <td className="text-end">
+                                                    {formatCurrency(
+                                                        row.saving
+                                                    )}
+                                                </td>
+
+
+                                                <td className="text-end">
+                                                    {formatCurrency(
+                                                        row.debt
+                                                    )}
+                                                </td>
+
+
+                                                <td className="text-end">
+                                                    {formatCurrency(
+                                                        row.pendingDebt
+                                                    )}
+                                                </td>
+
+                                            </tr>
+
+                                        ))
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                )
+
+            }
+
         </div>
+
     );
+
 };
+
 
 export default DashboardChart;
