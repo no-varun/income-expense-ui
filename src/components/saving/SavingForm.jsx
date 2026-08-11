@@ -344,10 +344,10 @@ const SavingForm = ({
         }
 
 
-        if (Number(form.amount) <= 0) {
+        if (!form.category) {
 
             alert(
-                "Amount should be greater than zero"
+                "Please select category"
             );
 
             return;
@@ -526,7 +526,8 @@ const SavingForm = ({
                             name="amount"
                             value={form.amount}
                             onChange={handleChange}
-                            min="0"
+                            required
+                            min="-1000"
                             step="0.01"
                             required
                         />
