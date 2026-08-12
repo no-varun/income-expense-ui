@@ -489,9 +489,14 @@ const DebtList = () => {
                                 </th>
 
                                 <th>
-                                    Amount
+                                    Total  Amount
                                 </th>
-
+                                <th>
+                                    Pending  Amount
+                                </th>
+                                <th>
+                                    Recovered  Amount
+                                </th>
                                 <th>
                                     Category
                                 </th>
@@ -573,17 +578,9 @@ const DebtList = () => {
                                         </td>
 
 
-                                        <td>
-
-                                            ₹{" "}
-                                            {Number(
-                                                item.amount || 0
-                                            ).toLocaleString(
-                                                "en-IN"
-                                            )}
-
-                                        </td>
-
+                                        <td>₹{" "} {Number(item.amount || 0).toLocaleString("en-IN")}</td>
+                                        <td>₹{" "} {Number(item.pendingAmount || 0).toLocaleString("en-IN")}</td>
+                                        <td>₹ {Number((item.amount || 0) - (item.pendingAmount || 0)).toLocaleString("en-IN")}</td>
 
                                         <td>
 
