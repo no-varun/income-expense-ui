@@ -18,7 +18,7 @@ const AddDebt = () => {
 
             setLoading(true);
 
-            const response = await createSaving(data);
+            const response = await createDebt(data);
 
             if (response.success) {
 
