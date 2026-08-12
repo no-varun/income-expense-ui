@@ -248,6 +248,11 @@ const AppRoutes = () => {
                         />
 
                         <Route
+                            path="/charts/titleType"
+                            element={<Charts module="titleType" />}
+                        />
+
+                        <Route
                             path="/charts/payment-mode"
                             element={<Charts module="payment-mode" />}
                         />

@@ -8,7 +8,8 @@ import {
     getWeekWiseExpenseChart,
     getCategoryChart,
     getPaymentModeChart,
-    getDashboardChart
+    getDashboardChart,
+    getTitleTypeChart
 } from "../../api/chartApi";
 
 
@@ -20,7 +21,7 @@ import YearlyChart from "../../components/charts/YearlyChart";
 import CategoryChart from "../../components/charts/CategoryChart";
 import PaymentModeChart from "../../components/charts/PaymentModeChart";
 import DashboardChart from "../../components/charts/DashboardChart";
-
+import TitleTypeChart from "../../components/charts/TitleTypeChart";
 
 const chartModules = {
 
@@ -131,6 +132,27 @@ const chartModules = {
     },
 
 
+    titleType: {
+
+        title: "Title Type Chart",
+
+        load: getTitleTypeChart,
+
+        render: data => (
+            <TitleTypeChart data={data} />
+        ),
+
+        initialData: {
+
+            income: [],
+            expense: [],
+            saving: [],
+            debt: [],
+            pendingDebt: []
+
+        }
+
+    },
     "payment-mode": {
 
         title: "Payment Mode Chart",
@@ -204,8 +226,8 @@ const normalizeChartData = (
         return Array.isArray(data)
             ? data
             : data?.data ||
-              data?.rows ||
-              [];
+            data?.rows ||
+            [];
 
     }
 
@@ -310,6 +332,10 @@ const Charts = ({
      *     year = all
      *     month = all
      *
+     * titleType:
+     *     year = all
+     *     month = all
+     *
      * Payment Mode:
      *     year = all
      *     month = all
@@ -318,19 +344,12 @@ const Charts = ({
      *     current year
      */
     const [year, setYear] = useState(
-        module === "dashboard" ||
-        module === "category" ||
-        module === "payment-mode"
-            ? "all"
-            : currentYear
+        module === "dashboard" || module === "category" || module === "titleType" || module === "payment-mode" ? "all" : currentYear
     );
 
 
     const [month, setMonth] = useState(
-        module === "category" ||
-        module === "payment-mode"
-            ? "all"
-            : currentMonth
+        module === "category" || module === "titleType" || module === "payment-mode" ? "all" : currentMonth
     );
 
 
@@ -354,6 +373,7 @@ const Charts = ({
         if (
             module === "dashboard" ||
             module === "category" ||
+            module === "titleType" ||
             module === "payment-mode"
         ) {
 
@@ -368,6 +388,7 @@ const Charts = ({
 
         if (
             module === "category" ||
+            module === "titleType" ||
             module === "payment-mode"
         ) {
 
@@ -470,15 +491,8 @@ const Charts = ({
                  * /dashboard?year=all
                  * /dashboard?year=2026
                  */
-                else if (
-                    module === "dashboard"
-                ) {
-
-                    response =
-                        await chartModule.load(
-                            year
-                        );
-
+                else if (module === "dashboard") {
+                    response = await chartModule.load(year);
                 }
 
 
@@ -489,16 +503,8 @@ const Charts = ({
                  * /category?year=2026&month=all
                  * /category?year=2026&month=8
                  */
-                else if (
-                    module === "category"
-                ) {
-
-                    response =
-                        await chartModule.load(
-                            year,
-                            month
-                        );
-
+                else if (module === "category") {
+                    response = await chartModule.load(year, month);
                 }
 
 
@@ -520,7 +526,16 @@ const Charts = ({
                         );
 
                 }
-
+                /*
+                 * titleType
+                 *
+                 * /titleType?year=all&month=all
+                 * /titleType?year=2026&month=all
+                 * /titleType?year=2026&month=8
+                 */
+                else if (module === "titleType") {
+                    response = await chartModule.load(year, month);
+                }
 
                 /*
                  * WEEKLY / YEARLY
@@ -615,6 +630,7 @@ const Charts = ({
         module === "daily" ||
         module === "week-wise" ||
         module === "category" ||
+        module === "titleType" ||
         module === "payment-mode";
 
 
@@ -624,6 +640,7 @@ const Charts = ({
         module === "monthly" ||
         module === "week-wise" ||
         module === "category" ||
+        module === "titleType" ||
         module === "payment-mode";
 
 
@@ -633,11 +650,13 @@ const Charts = ({
     const showAllYear =
         module === "dashboard" ||
         module === "category" ||
+        module === "titleType" ||
         module === "payment-mode";
 
 
     const showAllMonth =
         module === "category" ||
+        module === "titleType" ||
         module === "payment-mode";
 
 

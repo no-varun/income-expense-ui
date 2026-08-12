@@ -175,3 +175,19 @@ export const getDashboardChart = async (
     );
 
 };
+export const getTitleTypeChart = async (
+    year = "all",
+    month = "all"
+) => {
+
+    return await axios.get(
+        "/charts/titleTypeChart",
+        {
+            params: {
+                year,
+                month
+            }
+        }
+    );
+
+};
