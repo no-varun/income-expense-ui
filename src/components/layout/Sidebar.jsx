@@ -314,8 +314,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                             to="/charts/titleType"
                                             className="nav-link text-light ps-5"
                                             onClick={() => setSidebarOpen(false)}
-                                        >
-                                            Title Type Chart
+                                        >Item Wise Chart
                                         </NavLink>
 
                                     </li>
