@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ShopForm from "../../components/shop/ShopForm";
-import { createShop } from "../../api/ShopApi";
+import { createShop } from "../../api/shopApi";
 
 const AddShop = () => {
 
