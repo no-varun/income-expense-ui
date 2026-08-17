@@ -33,6 +33,11 @@ const Dashboard = () => {
     loadDashboard();
   }, []);
 
+  // Format amount to 2 decimal places
+  const formatAmount = (value) => {
+    return Number(value || 0).toFixed(2);
+  };
+
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -57,19 +62,19 @@ const Dashboard = () => {
 
             <SummaryCard
               title="Current Balance"
-              value={summary.currentBalance || 0}
+              value={formatAmount(summary.currentBalance)}
               bg="bg-success"
             />
 
             <SummaryCard
               title="Total Debt"
-              value={summary.totalDebt || 0}
+              value={formatAmount(summary.totalDebt)}
               bg="bg-danger"
             />
 
             <SummaryCard
               title="Pending Debt"
-              value={summary.totalPendingDebt || 0}
+              value={formatAmount(summary.totalPendingDebt)}
               bg="bg-info"
             />
 
@@ -89,13 +94,13 @@ const Dashboard = () => {
 
             <SummaryCard
               title="Today's Income"
-              value={summary.todayIncome || 0}
+              value={formatAmount(summary.todayIncome)}
               bg="bg-success"
             />
 
             <SummaryCard
               title="Today's Expense"
-              value={summary.todayExpense || 0}
+              value={formatAmount(summary.todayExpense)}
               bg="bg-danger"
             />
 
@@ -115,25 +120,25 @@ const Dashboard = () => {
 
             <SummaryCard
               title="Monthly Income"
-              value={summary.monthIncome || 0}
+              value={formatAmount(summary.monthIncome)}
               bg="bg-success"
             />
 
             <SummaryCard
               title="Monthly Expense"
-              value={summary.monthExpense || 0}
+              value={formatAmount(summary.monthExpense)}
               bg="bg-danger"
             />
 
             <SummaryCard
               title="Monthly Saving"
-              value={summary.monthSaving || 0}
+              value={formatAmount(summary.monthSaving)}
               bg="bg-info"
             />
 
             <SummaryCard
               title="Monthly Profit"
-              value={summary.monthProfit || 0}
+              value={formatAmount(summary.monthProfit)}
               bg="bg-warning"
             />
 
@@ -153,25 +158,25 @@ const Dashboard = () => {
 
             <SummaryCard
               title="Yearly Income"
-              value={summary.yearIncome || 0}
+              value={formatAmount(summary.yearIncome)}
               bg="bg-success"
             />
 
             <SummaryCard
               title="Yearly Expense"
-              value={summary.yearExpense || 0}
+              value={formatAmount(summary.yearExpense)}
               bg="bg-danger"
             />
 
             <SummaryCard
               title="Yearly Saving"
-              value={summary.yearSaving || 0}
+              value={formatAmount(summary.yearSaving)}
               bg="bg-info"
             />
 
             <SummaryCard
               title="Total Saving"
-              value={summary.totalSaving || 0}
+              value={formatAmount(summary.totalSaving)}
               bg="bg-warning"
             />
 
