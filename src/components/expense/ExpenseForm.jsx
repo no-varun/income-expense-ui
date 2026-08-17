@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getCategories } from "../../api/categoryApi";
 import { getItems } from "../../api/itemApi";
-import { getShops } from "../../api/ShopApi";
+import { getShops } from "../../api/shopApi";
 
 const ExpenseForm = ({
     initialValues = {},
