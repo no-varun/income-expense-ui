@@ -39,6 +39,8 @@ const ExpenseList = () => {
 
     const [categories, setCategories] = useState([]);
 
+    const [totalAmount, setTotalAmount] = useState(0);
+
 
     /*
      * =========================
@@ -124,7 +126,6 @@ const ExpenseList = () => {
 
             setCategoryLoading(true);
 
-
             const response = await getCategories({
                 limit: 100,
                 type: "EXPENSE"
@@ -138,7 +139,6 @@ const ExpenseList = () => {
                     response.data?.data ||
                     response.data ||
                     [];
-
 
                 setCategories(
                     Array.isArray(rows)
@@ -176,7 +176,6 @@ const ExpenseList = () => {
 
             setLoading(true);
 
-
             const response =
                 await getExpenses({
 
@@ -205,6 +204,18 @@ const ExpenseList = () => {
                     response.data?.total || 0
                 );
 
+                /*
+                 * TOTAL AMOUNT
+                 * =========================
+                 * Comes from API:
+                 *
+                 * response.data.totalAmount
+                 */
+
+                setTotalAmount(
+                    response.data?.totalAmount || 0
+                );
+
             }
 
         } catch (error) {
@@ -213,7 +224,6 @@ const ExpenseList = () => {
                 "Expense fetch error:",
                 error
             );
-
 
             alert(
                 error.response?.data?.message ||
@@ -277,26 +287,21 @@ const ExpenseList = () => {
 
         event.preventDefault();
 
-
         setSearch(
             searchInput.trim()
         );
-
 
         setCategory(
             categoryInput
         );
 
-
         setFromDate(
             fromDateInput
         );
 
-
         setToDate(
             toDateInput
         );
-
 
         setPage(1);
 
@@ -363,7 +368,6 @@ const ExpenseList = () => {
                     response.message
                 );
 
-
                 loadExpense();
 
             }
@@ -415,7 +419,6 @@ const ExpenseList = () => {
         try {
 
             setImporting(true);
-
 
             const response =
                 await importExpensesExcel(
@@ -472,7 +475,6 @@ const ExpenseList = () => {
 
             setExporting(true);
 
-
             const blob =
                 await exportExpensesExcel({
 
@@ -509,6 +511,7 @@ const ExpenseList = () => {
 
 
             link.click();
+
 
             link.remove();
 
@@ -853,6 +856,18 @@ const ExpenseList = () => {
                                     50
                                 </option>
 
+                                <option value="75">
+                                    75
+                                </option>
+
+                                <option value="100">
+                                    100
+                                </option>
+
+                                <option value="150">
+                                    150
+                                </option>
+
                             </select>
 
                         </div>
@@ -903,6 +918,46 @@ const ExpenseList = () => {
                         </div>
 
                     </form>
+
+                </div>
+
+            </div>
+
+
+            {/* =========================
+                TOTAL AMOUNT CARD
+            ========================= */}
+
+            <div className="card mb-3">
+
+                <div className="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+                    <div>
+
+                        <div className="text-muted small mb-1">
+                            Total Expense
+                        </div>
+
+                        <h4 className="mb-0">
+                            ₹{" "}
+                            {Number(
+                                totalAmount || 0
+                            ).toLocaleString(
+                                "en-IN",
+                                {
+                                    maximumFractionDigits: 2
+                                }
+                            )}
+                        </h4>
+
+                    </div>
+
+
+                    <div className="text-muted">
+
+                        {total} records
+
+                    </div>
 
                 </div>
 
@@ -989,205 +1044,206 @@ const ExpenseList = () => {
                                 )
 
 
-                                /* NO DATA */
+                                    /* NO DATA */
 
-                                : expenses.length === 0 ? (
+                                    : expenses.length === 0 ? (
 
-                                    <tr>
+                                        <tr>
 
-                                        <td
-                                            colSpan="8"
-                                            className="text-center text-muted py-4"
-                                        >
-
-                                            No Record Found
-
-                                        </td>
-
-                                    </tr>
-
-                                )
-
-
-                                /* DATA */
-
-                                : (
-
-                                    expenses.map(
-                                        (
-                                            item,
-                                            index
-                                        ) => (
-
-                                            <tr
-                                                key={
-                                                    item._id
-                                                }
+                                            <td
+                                                colSpan="8"
+                                                className="text-center text-muted py-4"
                                             >
 
-                                                {/* # */}
+                                                No Record Found
 
-                                                <td>
+                                            </td>
 
-                                                    {
-                                                        (
-                                                            (page - 1) *
-                                                            limit
-                                                        ) +
-                                                        index +
-                                                        1
-                                                    }
+                                        </tr>
 
-                                                </td>
-
-
-                                                {/* TITLE */}
-
-                                                <td>
-
-                                                    {
-                                                        item.title ||
-                                                        "-"
-                                                    }
-
-                                                </td>
-
-
-                                                {/* NOTE */}
-
-                                                <td>
-
-                                                    {
-                                                        item.note ||
-                                                        "-"
-                                                    }
-
-                                                </td>
-
-
-                                                {/* AMOUNT */}
-
-                                                <td>
-
-                                                    Rs.{" "}
-
-                                                    {
-                                                        Number(
-                                                            item.amount ||
-                                                            0
-                                                        ).toLocaleString(
-                                                            "en-IN",
-                                                            {
-                                                                maximumFractionDigits:
-                                                                    2
-                                                            }
-                                                        )
-                                                    }
-
-                                                </td>
-
-
-                                                {/* CATEGORY */}
-
-                                                <td>
-
-                                                    <span
-                                                        className="badge"
-                                                        style={
-                                                            getCategoryBadgeStyle(
-                                                                item.category
-                                                            )
-                                                        }
-                                                    >
-
-                                                        {
-                                                            item.category?.name ||
-                                                            item.categoryName ||
-                                                            "-"
-                                                        }
-
-                                                    </span>
-
-                                                </td>
-
-
-                                                {/* PAYMENT */}
-
-                                                <td>
-
-                                                    <span
-                                                        className={
-                                                            getPaymentModeBadgeClass(
-                                                                item.paymentMode
-                                                            )
-                                                        }
-                                                    >
-
-                                                        {
-                                                            item.paymentMode ||
-                                                            "-"
-                                                        }
-
-                                                    </span>
-
-                                                </td>
-
-
-                                                {/* DATE */}
-
-                                                <td>
-
-                                                    {
-                                                        item.date
-                                                            ? new Date(
-                                                                item.date
-                                                            ).toLocaleDateString(
-                                                                "en-IN"
-                                                            )
-                                                            : "-"
-                                                    }
-
-                                                </td>
-
-
-                                                {/* ACTION */}
-
-                                                <td>
-
-                                                    <Link
-                                                        className="btn btn-warning btn-sm me-2"
-                                                        to={
-                                                            `/expense/edit/${item._id}`
-                                                        }
-                                                    >
-
-                                                        Edit
-
-                                                    </Link>
-
-
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-danger btn-sm"
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                item._id
-                                                            )
-                                                        }
-                                                    >
-
-                                                        Delete
-
-                                                    </button>
-
-                                                </td>
-
-                                            </tr>
-
-                                        )
                                     )
 
-                                )
+
+                                        /* DATA */
+
+                                        : (
+
+                                            expenses.map(
+                                                (
+                                                    item,
+                                                    index
+                                                ) => (
+
+                                                    <tr
+                                                        key={
+                                                            item._id
+                                                        }
+                                                    >
+
+
+                                                        {/* # */}
+
+                                                        <td>
+
+                                                            {
+                                                                (
+                                                                    (page - 1) *
+                                                                    limit
+                                                                ) +
+                                                                index +
+                                                                1
+                                                            }
+
+                                                        </td>
+
+
+                                                        {/* TITLE */}
+
+                                                        <td>
+
+                                                            {
+                                                                item.title ||
+                                                                "-"
+                                                            }
+
+                                                        </td>
+
+
+                                                        {/* NOTE */}
+
+                                                        <td>
+
+                                                            {
+                                                                item.note ||
+                                                                "-"
+                                                            }
+
+                                                        </td>
+
+
+                                                        {/* AMOUNT */}
+
+                                                        <td>
+
+                                                            Rs.{" "}
+
+                                                            {
+                                                                Number(
+                                                                    item.amount ||
+                                                                    0
+                                                                ).toLocaleString(
+                                                                    "en-IN",
+                                                                    {
+                                                                        maximumFractionDigits:
+                                                                            2
+                                                                    }
+                                                                )
+                                                            }
+
+                                                        </td>
+
+
+                                                        {/* CATEGORY */}
+
+                                                        <td>
+
+                                                            <span
+                                                                className="badge"
+                                                                style={
+                                                                    getCategoryBadgeStyle(
+                                                                        item.category
+                                                                    )
+                                                                }
+                                                            >
+
+                                                                {
+                                                                    item.category?.name ||
+                                                                    item.categoryName ||
+                                                                    "-"
+                                                                }
+
+                                                            </span>
+
+                                                        </td>
+
+
+                                                        {/* PAYMENT */}
+
+                                                        <td>
+
+                                                            <span
+                                                                className={
+                                                                    getPaymentModeBadgeClass(
+                                                                        item.paymentMode
+                                                                    )
+                                                                }
+                                                            >
+
+                                                                {
+                                                                    item.paymentMode ||
+                                                                    "-"
+                                                                }
+
+                                                            </span>
+
+                                                        </td>
+
+
+                                                        {/* DATE */}
+
+                                                        <td>
+
+                                                            {
+                                                                item.date
+                                                                    ? new Date(
+                                                                        item.date
+                                                                    ).toLocaleDateString(
+                                                                        "en-IN"
+                                                                    )
+                                                                    : "-"
+                                                            }
+
+                                                        </td>
+
+
+                                                        {/* ACTION */}
+
+                                                        <td>
+
+                                                            <Link
+                                                                className="btn btn-warning btn-sm me-2"
+                                                                to={
+                                                                    `/expense/edit/${item._id}`
+                                                                }
+                                                            >
+
+                                                                Edit
+
+                                                            </Link>
+
+
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-danger btn-sm"
+                                                                onClick={() =>
+                                                                    handleDelete(
+                                                                        item._id
+                                                                    )
+                                                                }
+                                                            >
+
+                                                                Delete
+
+                                                            </button>
+
+                                                        </td>
+
+                                                    </tr>
+
+                                                )
+                                            )
+
+                                        )
 
                             }
 
