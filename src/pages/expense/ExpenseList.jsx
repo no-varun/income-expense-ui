@@ -71,9 +71,6 @@ const ExpenseList = () => {
     /*
      * =========================
      * CATEGORY
-     *
-     * categoryInput = dropdown value
-     * category = applied filter
      * =========================
      */
 
@@ -203,14 +200,6 @@ const ExpenseList = () => {
                 setTotal(
                     response.data?.total || 0
                 );
-
-                /*
-                 * TOTAL AMOUNT
-                 * =========================
-                 * Comes from API:
-                 *
-                 * response.data.totalAmount
-                 */
 
                 setTotalAmount(
                     response.data?.totalAmount || 0
@@ -512,9 +501,7 @@ const ExpenseList = () => {
 
             link.click();
 
-
             link.remove();
-
 
             window.URL.revokeObjectURL(
                 url
@@ -578,13 +565,28 @@ const ExpenseList = () => {
 
             <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 
-                <h3 className="mb-0">
-                    Expense List
-                </h3>
+                <div className="d-flex align-items-center gap-4">
+
+                    <h3 className="mb-0">
+                        Expense List
+                    </h3>
+
+                    <h5 className="mb-0 text-danger">
+                        Total Expense: ₹{" "}
+                        {Number(
+                            totalAmount || 0
+                        ).toLocaleString(
+                            "en-IN",
+                            {
+                                maximumFractionDigits: 2
+                            }
+                        )}
+                    </h5>
+
+                </div>
 
 
                 <div className="d-flex gap-2 flex-wrap">
-
 
                     {/* Hidden file input */}
 
@@ -666,17 +668,13 @@ const ExpenseList = () => {
                         }
                     >
 
-
                         {/* SEARCH */}
 
                         <div className="col-12 col-lg-3">
 
                             <label className="form-label">
-
                                 Search
-
                             </label>
-
 
                             <input
                                 type="search"
@@ -701,11 +699,8 @@ const ExpenseList = () => {
                         <div className="col-12 col-lg-2">
 
                             <label className="form-label">
-
                                 Category
-
                             </label>
-
 
                             <select
                                 className="form-select"
@@ -713,13 +708,10 @@ const ExpenseList = () => {
                                     categoryInput
                                 }
                                 onChange={
-                                    event => {
-
+                                    event =>
                                         setCategoryInput(
                                             event.target.value
-                                        );
-
-                                    }
+                                        )
                                 }
                                 disabled={
                                     categoryLoading
@@ -729,7 +721,6 @@ const ExpenseList = () => {
                                 <option value="">
                                     All Categories
                                 </option>
-
 
                                 {
                                     categories.map(
@@ -743,11 +734,9 @@ const ExpenseList = () => {
                                                     item._id
                                                 }
                                             >
-
                                                 {
                                                     item.name
                                                 }
-
                                             </option>
 
                                         )
@@ -764,11 +753,8 @@ const ExpenseList = () => {
                         <div className="col-6 col-lg-2">
 
                             <label className="form-label">
-
                                 From
-
                             </label>
-
 
                             <input
                                 type="date"
@@ -792,11 +778,8 @@ const ExpenseList = () => {
                         <div className="col-6 col-lg-2">
 
                             <label className="form-label">
-
                                 To
-
                             </label>
-
 
                             <input
                                 type="date"
@@ -820,11 +803,8 @@ const ExpenseList = () => {
                         <div className="col-6 col-lg-1">
 
                             <label className="form-label">
-
                                 Per page
-
                             </label>
-
 
                             <select
                                 className="form-select"
@@ -881,9 +861,7 @@ const ExpenseList = () => {
                                 type="submit"
                                 className="btn btn-dark w-100"
                             >
-
                                 Filter
-
                             </button>
 
                         </div>
@@ -910,54 +888,12 @@ const ExpenseList = () => {
                                     !toDate
                                 }
                             >
-
                                 Clear
-
                             </button>
 
                         </div>
 
                     </form>
-
-                </div>
-
-            </div>
-
-
-            {/* =========================
-                TOTAL AMOUNT CARD
-            ========================= */}
-
-            <div className="card mb-3">
-
-                <div className="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
-
-                    <div>
-
-                        <div className="text-muted small mb-1">
-                            Total Expense
-                        </div>
-
-                        <h4 className="mb-0">
-                            ₹{" "}
-                            {Number(
-                                totalAmount || 0
-                            ).toLocaleString(
-                                "en-IN",
-                                {
-                                    maximumFractionDigits: 2
-                                }
-                            )}
-                        </h4>
-
-                    </div>
-
-
-                    <div className="text-muted">
-
-                        {total} records
-
-                    </div>
 
                 </div>
 
@@ -1017,9 +953,6 @@ const ExpenseList = () => {
 
                         <tbody>
 
-
-                            {/* LOADING */}
-
                             {
                                 loading ? (
 
@@ -1043,9 +976,6 @@ const ExpenseList = () => {
 
                                 )
 
-
-                                    /* NO DATA */
-
                                     : expenses.length === 0 ? (
 
                                         <tr>
@@ -1054,17 +984,12 @@ const ExpenseList = () => {
                                                 colSpan="8"
                                                 className="text-center text-muted py-4"
                                             >
-
                                                 No Record Found
-
                                             </td>
 
                                         </tr>
 
                                     )
-
-
-                                        /* DATA */
 
                                         : (
 
@@ -1079,7 +1004,6 @@ const ExpenseList = () => {
                                                             item._id
                                                         }
                                                     >
-
 
                                                         {/* # */}
 
@@ -1216,9 +1140,7 @@ const ExpenseList = () => {
                                                                     `/expense/edit/${item._id}`
                                                                 }
                                                             >
-
                                                                 Edit
-
                                                             </Link>
 
 
@@ -1231,9 +1153,7 @@ const ExpenseList = () => {
                                                                     )
                                                                 }
                                                             >
-
                                                                 Delete
-
                                                             </button>
 
                                                         </td>
