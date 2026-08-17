@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getCategories } from "../../api/categoryApi";
 import { getItems } from "../../api/itemApi";
+import { getShops } from "../../api/ShopApi";
 
 const ExpenseForm = ({
     initialValues = {},
@@ -14,11 +15,13 @@ const ExpenseForm = ({
 
     const [categories, setCategories] = useState([]);
     const [items, setItems] = useState([]);
+    const [shops, setShops] = useState([]);
 
     const [form, setForm] = useState({
         title: "",
         amount: "",
         category: "",
+        shop: "",
         paymentMode: "UPI",
         date: new Date().toISOString().split("T")[0],
         note: ""
@@ -70,6 +73,62 @@ const ExpenseForm = ({
         };
 
         loadCategories();
+
+    }, []);
+
+
+    /*
+     * =========================
+     * LOAD SHOPS
+     * =========================
+     */
+
+    useEffect(() => {
+
+        const loadShops = async () => {
+
+            try {
+
+                const response = await getShops({
+                    limit: 100,
+                    status: true
+                });
+
+                if (response.success) {
+
+                    const rows =
+                        response.data?.rows ||
+                        response.data?.data?.rows ||
+                        response.data?.data ||
+                        response.data ||
+                        [];
+
+                    setShops(
+                        Array.isArray(rows)
+                            ? rows
+                            : []
+                    );
+
+                } else {
+
+                    setShops([]);
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Shop load error:",
+                    error
+                );
+
+                setShops([]);
+
+            }
+
+        };
+
+        loadShops();
 
     }, []);
 
@@ -164,6 +223,12 @@ const ExpenseForm = ({
             "";
 
 
+        const shopId =
+            initialValues.shop?._id ||
+            initialValues.shop ||
+            "";
+
+
         setForm({
 
             title:
@@ -176,6 +241,9 @@ const ExpenseForm = ({
 
             category:
                 categoryId,
+
+            shop:
+                shopId,
 
             paymentMode:
                 initialValues.paymentMode ||
@@ -283,6 +351,17 @@ const ExpenseForm = ({
         }
 
 
+        if (!form.shop) {
+
+            alert(
+                "Please select Shop"
+            );
+
+            return;
+
+        }
+
+
         if (!form.title) {
 
             alert(
@@ -323,7 +402,6 @@ const ExpenseForm = ({
 
         <div className="card shadow">
 
-
             {/* =========================
                 HEADER
             ========================= */}
@@ -331,11 +409,8 @@ const ExpenseForm = ({
             <div className="card-header d-flex justify-content-between align-items-center">
 
                 <h5 className="mb-0">
-
                     Expense Details
-
                 </h5>
-
 
                 <button
                     type="button"
@@ -344,9 +419,7 @@ const ExpenseForm = ({
                         navigate("/expense")
                     }
                 >
-
                     Back
-
                 </button>
 
             </div>
@@ -356,6 +429,43 @@ const ExpenseForm = ({
 
                 <form onSubmit={handleSubmit}>
 
+                    {/* =========================
+                        SHOP
+                    ========================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
+                            Shop
+                        </label>
+
+                        <select
+                            className="form-select"
+                            name="shop"
+                            value={form.shop}
+                            onChange={handleChange}
+                            required
+                        >
+
+                            <option value="">
+                                Select Shop
+                            </option>
+
+                            {shops.map(shop => (
+
+                                <option
+                                    key={shop._id}
+                                    value={shop._id}
+                                >
+                                    {shop.name}
+                                </option>
+
+                            ))}
+
+                        </select>
+
+                    </div>
+
 
                     {/* =========================
                         CATEGORY
@@ -364,11 +474,8 @@ const ExpenseForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Category
-
                         </label>
-
 
                         <select
                             className="form-select"
@@ -379,34 +486,19 @@ const ExpenseForm = ({
                         >
 
                             <option value="">
-
                                 Select Category
-
                             </option>
 
+                            {categories.map(category => (
 
-                            {
-                                categories.map(
-                                    category => (
+                                <option
+                                    key={category._id}
+                                    value={category._id}
+                                >
+                                    {category.name}
+                                </option>
 
-                                        <option
-                                            key={
-                                                category._id
-                                            }
-                                            value={
-                                                category._id
-                                            }
-                                        >
-
-                                            {
-                                                category.name
-                                            }
-
-                                        </option>
-
-                                    )
-                                )
-                            }
+                            ))}
 
                         </select>
 
@@ -420,11 +512,8 @@ const ExpenseForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Item
-
                         </label>
-
 
                         <select
                             className="form-select"
@@ -432,42 +521,27 @@ const ExpenseForm = ({
                             value={form.title}
                             onChange={handleChange}
                             required
-                            disabled={
-                                !form.category
-                            }
+                            disabled={!form.category}
                         >
 
                             <option value="">
 
-                                {
-                                    form.category
-                                        ? "Select Item"
-                                        : "Select Category First"
-                                }
+                                {form.category
+                                    ? "Select Item"
+                                    : "Select Category First"}
 
                             </option>
 
+                            {items.map(item => (
 
-                            {
-                                items.map(item => (
+                                <option
+                                    key={item._id}
+                                    value={item.name}
+                                >
+                                    {item.name}
+                                </option>
 
-                                    <option
-                                        key={
-                                            item._id
-                                        }
-                                        value={
-                                            item.name
-                                        }
-                                    >
-
-                                        {
-                                            item.name
-                                        }
-
-                                    </option>
-
-                                ))
-                            }
+                            ))}
 
                         </select>
 
@@ -481,11 +555,8 @@ const ExpenseForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Amount
-
                         </label>
-
 
                         <input
                             type="number"
@@ -508,18 +579,13 @@ const ExpenseForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Payment Mode
-
                         </label>
-
 
                         <select
                             className="form-select"
                             name="paymentMode"
-                            value={
-                                form.paymentMode
-                            }
+                            value={form.paymentMode}
                             onChange={handleChange}
                         >
 
@@ -559,11 +625,8 @@ const ExpenseForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Date
-
                         </label>
-
 
                         <input
                             type="date"
@@ -583,11 +646,8 @@ const ExpenseForm = ({
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Note
-
                         </label>
-
 
                         <textarea
                             className="form-control"
@@ -611,11 +671,9 @@ const ExpenseForm = ({
                         disabled={loading}
                     >
 
-                        {
-                            loading
-                                ? "Please wait..."
-                                : "Save Expense"
-                        }
+                        {loading
+                            ? "Please wait..."
+                            : "Save Expense"}
 
                     </button>
 
@@ -628,6 +686,5 @@ const ExpenseForm = ({
     );
 
 };
-
 
 export default ExpenseForm;
