@@ -39,6 +39,8 @@ const ExpenseList = () => {
 
     const [categories, setCategories] = useState([]);
 
+    const [shops, setShops] = useState([]);
+
     const [totalAmount, setTotalAmount] = useState(0);
 
 
@@ -55,6 +57,8 @@ const ExpenseList = () => {
     const [exporting, setExporting] = useState(false);
 
     const [categoryLoading, setCategoryLoading] = useState(false);
+
+    const [shopLoading, setShopLoading] = useState(false);
 
 
     /*
@@ -77,6 +81,28 @@ const ExpenseList = () => {
     const [categoryInput, setCategoryInput] = useState("");
 
     const [category, setCategory] = useState("");
+
+
+    /*
+     * =========================
+     * SHOP TYPE
+     * =========================
+     */
+
+    const [shopTypeInput, setShopTypeInput] = useState("");
+
+    const [shopType, setShopType] = useState("");
+
+
+    /*
+     * =========================
+     * SHOP
+     * =========================
+     */
+
+    const [shopInput, setShopInput] = useState("");
+
+    const [shop, setShop] = useState("");
 
 
     /*
@@ -123,10 +149,11 @@ const ExpenseList = () => {
 
             setCategoryLoading(true);
 
-            const response = await getCategories({
-                limit: 100,
-                type: "EXPENSE"
-            });
+            const response =
+                await getCategories({
+                    limit: 100,
+                    type: "EXPENSE"
+                });
 
 
             if (response.success) {
@@ -163,6 +190,77 @@ const ExpenseList = () => {
 
     /*
      * =========================
+     * LOAD SHOPS
+     * =========================
+     *
+     * IMPORTANT:
+     * Uses your existing shop API.
+     *
+     * If your project already has getShops()
+     * import it from your shopApi file.
+     */
+
+    const loadShops = useCallback(async () => {
+
+        try {
+
+            setShopLoading(true);
+
+            /*
+             * Replace this import/function with
+             * your existing shop API if the name
+             * is different.
+             *
+             * Example:
+             *
+             * const response = await getShops({
+             *     limit: 100
+             * });
+             */
+
+            const response =
+                await import("../../api/shopApi")
+                    .then(module =>
+                        module.getShops({
+                            limit: 100
+                        })
+                    );
+
+
+            if (response.success) {
+
+                const rows =
+                    response.data?.rows ||
+                    response.data?.data ||
+                    response.data ||
+                    [];
+
+                setShops(
+                    Array.isArray(rows)
+                        ? rows
+                        : []
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Shop fetch error:",
+                error
+            );
+
+        } finally {
+
+            setShopLoading(false);
+
+        }
+
+    }, []);
+
+
+    /*
+     * =========================
      * LOAD EXPENSES
      * =========================
      */
@@ -183,6 +281,10 @@ const ExpenseList = () => {
                     search,
 
                     category,
+
+                    shopType,
+
+                    shop,
 
                     from: fromDate,
 
@@ -231,6 +333,8 @@ const ExpenseList = () => {
         limit,
         page,
         search,
+        shop,
+        shopType,
         toDate
     ]);
 
@@ -245,15 +349,17 @@ const ExpenseList = () => {
 
         loadCategories();
 
+        loadShops();
+
     }, [
-        loadCategories
+        loadCategories,
+        loadShops
     ]);
 
 
     /*
      * =========================
-     * LOAD EXPENSES WHEN
-     * FILTER/PAGE CHANGES
+     * LOAD EXPENSES
      * =========================
      */
 
@@ -284,6 +390,14 @@ const ExpenseList = () => {
             categoryInput
         );
 
+        setShopType(
+            shopTypeInput
+        );
+
+        setShop(
+            shopInput
+        );
+
         setFromDate(
             fromDateInput
         );
@@ -312,6 +426,14 @@ const ExpenseList = () => {
         setCategoryInput("");
 
         setCategory("");
+
+        setShopTypeInput("");
+
+        setShopType("");
+
+        setShopInput("");
+
+        setShop("");
 
         setFromDateInput("");
 
@@ -471,6 +593,10 @@ const ExpenseList = () => {
 
                     category,
 
+                    shopType,
+
+                    shop,
+
                     from: fromDate,
 
                     to: toDate
@@ -525,7 +651,7 @@ const ExpenseList = () => {
 
     /*
      * =========================
-     * PAGINATION CALCULATIONS
+     * PAGINATION
      * =========================
      */
 
@@ -572,7 +698,9 @@ const ExpenseList = () => {
                     </h3>
 
                     <h5 className="mb-0 text-danger">
+
                         Total Expense: ₹{" "}
+
                         {Number(
                             totalAmount || 0
                         ).toLocaleString(
@@ -581,14 +709,13 @@ const ExpenseList = () => {
                                 maximumFractionDigits: 2
                             }
                         )}
+
                     </h5>
 
                 </div>
 
 
                 <div className="d-flex gap-2 flex-wrap">
-
-                    {/* Hidden file input */}
 
                     <input
                         ref={fileInputRef}
@@ -598,8 +725,6 @@ const ExpenseList = () => {
                         onChange={handleImport}
                     />
 
-
-                    {/* Import */}
 
                     <button
                         type="button"
@@ -619,8 +744,6 @@ const ExpenseList = () => {
                     </button>
 
 
-                    {/* Export */}
-
                     <button
                         type="button"
                         className="btn btn-outline-primary"
@@ -637,15 +760,11 @@ const ExpenseList = () => {
                     </button>
 
 
-                    {/* Add */}
-
                     <Link
                         to="/expense/add"
                         className="btn btn-primary"
                     >
-
                         Add Expense
-
                     </Link>
 
                 </div>
@@ -670,7 +789,7 @@ const ExpenseList = () => {
 
                         {/* SEARCH */}
 
-                        <div className="col-12 col-lg-3">
+                        <div className="col-12 col-lg-2">
 
                             <label className="form-label">
                                 Search
@@ -748,9 +867,101 @@ const ExpenseList = () => {
                         </div>
 
 
-                        {/* FROM DATE */}
+                        {/* SHOP TYPE */}
 
-                        <div className="col-6 col-lg-2">
+                        <div className="col-12 col-lg-2">
+
+                            <label className="form-label">
+                                Shop Type
+                            </label>
+
+                            <select
+                                className="form-select"
+                                value={
+                                    shopTypeInput
+                                }
+                                onChange={
+                                    event =>
+                                        setShopTypeInput(
+                                            event.target.value
+                                        )
+                                }
+                            >
+
+                                <option value="">
+                                    All Shop Types
+                                </option>
+
+                                <option value="ONLINE">
+                                    ONLINE
+                                </option>
+
+                                <option value="OFFLINE">
+                                    OFFLINE
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        {/* SHOP */}
+
+                        <div className="col-12 col-lg-2">
+
+                            <label className="form-label">
+                                Shop
+                            </label>
+
+                            <select
+                                className="form-select"
+                                value={
+                                    shopInput
+                                }
+                                onChange={
+                                    event =>
+                                        setShopInput(
+                                            event.target.value
+                                        )
+                                }
+                                disabled={
+                                    shopLoading
+                                }
+                            >
+
+                                <option value="">
+                                    All Shops
+                                </option>
+
+                                {
+                                    shops.map(
+                                        item => (
+
+                                            <option
+                                                key={
+                                                    item._id
+                                                }
+                                                value={
+                                                    item._id
+                                                }
+                                            >
+                                                {
+                                                    item.name
+                                                }
+                                            </option>
+
+                                        )
+                                    )
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        {/* FROM */}
+
+                        <div className="col-6 col-lg-1">
 
                             <label className="form-label">
                                 From
@@ -773,9 +984,9 @@ const ExpenseList = () => {
                         </div>
 
 
-                        {/* TO DATE */}
+                        {/* TO */}
 
-                        <div className="col-6 col-lg-2">
+                        <div className="col-6 col-lg-1">
 
                             <label className="form-label">
                                 To
@@ -882,6 +1093,10 @@ const ExpenseList = () => {
                                     !search &&
                                     !categoryInput &&
                                     !category &&
+                                    !shopTypeInput &&
+                                    !shopType &&
+                                    !shopInput &&
+                                    !shop &&
                                     !fromDateInput &&
                                     !toDateInput &&
                                     !fromDate &&
@@ -935,6 +1150,14 @@ const ExpenseList = () => {
                                 </th>
 
                                 <th>
+                                    Shop Type
+                                </th>
+
+                                <th>
+                                    Shop
+                                </th>
+
+                                <th>
                                     Payment
                                 </th>
 
@@ -959,7 +1182,7 @@ const ExpenseList = () => {
                                     <tr>
 
                                         <td
-                                            colSpan="8"
+                                            colSpan="10"
                                             className="text-center"
                                         >
 
@@ -981,7 +1204,7 @@ const ExpenseList = () => {
                                         <tr>
 
                                             <td
-                                                colSpan="8"
+                                                colSpan="10"
                                                 className="text-center text-muted py-4"
                                             >
                                                 No Record Found
@@ -1091,6 +1314,48 @@ const ExpenseList = () => {
                                                         </td>
 
 
+                                                        {/* SHOP TYPE */}
+
+                                                        <td>
+
+                                                            {
+                                                                item.shopType === "ONLINE" ? (
+
+                                                                    <span className="badge bg-primary">
+                                                                        ONLINE
+                                                                    </span>
+
+                                                                ) : item.shopType === "OFFLINE" ? (
+
+                                                                    <span className="badge bg-success">
+                                                                        OFFLINE
+                                                                    </span>
+
+                                                                ) : (
+
+                                                                    <span className="text-muted">
+                                                                        -
+                                                                    </span>
+
+                                                                )
+                                                            }
+
+                                                        </td>
+
+
+                                                        {/* SHOP */}
+
+                                                        <td>
+
+                                                            {
+                                                                item.shop?.name ||
+                                                                item.shopName ||
+                                                                "-"
+                                                            }
+
+                                                        </td>
+
+
                                                         {/* PAYMENT */}
 
                                                         <td>
@@ -1175,7 +1440,7 @@ const ExpenseList = () => {
 
 
                 {/* =========================
-                    FOOTER / PAGINATION
+                    FOOTER
                 ========================= */}
 
                 <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">

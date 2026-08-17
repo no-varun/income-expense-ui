@@ -17,6 +17,12 @@ import CategoryList from "../pages/category/CategoryList";
 import AddCategory from "../pages/category/AddCategory";
 import EditCategory from "../pages/category/EditCategory";
 
+
+// shop
+import ShopList from "../pages/shop/ShopList";
+import AddShop from "../pages/shop/AddShop";
+import EditShop from "../pages/shop/EditShop";
+
 // Items
 import ItemList from "../pages/item/ItemList";
 import AddItem from "../pages/item/AddItem";
@@ -107,6 +113,23 @@ const AppRoutes = () => {
                         <Route
                             path="/categories/edit/:id"
                             element={<EditCategory />}
+                        />
+
+                        {/* shop */}
+
+                        <Route
+                            path="/shops"
+                            element={<ShopList />}
+                        />
+
+                        <Route
+                            path="/shops/add"
+                            element={<AddShop />}
+                        />
+
+                        <Route
+                            path="/shops/edit/:id"
+                            element={<EditShop />}
                         />
 
                         {/* Items */}

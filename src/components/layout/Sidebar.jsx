@@ -1,18 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import {
-    FaTachometerAlt,
-    FaTags,
-    FaBoxOpen,
-    FaMoneyBillWave,
-    FaWallet,
-    FaChartBar,
-    FaChartPie,
-    FaUser,
-    FaSignOutAlt,
-    FaTimes,
-    FaSave
-} from "react-icons/fa";
+import { FaTachometerAlt, FaTags, FaBoxOpen, FaMoneyBillWave, FaWallet, FaChartBar, FaChartPie, FaUser, FaSignOutAlt, FaTimes, FaSave, FaStore } from "react-icons/fa";
 
 import { useAuth } from "../../context/AuthContext";
 
@@ -42,6 +30,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             title: "Items",
             path: "/items",
             icon: <FaBoxOpen />
+        },
+        {
+            title: "Shops",
+            path: "/shops",
+            icon: <FaStore />
         },
 
         {
