@@ -46,6 +46,33 @@ const bankImages = {
 };
 
 
+/*
+ * =====================================================
+ * PAYMENT MODE IMAGES
+ * =====================================================
+ */
+
+const PaymentModeImages = {
+
+    Bhim: "/images/payment/Bhim.png",
+
+    "Amazon Pay": "/images/payment/amazonpay.png",
+
+    "Bank Transfer": "/images/payment/BankTransfer.png",
+
+    GPay: "/images/payment/GPay.png",
+
+    PhonePe: "/images/payment/phonepe.png",
+
+    Paytm: "/images/payment/paytm.png",
+
+    Cash: "/images/payment/cash.png",
+
+    Other: "/images/payment/card.png"
+
+};
+
+
 const ExpenseList = () => {
 
     const fileInputRef = useRef(null);
@@ -190,6 +217,7 @@ const ExpenseList = () => {
         "GPay",
         "Bhim",
         "Amazon Pay",
+        "Bank Transfer",
         "Other"
     ];
 
@@ -851,6 +879,58 @@ const ExpenseList = () => {
 
     /*
      * =====================================================
+     * PAYMENT MODE IMAGE HELPER
+     * =====================================================
+     */
+
+    const getPaymentModeImage = (paymentModeName) => {
+
+        if (!paymentModeName) {
+
+            return PaymentModeImages.Other;
+
+        }
+
+
+        /*
+         * Exact match
+         */
+
+        if (
+            PaymentModeImages[paymentModeName]
+        ) {
+
+            return PaymentModeImages[
+                paymentModeName
+            ];
+
+        }
+
+
+        /*
+         * Case-insensitive match
+         */
+
+        const matchedMode =
+            Object.keys(
+                PaymentModeImages
+            ).find(
+                key =>
+                    key.toLowerCase() ===
+                    String(paymentModeName)
+                        .toLowerCase()
+            );
+
+
+        return matchedMode
+            ? PaymentModeImages[matchedMode]
+            : PaymentModeImages.Other;
+
+    };
+
+
+    /*
+     * =====================================================
      * RENDER
      * =====================================================
      */
@@ -892,7 +972,6 @@ const ExpenseList = () => {
 
 
                 <div className="d-flex gap-2 flex-wrap">
-
 
                     <input
                         ref={fileInputRef}
@@ -1528,7 +1607,7 @@ const ExpenseList = () => {
 
                                                 {
                                                     item.shopType ===
-                                                    "ONLINE" ? (
+                                                        "ONLINE" ? (
 
                                                         <span className="badge bg-primary">
                                                             ONLINE
@@ -1570,20 +1649,66 @@ const ExpenseList = () => {
 
                                             <td>
 
-                                                <span
-                                                    className={
-                                                        getPaymentModeBadgeClass(
-                                                            item.paymentMode
-                                                        )
-                                                    }
-                                                >
+                                                {item.paymentMode ? (
 
-                                                    {
-                                                        item.paymentMode ||
-                                                        "-"
-                                                    }
+                                                    <div
+                                                        className="d-flex align-items-center gap-2"
+                                                        style={{
+                                                            minWidth: "130px"
+                                                        }}
+                                                    >
 
-                                                </span>
+                                                        <img
+                                                            src={
+                                                                getPaymentModeImage(
+                                                                    item.paymentMode
+                                                                )
+                                                            }
+                                                            alt={
+                                                                item.paymentMode
+                                                            }
+                                                            title={
+                                                                item.paymentMode
+                                                            }
+                                                            style={{
+                                                                width: "45px",
+                                                                height: "45px",
+                                                                objectFit: "contain",
+                                                                borderRadius: "6px",
+                                                                flexShrink: 0
+                                                            }}
+                                                            onError={(e) => {
+
+                                                                e.currentTarget.src =
+                                                                    PaymentModeImages.Other;
+
+                                                            }}
+                                                        />
+
+
+                                                        <span
+                                                            className={
+                                                                getPaymentModeBadgeClass(
+                                                                    item.paymentMode
+                                                                )
+                                                            }
+                                                        >
+
+                                                            {
+                                                                item.paymentMode
+                                                            }
+
+                                                        </span>
+
+                                                    </div>
+
+                                                ) : (
+
+                                                    <span className="text-muted">
+                                                        -
+                                                    </span>
+
+                                                )}
 
                                             </td>
 
@@ -1614,8 +1739,8 @@ const ExpenseList = () => {
                                                                 item.bank
                                                             }
                                                             style={{
-                                                                width: "45px",
-                                                                height: "35px",
+                                                                width: "50px",
+                                                                height: "45px",
                                                                 objectFit: "contain"
                                                             }}
                                                             onError={(e) => {

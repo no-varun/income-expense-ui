@@ -16,9 +16,16 @@ import { getCategories } from "../../api/categoryApi";
 import Pagination from "../../components/common/Pagination";
 
 import {
-    getCategoryBadgeStyle,
-    getPaymentModeBadgeClass
+    getCategoryBadgeStyle
 } from "../../utils/badgeStyles";
+
+
+/*
+ * =====================================================
+ * BANK IMAGES
+ * =====================================================
+ */
+
 const bankImages = {
 
     Pnb: "/images/banks/pnb.png",
@@ -32,6 +39,81 @@ const bankImages = {
     Other: "/images/banks/card.png"
 
 };
+
+
+/*
+ * =====================================================
+ * PAYMENT MODE IMAGES
+ * =====================================================
+ */
+
+const PaymentModeImages = {
+
+    Cash: "/images/payment/cash.png",
+
+    Paytm: "/images/payment/paytm.png",
+
+    PhonePe: "/images/payment/phonepe.png",
+
+    GPay: "/images/payment/GPay.png",
+
+    Bhim: "/images/payment/Bhim.png",
+
+    "Amazon Pay": "/images/payment/amazonpay.png",
+
+    "Bank Transfer": "/images/payment/BankTransfer.png",
+
+    Other: "/images/payment/card.png"
+
+};
+
+
+/*
+ * =====================================================
+ * PAYMENT MODES
+ * =====================================================
+ */
+
+const paymentModes = [
+
+    "Cash",
+
+    "Paytm",
+
+    "PhonePe",
+
+    "GPay",
+
+    "Bhim",
+
+    "Amazon Pay",
+
+    "Bank Transfer",
+
+    "Other"
+
+];
+
+
+/*
+ * =====================================================
+ * BANKS
+ * =====================================================
+ */
+
+const banks = [
+
+    "Pnb",
+
+    "Rbl",
+
+    "icici",
+
+    "Cash",
+
+    "Other"
+
+];
 
 
 const IncomeList = () => {
@@ -156,8 +238,11 @@ const IncomeList = () => {
 
                 const response =
                     await getCategories({
+
                         limit: 100,
+
                         type: "INCOME"
+
                     });
 
 
@@ -165,15 +250,20 @@ const IncomeList = () => {
 
                     const rows =
                         response.data?.rows ||
+                        response.data?.data?.rows ||
                         response.data?.data ||
                         response.data ||
                         [];
 
 
                     setCategories(
+
                         Array.isArray(rows)
+
                             ? rows
+
                             : []
+
                     );
 
                 } else {
@@ -245,7 +335,9 @@ const IncomeList = () => {
 
                     const incomeRows =
                         Array.isArray(rows)
+
                             ? rows
+
                             : [];
 
 
@@ -272,31 +364,39 @@ const IncomeList = () => {
                     ) {
 
                         setTotalAmount(
+
                             Number(
                                 response.data.totalAmount ||
                                 0
                             )
+
                         );
 
                     } else {
 
                         const amount =
                             incomeRows.reduce(
+
                                 (
                                     sum,
                                     item
                                 ) => {
 
                                     return (
+
                                         sum +
+
                                         Number(
                                             item.amount ||
                                             0
                                         )
+
                                     );
 
                                 },
+
                                 0
+
                             );
 
 
@@ -330,12 +430,6 @@ const IncomeList = () => {
 
                 setTotalAmount(0);
 
-
-                console.error(
-                    error.response?.data?.message ||
-                    "Unable to fetch income."
-                );
-
             } finally {
 
                 setLoading(false);
@@ -343,16 +437,27 @@ const IncomeList = () => {
             }
 
         },
+
         [
+
             page,
+
             limit,
+
             search,
+
             category,
+
             paymentMode,
+
             bank,
+
             fromDate,
+
             toDate
+
         ]
+
     );
 
 
@@ -367,7 +472,9 @@ const IncomeList = () => {
         loadCategories();
 
     }, [
+
         loadCategories
+
     ]);
 
 
@@ -382,7 +489,9 @@ const IncomeList = () => {
         loadIncome();
 
     }, [
+
         loadIncome
+
     ]);
 
 
@@ -414,13 +523,19 @@ const IncomeList = () => {
             if (response.success) {
 
                 alert(
-                    response.message
+
+                    response.message ||
+                    "Income deleted successfully."
+
                 );
 
 
                 if (
+
                     incomes.length === 1 &&
+
                     page > 1
+
                 ) {
 
                     setPage(
@@ -438,8 +553,11 @@ const IncomeList = () => {
         } catch (error) {
 
             alert(
+
                 error.response?.data?.message ||
+
                 "Unable to delete income."
+
             );
 
         }
@@ -505,25 +623,31 @@ const IncomeList = () => {
 
         setSearch("");
 
+
         setCategoryInput("");
 
         setCategory("");
+
 
         setPaymentModeInput("");
 
         setPaymentMode("");
 
+
         setBankInput("");
 
         setBank("");
+
 
         setFromDateInput("");
 
         setToDateInput("");
 
+
         setFromDate("");
 
         setToDate("");
+
 
         setPage(1);
 
@@ -550,15 +674,146 @@ const IncomeList = () => {
 
     const startRecord =
         total === 0
+
             ? 0
+
             : ((page - 1) * limit) + 1;
 
 
     const endRecord =
         Math.min(
+
             page * limit,
+
             total
+
         );
+
+
+    /*
+     * =====================================================
+     * GET PAYMENT IMAGE
+     * =====================================================
+     */
+
+    const getPaymentModeImage = (
+        paymentModeName
+    ) => {
+
+        if (!paymentModeName) {
+
+            return null;
+
+        }
+
+
+        /*
+         * Exact match
+         */
+
+        if (
+            PaymentModeImages[
+                paymentModeName
+            ]
+        ) {
+
+            return (
+                PaymentModeImages[
+                    paymentModeName
+                ]
+            );
+
+        }
+
+
+        /*
+         * Case-insensitive match
+         */
+
+        const matchedMode =
+            Object.keys(
+                PaymentModeImages
+            ).find(
+
+                key =>
+
+                    key.toLowerCase() ===
+                    String(
+                        paymentModeName
+                    ).toLowerCase()
+
+            );
+
+
+        return matchedMode
+
+            ? PaymentModeImages[
+                matchedMode
+            ]
+
+            : PaymentModeImages.Other;
+
+    };
+
+
+    /*
+     * =====================================================
+     * GET BANK IMAGE
+     * =====================================================
+     */
+
+    const getBankImage = (
+        bankName
+    ) => {
+
+        if (!bankName) {
+
+            return null;
+
+        }
+
+
+        /*
+         * Exact match
+         */
+
+        if (
+            bankImages[bankName]
+        ) {
+
+            return bankImages[bankName];
+
+        }
+
+
+        /*
+         * Case-insensitive match
+         */
+
+        const matchedBank =
+            Object.keys(
+                bankImages
+            ).find(
+
+                key =>
+
+                    key.toLowerCase() ===
+                    String(
+                        bankName
+                    ).toLowerCase()
+
+            );
+
+
+        return matchedBank
+
+            ? bankImages[
+                matchedBank
+            ]
+
+            : bankImages.Other;
+
+    };
 
 
     /*
@@ -592,10 +847,13 @@ const IncomeList = () => {
                         {Number(
                             totalAmount || 0
                         ).toLocaleString(
+
                             "en-IN",
+
                             {
                                 maximumFractionDigits: 2
                             }
+
                         )}
 
                     </h5>
@@ -607,7 +865,9 @@ const IncomeList = () => {
                     to="/income/add"
                     className="btn btn-primary"
                 >
+
                     Add Income
+
                 </Link>
 
             </div>
@@ -629,9 +889,7 @@ const IncomeList = () => {
                     >
 
 
-                        {/* =================================================
-                            SEARCH
-                        ================================================= */}
+                        {/* SEARCH */}
 
                         <div className="col-12 col-lg-2">
 
@@ -658,9 +916,7 @@ const IncomeList = () => {
                         </div>
 
 
-                        {/* =================================================
-                            CATEGORY
-                        ================================================= */}
+                        {/* CATEGORY */}
 
                         <div className="col-12 col-lg-2">
 
@@ -713,9 +969,7 @@ const IncomeList = () => {
                         </div>
 
 
-                        {/* =================================================
-                            PAYMENT MODE
-                        ================================================= */}
+                        {/* PAYMENT MODE */}
 
                         <div className="col-12 col-lg-2">
 
@@ -742,48 +996,27 @@ const IncomeList = () => {
                                 </option>
 
 
-                                <option value="Cash">
-                                    Cash
-                                </option>
+                                {paymentModes.map(
+                                    mode => (
 
+                                        <option
+                                            key={mode}
+                                            value={mode}
+                                        >
 
-                                <option value="Paytm">
-                                    Paytm
-                                </option>
+                                            {mode}
 
+                                        </option>
 
-                                <option value="PhonePe">
-                                    PhonePe
-                                </option>
-
-
-                                <option value="GPay">
-                                    GPay
-                                </option>
-
-
-                                <option value="Bhim">
-                                    Bhim
-                                </option>
-
-
-                                <option value="Amazon Pay">
-                                    Amazon Pay
-                                </option>
-
-
-                                <option value="Other">
-                                    Other
-                                </option>
+                                    )
+                                )}
 
                             </select>
 
                         </div>
 
 
-                        {/* =================================================
-                            BANK
-                        ================================================= */}
+                        {/* BANK */}
 
                         <div className="col-12 col-lg-2">
 
@@ -810,38 +1043,27 @@ const IncomeList = () => {
                                 </option>
 
 
-                                <option value="Pnb">
-                                    Pnb
-                                </option>
+                                {banks.map(
+                                    bankName => (
 
+                                        <option
+                                            key={bankName}
+                                            value={bankName}
+                                        >
 
-                                <option value="Rbl">
-                                    Rbl
-                                </option>
+                                            {bankName}
 
+                                        </option>
 
-                                <option value="icici">
-                                    icici
-                                </option>
-
-
-                                <option value="Cash">
-                                    Cash
-                                </option>
-
-
-                                <option value="Other">
-                                    Other
-                                </option>
+                                    )
+                                )}
 
                             </select>
 
                         </div>
 
 
-                        {/* =================================================
-                            FROM DATE
-                        ================================================= */}
+                        {/* FROM */}
 
                         <div className="col-6 col-lg-1">
 
@@ -867,9 +1089,7 @@ const IncomeList = () => {
                         </div>
 
 
-                        {/* =================================================
-                            TO DATE
-                        ================================================= */}
+                        {/* TO */}
 
                         <div className="col-6 col-lg-1">
 
@@ -895,9 +1115,7 @@ const IncomeList = () => {
                         </div>
 
 
-                        {/* =================================================
-                            PER PAGE
-                        ================================================= */}
+                        {/* PER PAGE */}
 
                         <div className="col-6 col-lg-1">
 
@@ -953,9 +1171,7 @@ const IncomeList = () => {
                         </div>
 
 
-                        {/* =================================================
-                            FILTER
-                        ================================================= */}
+                        {/* FILTER */}
 
                         <div className="col-6 col-lg-1">
 
@@ -963,15 +1179,15 @@ const IncomeList = () => {
                                 type="submit"
                                 className="btn btn-dark w-100"
                             >
+
                                 Filter
+
                             </button>
 
                         </div>
 
 
-                        {/* =================================================
-                            CLEAR
-                        ================================================= */}
+                        {/* CLEAR */}
 
                         <div className="col-6 col-lg-1">
 
@@ -998,7 +1214,9 @@ const IncomeList = () => {
 
                                 }
                             >
+
                                 Clear
+
                             </button>
 
                         </div>
@@ -1064,9 +1282,7 @@ const IncomeList = () => {
                         <tbody>
 
 
-                            {/* =================================================
-                                LOADING
-                            ================================================= */}
+                            {/* LOADING */}
 
                             {loading ? (
 
@@ -1074,7 +1290,7 @@ const IncomeList = () => {
 
                                     <td
                                         colSpan="8"
-                                        className="text-center"
+                                        className="text-center py-4"
                                     >
 
                                         <div
@@ -1088,13 +1304,7 @@ const IncomeList = () => {
 
                                 </tr>
 
-
                             ) : incomes.length === 0 ? (
-
-
-                                /* =================================================
-                                    NO DATA
-                                ================================================= */
 
                                 <tr>
 
@@ -1102,248 +1312,314 @@ const IncomeList = () => {
                                         colSpan="8"
                                         className="text-center text-muted py-4"
                                     >
+
                                         No Record Found
+
                                     </td>
 
                                 </tr>
 
-
                             ) : (
-
-
-                                /* =================================================
-                                    DATA
-                                ================================================= */
 
                                 incomes.map(
                                     (
                                         item,
                                         index
-                                    ) => (
+                                    ) => {
 
-                                        <tr
-                                            key={
-                                                item._id
-                                            }
-                                        >
+                                        const paymentImage =
+                                            getPaymentModeImage(
+                                                item.paymentMode
+                                            );
 
 
-                                            {/* =================================================
-                                                #
-                                            ================================================= */}
+                                        const bankImage =
+                                            getBankImage(
+                                                item.bank
+                                            );
 
-                                            <td>
 
-                                                {
-                                                    (
-                                                        (page - 1) *
-                                                        limit
-                                                    ) +
-                                                    index +
-                                                    1
+                                        return (
+
+                                            <tr
+                                                key={
+                                                    item._id
                                                 }
-
-                                            </td>
-
-
-                                            {/* =================================================
-                                                TITLE
-                                            ================================================= */}
-
-                                            <td>
-
-                                                {
-                                                    item.title ||
-                                                    "-"
-                                                }
-
-                                            </td>
+                                            >
 
 
-                                            {/* =================================================
-                                                AMOUNT
-                                            ================================================= */}
+                                                {/* # */}
 
-                                            <td>
+                                                <td>
 
-                                                ₹{" "}
+                                                    {
+                                                        (
+                                                            (page - 1) *
+                                                            limit
+                                                        ) +
+                                                        index +
+                                                        1
+                                                    }
 
-                                                {
-                                                    Number(
+                                                </td>
+
+
+                                                {/* TITLE */}
+
+                                                <td>
+
+                                                    {
+                                                        item.title ||
+                                                        "-"
+                                                    }
+
+                                                </td>
+
+
+                                                {/* AMOUNT */}
+
+                                                <td>
+
+                                                    ₹{" "}
+
+                                                    {Number(
                                                         item.amount ||
                                                         0
                                                     ).toLocaleString(
+
                                                         "en-IN",
+
                                                         {
                                                             maximumFractionDigits:
                                                                 2
                                                         }
-                                                    )
-                                                }
 
-                                            </td>
+                                                    )}
 
-
-                                            {/* =================================================
-                                                CATEGORY
-                                            ================================================= */}
-
-                                            <td>
-
-                                                <span
-                                                    className="badge"
-                                                    style={
-                                                        getCategoryBadgeStyle(
-                                                            item.category
-                                                        )
-                                                    }
-                                                >
-
-                                                    {
-                                                        item.category?.name ||
-                                                        item.categoryName ||
-                                                        "-"
-                                                    }
-
-                                                </span>
-
-                                            </td>
+                                                </td>
 
 
-                                            {/* =================================================
-                                                PAYMENT
-                                            ================================================= */}
+                                                {/* CATEGORY */}
 
-                                            <td>
+                                                <td>
 
-                                                <span
-                                                    className={
-                                                        getPaymentModeBadgeClass(
-                                                            item.paymentMode
-                                                        )
-                                                    }
-                                                >
+                                                    <span
+                                                        className="badge"
+                                                        style={
+                                                            getCategoryBadgeStyle(
+                                                                item.category
+                                                            )
+                                                        }
+                                                    >
 
-                                                    {
-                                                        item.paymentMode ||
-                                                        "-"
-                                                    }
+                                                        {
+                                                            item.category?.name ||
+                                                            item.categoryName ||
+                                                            "-"
+                                                        }
 
-                                                </span>
+                                                    </span>
 
-                                            </td>
+                                                </td>
 
 
-                                            {/* =================================================
-                                                BANK IMAGE
-                                            ================================================= */}
+                                                {/* PAYMENT MODE */}
 
-                                            <td className="text-center">
+                                                <td>
 
-                                                {item.bank ? (
+                                                    {item.paymentMode ? (
 
-                                                    bankImages[
-                                                        item.bank
-                                                    ] ? (
-
-                                                        <img
-                                                            src={
-                                                                bankImages[
-                                                                    item.bank
-                                                                ]
-                                                            }
-                                                            alt={
-                                                                item.bank
-                                                            }
-                                                            title={
-                                                                item.bank
-                                                            }
+                                                        <div
+                                                            className="d-flex align-items-center gap-2"
                                                             style={{
-                                                                width:
-                                                                    "45px",
-
-                                                                height:
-                                                                    "45px",
-
-                                                                objectFit:
-                                                                    "contain",
-
-                                                                display:
-                                                                    "inline-block"
+                                                                minWidth:
+                                                                    "130px"
                                                             }}
-                                                        />
+                                                        >
+
+                                                            {paymentImage && (
+
+                                                                <img
+                                                                    src={
+                                                                        paymentImage
+                                                                    }
+                                                                    alt={
+                                                                        item.paymentMode
+                                                                    }
+                                                                    title={
+                                                                        item.paymentMode
+                                                                    }
+                                                                    style={{
+                                                                        width:
+                                                                            "55px",
+
+                                                                        height:
+                                                                            "55px",
+
+                                                                        objectFit:
+                                                                            "contain",
+
+                                                                        display:
+                                                                            "block"
+                                                                    }}
+                                                                    onError={(
+                                                                        event
+                                                                    ) => {
+
+                                                                        event.currentTarget.src =
+                                                                            PaymentModeImages.Other;
+
+                                                                    }}
+                                                                />
+
+                                                            )}
+
+
+                                                            <span
+                                                                className="badge"
+                                                                style={{
+                                                                    fontSize:
+                                                                        "12px"
+                                                                }}
+                                                            >
+
+                                                                {
+                                                                    item.paymentMode
+                                                                }
+
+                                                            </span>
+
+                                                        </div>
 
                                                     ) : (
 
-                                                        <span>
-                                                            {
-                                                                item.bank
-                                                            }
+                                                        <span className="text-muted">
+                                                            -
                                                         </span>
 
-                                                    )
+                                                    )}
 
-                                                ) : (
-
-                                                    "-"
-
-                                                )}
-
-                                            </td>
+                                                </td>
 
 
-                                            {/* =================================================
-                                                DATE
-                                            ================================================= */}
+                                                {/* BANK IMAGE */}
 
-                                            <td>
+                                                <td className="text-center">
 
-                                                {
-                                                    item.date
-                                                        ? new Date(
-                                                            item.date
-                                                        ).toLocaleDateString(
-                                                            "en-IN"
+                                                    {item.bank ? (
+
+                                                        bankImage ? (
+
+                                                            <img
+                                                                src={
+                                                                    bankImage
+                                                                }
+                                                                alt={
+                                                                    item.bank
+                                                                }
+                                                                title={
+                                                                    item.bank
+                                                                }
+                                                                style={{
+                                                                    width:
+                                                                        "65px",
+
+                                                                    height:
+                                                                        "55px",
+
+                                                                    objectFit:
+                                                                        "contain",
+
+                                                                    display:
+                                                                        "inline-block"
+                                                                }}
+                                                                onError={(
+                                                                    event
+                                                                ) => {
+
+                                                                    event.currentTarget.src =
+                                                                        bankImages.Other;
+
+                                                                }}
+                                                            />
+
+                                                        ) : (
+
+                                                            <span>
+                                                                {
+                                                                    item.bank
+                                                                }
+                                                            </span>
+
                                                         )
-                                                        : "-"
-                                                }
 
-                                            </td>
+                                                    ) : (
+
+                                                        <span className="text-muted">
+                                                            -
+                                                        </span>
+
+                                                    )}
+
+                                                </td>
 
 
-                                            {/* =================================================
-                                                ACTION
-                                            ================================================= */}
+                                                {/* DATE */}
 
-                                            <td>
+                                                <td>
 
-                                                <Link
-                                                    className="btn btn-warning btn-sm me-2"
-                                                    to={
-                                                        `/income/edit/${item._id}`
+                                                    {
+                                                        item.date
+
+                                                            ? new Date(
+                                                                item.date
+                                                            ).toLocaleDateString(
+                                                                "en-IN"
+                                                            )
+
+                                                            : "-"
                                                     }
-                                                >
-                                                    Edit
-                                                </Link>
+
+                                                </td>
 
 
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-danger btn-sm"
-                                                    onClick={() =>
-                                                        handleDelete(
-                                                            item._id
-                                                        )
-                                                    }
-                                                >
-                                                    Delete
-                                                </button>
+                                                {/* ACTION */}
 
-                                            </td>
+                                                <td>
 
-                                        </tr>
+                                                    <Link
+                                                        className="btn btn-warning btn-sm me-2"
+                                                        to={
+                                                            `/income/edit/${item._id}`
+                                                        }
+                                                    >
 
-                                    )
+                                                        Edit
+
+                                                    </Link>
+
+
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                item._id
+                                                            )
+                                                        }
+                                                    >
+
+                                                        Delete
+
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                        );
+
+                                    }
                                 )
 
                             )}
@@ -1388,8 +1664,12 @@ const IncomeList = () => {
                             nextPage => {
 
                                 if (
+
                                     nextPage >= 1 &&
-                                    nextPage <= totalPages
+
+                                    nextPage <=
+                                    totalPages
+
                                 ) {
 
                                     setPage(
