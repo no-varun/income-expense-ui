@@ -11,8 +11,7 @@ import { getCategories } from "../../api/categoryApi";
 import Pagination from "../../components/common/Pagination";
 
 import {
-    getCategoryBadgeStyle,
-    getPaymentModeBadgeClass
+    getCategoryBadgeStyle
 } from "../../utils/badgeStyles";
 
 
@@ -23,21 +22,53 @@ import {
  */
 
 const bankImages = {
-
     Pnb: "/images/banks/pnb.png",
-
     Rbl: "/images/banks/rbl.png",
-
     icici: "/images/banks/icici.png",
-
     Cash: "/images/banks/cash.png",
-
     Other: "/images/banks/card.png"
+};
 
+
+/*
+ * =====================================================
+ * PAYMENT MODE IMAGES
+ * =====================================================
+ */
+
+const paymentModeImages = {
+    Bhim: "/images/payment/Bhim.png",
+
+    "AmazonPay":
+        "/images/payment/amazonpay.png",
+
+    "BankTransfer":
+        "/images/payment/BankTransfer.png",
+
+    GPay:
+        "/images/payment/GPay.png",
+
+    PhonePe:
+        "/images/payment/phonepe.png",
+
+    Paytm:
+        "/images/payment/paytm.png",
+
+    Cash:
+        "/images/payment/cash.png",
+
+    Other:
+        "/images/payment/card.png"
 };
 
 
 const SavingList = () => {
+
+    /*
+     * =====================================================
+     * DATA
+     * =====================================================
+     */
 
     const [loading, setLoading] = useState(true);
 
@@ -89,7 +120,7 @@ const SavingList = () => {
      * =====================================================
      * PAYMENT MODE FILTER
      * =====================================================
-     */
+ */
 
     const [paymentModeInput, setPaymentModeInput] =
         useState("");
@@ -116,15 +147,14 @@ const SavingList = () => {
      */
 
     const paymentModes = [
-
         "Cash",
         "Paytm",
         "PhonePe",
         "GPay",
         "Bhim",
         "Amazon Pay",
+        "Bank Transfer",
         "Other"
-
     ];
 
 
@@ -135,13 +165,11 @@ const SavingList = () => {
      */
 
     const banks = [
-
         "Pnb",
         "Rbl",
         "icici",
         "Cash",
         "Other"
-
     ];
 
 
@@ -156,35 +184,24 @@ const SavingList = () => {
         try {
 
             const response = await getCategories({
-
                 limit: 100,
-
                 type: "SAVING"
-
             });
 
 
             if (response.success) {
 
                 const rows =
-
                     response.data?.rows ||
-
                     response.data?.data ||
-
                     response.data ||
-
                     [];
 
 
                 setCategories(
-
                     Array.isArray(rows)
-
                         ? rows
-
                         : []
-
                 );
 
             } else {
@@ -242,22 +259,15 @@ const SavingList = () => {
             if (response.success) {
 
                 const rows =
-
                     response.data?.data ||
-
                     response.data?.rows ||
-
                     response.data ||
-
                     [];
 
 
                 const savingRows =
-
                     Array.isArray(rows)
-
                         ? rows
-
                         : [];
 
 
@@ -267,11 +277,8 @@ const SavingList = () => {
 
 
                 setTotal(
-
                     response.data?.total ??
-
                     savingRows.length
-
                 );
 
             } else {
@@ -300,21 +307,13 @@ const SavingList = () => {
         }
 
     }, [
-
         page,
-
         limit,
-
         fromDate,
-
         toDate,
-
         category,
-
         paymentMode,
-
         bank
-
     ]);
 
 
@@ -382,11 +381,8 @@ const SavingList = () => {
 
 
                 if (
-
                     savings.length === 1 &&
-
                     page > 1
-
                 ) {
 
                     setPage(page - 1);
@@ -402,11 +398,8 @@ const SavingList = () => {
         } catch (error) {
 
             alert(
-
                 error.response?.data?.message ||
-
                 "Failed to delete saving"
-
             );
 
         }
@@ -518,12 +511,9 @@ const SavingList = () => {
 
         const matchedBank =
             Object.keys(bankImages).find(
-
                 key =>
-
                     key.toLowerCase() ===
                     String(bankName).toLowerCase()
-
             );
 
 
@@ -533,10 +523,58 @@ const SavingList = () => {
          */
 
         return matchedBank
-
             ? bankImages[matchedBank]
-
             : bankImages.Other;
+
+    };
+
+
+    /*
+     * =====================================================
+     * GET PAYMENT MODE IMAGE
+     * =====================================================
+     */
+
+    const getPaymentModeImage = (paymentModeName) => {
+
+        if (!paymentModeName) {
+
+            return null;
+
+        }
+
+
+        /*
+         * Exact match
+         */
+
+        if (paymentModeImages[paymentModeName]) {
+
+            return paymentModeImages[paymentModeName];
+
+        }
+
+
+        /*
+         * Case-insensitive match
+         */
+
+        const matchedPaymentMode =
+            Object.keys(paymentModeImages).find(
+                key =>
+                    key.toLowerCase() ===
+                    String(paymentModeName).toLowerCase()
+            );
+
+
+        /*
+         * Return matching image
+         * or Other image
+         */
+
+        return matchedPaymentMode
+            ? paymentModeImages[matchedPaymentMode]
+            : paymentModeImages.Other;
 
     };
 
@@ -548,23 +586,16 @@ const SavingList = () => {
      */
 
     const totalPages =
-
-        Math.ceil(
-            total / limit
-        ) || 1;
+        Math.ceil(total / limit) || 1;
 
 
     const startRecord =
-
         total === 0
-
             ? 0
-
             : ((page - 1) * limit) + 1;
 
 
     const endRecord =
-
         Math.min(
             page * limit,
             total
@@ -589,9 +620,7 @@ const SavingList = () => {
             <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 
                 <h3 className="mb-0">
-
                     Saving List
-
                 </h3>
 
 
@@ -599,9 +628,7 @@ const SavingList = () => {
                     to="/saving/add"
                     className="btn btn-primary"
                 >
-
                     Add Saving
-
                 </Link>
 
             </div>
@@ -631,9 +658,7 @@ const SavingList = () => {
                         <div className="col-12 col-md-2">
 
                             <label className="form-label">
-
                                 From
-
                             </label>
 
 
@@ -658,9 +683,7 @@ const SavingList = () => {
                         <div className="col-12 col-md-2">
 
                             <label className="form-label">
-
                                 To
-
                             </label>
 
 
@@ -685,9 +708,7 @@ const SavingList = () => {
                         <div className="col-12 col-md-2">
 
                             <label className="form-label">
-
                                 Category
-
                             </label>
 
 
@@ -704,9 +725,7 @@ const SavingList = () => {
                             >
 
                                 <option value="">
-
                                     All Categories
-
                                 </option>
 
 
@@ -721,11 +740,9 @@ const SavingList = () => {
                                                 categoryItem._id
                                             }
                                         >
-
                                             {
                                                 categoryItem.name
                                             }
-
                                         </option>
 
                                     )
@@ -741,9 +758,7 @@ const SavingList = () => {
                         <div className="col-12 col-md-2">
 
                             <label className="form-label">
-
                                 Payment Mode
-
                             </label>
 
 
@@ -760,9 +775,7 @@ const SavingList = () => {
                             >
 
                                 <option value="">
-
                                     All Payment Modes
-
                                 </option>
 
 
@@ -773,9 +786,7 @@ const SavingList = () => {
                                             key={mode}
                                             value={mode}
                                         >
-
                                             {mode}
-
                                         </option>
 
                                     )
@@ -791,9 +802,7 @@ const SavingList = () => {
                         <div className="col-12 col-md-2">
 
                             <label className="form-label">
-
                                 Bank
-
                             </label>
 
 
@@ -808,9 +817,7 @@ const SavingList = () => {
                             >
 
                                 <option value="">
-
                                     All Banks
-
                                 </option>
 
 
@@ -825,11 +832,9 @@ const SavingList = () => {
                                                 bankItem
                                             }
                                         >
-
                                             {
                                                 bankItem
                                             }
-
                                         </option>
 
                                     )
@@ -845,9 +850,7 @@ const SavingList = () => {
                         <div className="col-6 col-md-1">
 
                             <label className="form-label">
-
                                 Per page
-
                             </label>
 
 
@@ -892,9 +895,7 @@ const SavingList = () => {
                                 type="submit"
                                 className="btn btn-dark w-100"
                             >
-
                                 Filter
-
                             </button>
 
                         </div>
@@ -911,32 +912,19 @@ const SavingList = () => {
                                     handleClearFilter
                                 }
                                 disabled={
-
                                     !fromDateInput &&
-
                                     !toDateInput &&
-
                                     !categoryInput &&
-
                                     !paymentModeInput &&
-
                                     !bankInput &&
-
                                     !fromDate &&
-
                                     !toDate &&
-
                                     !category &&
-
                                     !paymentMode &&
-
                                     !bank
-
                                 }
                             >
-
                                 Clear
-
                             </button>
 
                         </div>
@@ -972,12 +960,20 @@ const SavingList = () => {
                                         Category
                                     </th>
 
-                                    <th>
+                                    <th
+                                        className="text-center"
+                                        style={{
+                                            width: "110px",
+                                            minWidth: "110px"
+                                        }}
+                                    >
                                         Payment Mode
                                     </th>
 
                                     <th
+                                        className="text-center"
                                         style={{
+                                            width: "130px",
                                             minWidth: "130px"
                                         }}
                                     >
@@ -1031,9 +1027,7 @@ const SavingList = () => {
                                             colSpan="8"
                                             className="text-center text-muted py-4"
                                         >
-
                                             No Record Found
-
                                         </td>
 
                                     </tr>
@@ -1044,12 +1038,22 @@ const SavingList = () => {
                                         (item, index) => {
 
                                             const bankName =
-                                                item.bank ||
-                                                "";
+                                                item.bank || "";
+
+
+                                            const paymentModeName =
+                                                item.paymentMode || "";
+
 
                                             const bankImage =
                                                 getBankImage(
                                                     bankName
+                                                );
+
+
+                                            const paymentModeImage =
+                                                getPaymentModeImage(
+                                                    paymentModeName
                                                 );
 
 
@@ -1139,86 +1143,125 @@ const SavingList = () => {
                                                     </td>
 
 
-                                                    {/* PAYMENT MODE */}
-
-                                                    <td>
-
-                                                        <span
-                                                            className={
-                                                                getPaymentModeBadgeClass(
-                                                                    item.paymentMode
-                                                                )
-                                                            }
-                                                        >
-
-                                                            {
-                                                                item.paymentMode ||
-                                                                "-"
-                                                            }
-
-                                                        </span>
-
-                                                    </td>
-
-
-                                                    {/* BANK */}
+                                                    {/* =================================================
+                                                        PAYMENT MODE IMAGE ONLY
+                                                    ================================================= */}
 
                                                     <td
+                                                        className="text-center"
                                                         style={{
-                                                            minWidth: "130px",
-                                                            width: "130px",
-                                                            textAlign: "center"
+                                                            width: "110px",
+                                                            minWidth: "110px"
                                                         }}
                                                     >
 
-                                                        {bankName ? (
+                                                        {paymentModeImage ? (
 
                                                             <div
-                                                                className="d-flex align-items-center justify-content-center"
+                                                                className="d-flex justify-content-center align-items-center"
                                                                 style={{
-                                                                    width: "120px",
-                                                                    minHeight: "60px"
+                                                                    width: "100%",
+                                                                    height: "55px"
                                                                 }}
                                                             >
 
-                                                                {bankImage && (
+                                                                <img
+                                                                    src={
+                                                                        paymentModeImage
+                                                                    }
+                                                                    alt={
+                                                                        paymentModeName ||
+                                                                        "Payment Mode"
+                                                                    }
+                                                                    title={
+                                                                        paymentModeName ||
+                                                                        "Payment Mode"
+                                                                    }
+                                                                    style={{
+                                                                        width: "50px",
+                                                                        height: "45px",
+                                                                        objectFit: "contain",
+                                                                        display: "block"
+                                                                    }}
+                                                                    onError={(
+                                                                        event
+                                                                    ) => {
 
-                                                                    <img
-                                                                        src={
-                                                                            bankImage
-                                                                        }
-                                                                        alt={
-                                                                            bankName
-                                                                        }
-                                                                        title={
-                                                                            bankName
-                                                                        }
-                                                                        style={{
-                                                                            width: "85px",
-                                                                            height: "45px",
-                                                                            objectFit: "contain",
-                                                                            display: "block"
-                                                                        }}
-                                                                        onError={(
-                                                                            event
-                                                                        ) => {
+                                                                        event.currentTarget.style.display =
+                                                                            "none";
 
-                                                                            event.currentTarget.style.display =
-                                                                                "none";
-
-                                                                        }}
-                                                                    />
-
-                                                                )}
+                                                                    }}
+                                                                />
 
                                                             </div>
 
                                                         ) : (
 
                                                             <span className="text-muted">
-
                                                                 -
+                                                            </span>
 
+                                                        )}
+
+                                                    </td>
+
+
+                                                    {/* =================================================
+                                                        BANK IMAGE ONLY
+                                                    ================================================= */}
+
+                                                    <td
+                                                        className="text-center"
+                                                        style={{
+                                                            width: "130px",
+                                                            minWidth: "130px"
+                                                        }}
+                                                    >
+
+                                                        {bankImage ? (
+
+                                                            <div
+                                                                className="d-flex justify-content-center align-items-center"
+                                                                style={{
+                                                                    width: "100%",
+                                                                    height: "55px"
+                                                                }}
+                                                            >
+
+                                                                <img
+                                                                    src={
+                                                                        bankImage
+                                                                    }
+                                                                    alt={
+                                                                        bankName ||
+                                                                        "Bank"
+                                                                    }
+                                                                    title={
+                                                                        bankName ||
+                                                                        "Bank"
+                                                                    }
+                                                                    style={{
+                                                                        width: "75px",
+                                                                        height: "45px",
+                                                                        objectFit: "contain",
+                                                                        display: "block"
+                                                                    }}
+                                                                    onError={(
+                                                                        event
+                                                                    ) => {
+
+                                                                        event.currentTarget.style.display =
+                                                                            "none";
+
+                                                                    }}
+                                                                />
+
+                                                            </div>
+
+                                                        ) : (
+
+                                                            <span className="text-muted">
+                                                                -
                                                             </span>
 
                                                         )}
@@ -1255,9 +1298,7 @@ const SavingList = () => {
                                                                 `/saving/edit/${item._id}`
                                                             }
                                                         >
-
                                                             Edit
-
                                                         </Link>
 
 
@@ -1270,9 +1311,7 @@ const SavingList = () => {
                                                                 )
                                                             }
                                                         >
-
                                                             Delete
-
                                                         </button>
 
                                                     </td>
@@ -1328,12 +1367,8 @@ const SavingList = () => {
                             (nextPage) => {
 
                                 if (
-
                                     nextPage >= 1 &&
-
-                                    nextPage <=
-                                    totalPages
-
+                                    nextPage <= totalPages
                                 ) {
 
                                     setPage(

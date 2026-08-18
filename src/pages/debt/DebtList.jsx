@@ -7,8 +7,7 @@ import { getCategories } from "../../api/categoryApi";
 import Pagination from "../../components/common/Pagination";
 
 import {
-    getCategoryBadgeStyle,
-    getPaymentModeBadgeClass
+    getCategoryBadgeStyle
 } from "../../utils/badgeStyles";
 
 
@@ -19,17 +18,43 @@ import {
  */
 
 const bankImages = {
-
     Pnb: "/images/banks/pnb.png",
-
     Rbl: "/images/banks/rbl.png",
-
     icici: "/images/banks/icici.png",
-
     Cash: "/images/banks/cash.png",
-
     Other: "/images/banks/card.png"
+};
 
+
+/*
+ * =====================================================
+ * PAYMENT MODE IMAGES
+ * =====================================================
+ */
+
+const paymentModeImages = {
+    Bhim: "/images/payment/Bhim.png",
+
+    "AmazonPay":
+        "/images/payment/amazonpay.png",
+
+    "BankTransfer":
+        "/images/payment/BankTransfer.png",
+
+    GPay:
+        "/images/payment/GPay.png",
+
+    PhonePe:
+        "/images/payment/phonepe.png",
+
+    Paytm:
+        "/images/payment/paytm.png",
+
+    Cash:
+        "/images/payment/cash.png",
+
+    Other:
+        "/images/payment/card.png"
 };
 
 
@@ -108,6 +133,7 @@ const DebtList = () => {
         "GPay",
         "Bhim",
         "Amazon Pay",
+        "Bank Transfer",
         "Other"
     ];
 
@@ -449,26 +475,14 @@ const DebtList = () => {
     const getBankImage = (bankName) => {
 
         if (!bankName) {
-
             return null;
-
         }
 
-
-        /*
-         * Exact match first
-         */
 
         if (bankImages[bankName]) {
-
             return bankImages[bankName];
-
         }
 
-
-        /*
-         * Case-insensitive match
-         */
 
         const matchedBank =
             Object.keys(bankImages).find(
@@ -481,6 +495,39 @@ const DebtList = () => {
         return matchedBank
             ? bankImages[matchedBank]
             : bankImages.Other;
+
+    };
+
+
+    /*
+     * =====================================================
+     * PAYMENT MODE IMAGE HELPER
+     * =====================================================
+     */
+
+    const getPaymentModeImage = (mode) => {
+
+        if (!mode) {
+            return null;
+        }
+
+
+        if (paymentModeImages[mode]) {
+            return paymentModeImages[mode];
+        }
+
+
+        const matchedMode =
+            Object.keys(paymentModeImages).find(
+                key =>
+                    key.toLowerCase() ===
+                    String(mode).toLowerCase()
+            );
+
+
+        return matchedMode
+            ? paymentModeImages[matchedMode]
+            : paymentModeImages.Other;
 
     };
 
@@ -829,11 +876,21 @@ const DebtList = () => {
                                         Category
                                     </th>
 
-                                    <th>
+                                    <th
+                                        className="text-center"
+                                        style={{
+                                            width: "100px"
+                                        }}
+                                    >
                                         Payment
                                     </th>
 
-                                    <th>
+                                    <th
+                                        className="text-center"
+                                        style={{
+                                            width: "100px"
+                                        }}
+                                    >
                                         Bank
                                     </th>
 
@@ -915,9 +972,19 @@ const DebtList = () => {
                                                 item.bank || "";
 
 
+                                            const paymentModeName =
+                                                item.paymentMode || "";
+
+
                                             const bankImage =
                                                 getBankImage(
                                                     bankName
+                                                );
+
+
+                                            const paymentModeImage =
+                                                getPaymentModeImage(
+                                                    paymentModeName
                                                 );
 
 
@@ -1045,66 +1112,110 @@ const DebtList = () => {
                                                     </td>
 
 
-                                                    {/* PAYMENT */}
+                                                    {/* =================================================
+                                                        PAYMENT IMAGE ONLY
+                                                    ================================================= */}
 
-                                                    <td>
+                                                    <td
+                                                        className="text-center"
+                                                    >
 
-                                                        <span
-                                                            className={
-                                                                getPaymentModeBadgeClass(
-                                                                    item.paymentMode
-                                                                )
-                                                            }
-                                                        >
+                                                        {paymentModeImage ? (
 
-                                                            {
-                                                                item.paymentMode ||
-                                                                "-"
-                                                            }
+                                                            <div
+                                                                className="d-flex justify-content-center align-items-center"
+                                                                style={{
+                                                                    width: "100%",
+                                                                    height: "45px"
+                                                                }}
+                                                            >
 
-                                                        </span>
+                                                                <img
+                                                                    src={
+                                                                        paymentModeImage
+                                                                    }
+                                                                    alt={
+                                                                        paymentModeName ||
+                                                                        "Payment"
+                                                                    }
+                                                                    title={
+                                                                        paymentModeName ||
+                                                                        "Payment"
+                                                                    }
+                                                                    style={{
+                                                                        width: "45px",
+                                                                        height: "40px",
+                                                                        objectFit: "contain",
+                                                                        display: "block"
+                                                                    }}
+                                                                    onError={(
+                                                                        event
+                                                                    ) => {
+
+                                                                        event.currentTarget.style.display =
+                                                                            "none";
+
+                                                                    }}
+                                                                />
+
+                                                            </div>
+
+                                                        ) : (
+
+                                                            <span className="text-muted">
+                                                                -
+                                                            </span>
+
+                                                        )}
 
                                                     </td>
 
 
-                                                    {/* BANK */}
+                                                    {/* =================================================
+                                                        BANK IMAGE ONLY
+                                                    ================================================= */}
 
-                                                    <td>
+                                                    <td
+                                                        className="text-center"
+                                                    >
 
-                                                        {bankName ? (
+                                                        {bankImage ? (
 
                                                             <div
-                                                                className="d-flex align-items-center gap-2"
+                                                                className="d-flex justify-content-center align-items-center"
                                                                 style={{
-                                                                    minWidth: "120px"
+                                                                    width: "100%",
+                                                                    height: "45px"
                                                                 }}
                                                             >
 
-                                                                {bankImage && (
+                                                                <img
+                                                                    src={
+                                                                        bankImage
+                                                                    }
+                                                                    alt={
+                                                                        bankName ||
+                                                                        "Bank"
+                                                                    }
+                                                                    title={
+                                                                        bankName ||
+                                                                        "Bank"
+                                                                    }
+                                                                    style={{
+                                                                        width: "55px",
+                                                                        height: "40px",
+                                                                        objectFit: "contain",
+                                                                        display: "block"
+                                                                    }}
+                                                                    onError={(
+                                                                        event
+                                                                    ) => {
 
-                                                                    <img
-                                                                        src={
-                                                                            bankImage
-                                                                        }
-                                                                        alt={
-                                                                            bankName
-                                                                        }
-                                                                        style={{
-                                                                            width: "45px",
-                                                                            height: "35px",
-                                                                            objectFit: "contain"
-                                                                        }}
-                                                                        onError={(
-                                                                            event
-                                                                        ) => {
+                                                                        event.currentTarget.style.display =
+                                                                            "none";
 
-                                                                            event.currentTarget.style.display =
-                                                                                "none";
-
-                                                                        }}
-                                                                    />
-
-                                                                )}
+                                                                    }}
+                                                                />
 
                                                             </div>
 

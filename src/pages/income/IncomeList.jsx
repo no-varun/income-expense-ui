@@ -59,9 +59,9 @@ const PaymentModeImages = {
 
     Bhim: "/images/payment/Bhim.png",
 
-    "Amazon Pay": "/images/payment/amazonpay.png",
+    "AmazonPay": "/images/payment/amazonpay.png",
 
-    "Bank Transfer": "/images/payment/BankTransfer.png",
+    "BankTransfer": "/images/payment/BankTransfer.png",
 
     Other: "/images/payment/card.png"
 
@@ -86,9 +86,9 @@ const paymentModes = [
 
     "Bhim",
 
-    "Amazon Pay",
+    "AmazonPay",
 
-    "Bank Transfer",
+    "BankTransfer",
 
     "Other"
 
@@ -713,13 +713,13 @@ const IncomeList = () => {
 
         if (
             PaymentModeImages[
-                paymentModeName
+            paymentModeName
             ]
         ) {
 
             return (
                 PaymentModeImages[
-                    paymentModeName
+                paymentModeName
                 ]
             );
 
@@ -748,7 +748,7 @@ const IncomeList = () => {
         return matchedMode
 
             ? PaymentModeImages[
-                matchedMode
+            matchedMode
             ]
 
             : PaymentModeImages.Other;
@@ -808,7 +808,7 @@ const IncomeList = () => {
         return matchedBank
 
             ? bankImages[
-                matchedBank
+            matchedBank
             ]
 
             : bankImages.Other;
@@ -1423,122 +1423,28 @@ const IncomeList = () => {
                                                 </td>
 
 
-                                                {/* PAYMENT MODE */}
-
-                                                <td>
-
-                                                    {item.paymentMode ? (
-
-                                                        <div
-                                                            className="d-flex align-items-center gap-2"
-                                                            style={{
-                                                                minWidth:
-                                                                    "130px"
-                                                            }}
-                                                        >
-
-                                                            {paymentImage && (
-
-                                                                <img
-                                                                    src={
-                                                                        paymentImage
-                                                                    }
-                                                                    alt={
-                                                                        item.paymentMode
-                                                                    }
-                                                                    title={
-                                                                        item.paymentMode
-                                                                    }
-                                                                    style={{
-                                                                        width:
-                                                                            "55px",
-
-                                                                        height:
-                                                                            "55px",
-
-                                                                        objectFit:
-                                                                            "contain",
-
-                                                                        display:
-                                                                            "block"
-                                                                    }}
-                                                                    onError={(
-                                                                        event
-                                                                    ) => {
-
-                                                                        event.currentTarget.src =
-                                                                            PaymentModeImages.Other;
-
-                                                                    }}
-                                                                />
-
-                                                            )}
-
-
-                                                            <span
-                                                                className="badge"
-                                                                style={{
-                                                                    fontSize:
-                                                                        "12px"
-                                                                }}
-                                                            >
-
-                                                                {
-                                                                    item.paymentMode
-                                                                }
-
-                                                            </span>
-
-                                                        </div>
-
-                                                    ) : (
-
-                                                        <span className="text-muted">
-                                                            -
-                                                        </span>
-
-                                                    )}
-
-                                                </td>
-
-
-                                                {/* BANK IMAGE */}
+                                                {/* ================PAYMENT MODE IMAGE========== */}
 
                                                 <td className="text-center">
 
-                                                    {item.bank ? (
+                                                    {item.paymentMode ? (
 
-                                                        bankImage ? (
+                                                        paymentImage ? (
 
                                                             <img
-                                                                src={
-                                                                    bankImage
-                                                                }
-                                                                alt={
-                                                                    item.bank
-                                                                }
-                                                                title={
-                                                                    item.bank
-                                                                }
+                                                                src={paymentImage}
+                                                                alt={item.paymentMode}
+                                                                title={item.paymentMode}
                                                                 style={{
-                                                                    width:
-                                                                        "65px",
-
-                                                                    height:
-                                                                        "55px",
-
-                                                                    objectFit:
-                                                                        "contain",
-
-                                                                    display:
-                                                                        "inline-block"
+                                                                    width: "65px",
+                                                                    height: "55px",
+                                                                    objectFit: "contain",
+                                                                    display: "inline-block"
                                                                 }}
-                                                                onError={(
-                                                                    event
-                                                                ) => {
+                                                                onError={(event) => {
 
                                                                     event.currentTarget.src =
-                                                                        bankImages.Other;
+                                                                        PaymentModeImages.Other;
 
                                                                 }}
                                                             />
@@ -1546,9 +1452,7 @@ const IncomeList = () => {
                                                         ) : (
 
                                                             <span>
-                                                                {
-                                                                    item.bank
-                                                                }
+                                                                {item.paymentMode}
                                                             </span>
 
                                                         )
@@ -1564,6 +1468,49 @@ const IncomeList = () => {
                                                 </td>
 
 
+                                                {/* ======BANK IMAGE======================= */}
+
+                                                <td className="text-center">
+
+                                                    {item.bank ? (
+
+                                                        bankImage ? (
+
+                                                            <img
+                                                                src={bankImage}
+                                                                alt={item.bank}
+                                                                title={item.bank}
+                                                                style={{
+                                                                    width: "65px",
+                                                                    height: "55px",
+                                                                    objectFit: "contain",
+                                                                    display: "inline-block"
+                                                                }}
+                                                                onError={(event) => {
+
+                                                                    event.currentTarget.src =
+                                                                        bankImages.Other;
+
+                                                                }}
+                                                            />
+
+                                                        ) : (
+
+                                                            <span>
+                                                                {item.bank}
+                                                            </span>
+
+                                                        )
+
+                                                    ) : (
+
+                                                        <span className="text-muted">
+                                                            -
+                                                        </span>
+
+                                                    )}
+
+                                                </td>
                                                 {/* DATE */}
 
                                                 <td>

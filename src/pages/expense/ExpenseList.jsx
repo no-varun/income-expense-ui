@@ -20,8 +20,7 @@ import { getShops } from "../../api/shopApi";
 import Pagination from "../../components/common/Pagination";
 
 import {
-    getCategoryBadgeStyle,
-    getPaymentModeBadgeClass
+    getCategoryBadgeStyle
 } from "../../utils/badgeStyles";
 
 
@@ -56,19 +55,26 @@ const PaymentModeImages = {
 
     Bhim: "/images/payment/Bhim.png",
 
-    "Amazon Pay": "/images/payment/amazonpay.png",
+    "AmazonPay":
+        "/images/payment/amazonpay.png",
 
-    "Bank Transfer": "/images/payment/BankTransfer.png",
+    "BankTransfer":
+        "/images/payment/BankTransfer.png",
 
-    GPay: "/images/payment/GPay.png",
+    GPay:
+        "/images/payment/GPay.png",
 
-    PhonePe: "/images/payment/phonepe.png",
+    PhonePe:
+        "/images/payment/phonepe.png",
 
-    Paytm: "/images/payment/paytm.png",
+    Paytm:
+        "/images/payment/paytm.png",
 
-    Cash: "/images/payment/cash.png",
+    Cash:
+        "/images/payment/cash.png",
 
-    Other: "/images/payment/card.png"
+    Other:
+        "/images/payment/card.png"
 
 };
 
@@ -84,15 +90,20 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const [expenses, setExpenses] = useState([]);
+    const [expenses, setExpenses] =
+        useState([]);
 
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] =
+        useState([]);
 
-    const [shops, setShops] = useState([]);
+    const [shops, setShops] =
+        useState([]);
 
-    const [total, setTotal] = useState(0);
+    const [total, setTotal] =
+        useState(0);
 
-    const [totalAmount, setTotalAmount] = useState(0);
+    const [totalAmount, setTotalAmount] =
+        useState(0);
 
 
     /*
@@ -101,15 +112,20 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] =
+        useState(true);
 
-    const [importing, setImporting] = useState(false);
+    const [importing, setImporting] =
+        useState(false);
 
-    const [exporting, setExporting] = useState(false);
+    const [exporting, setExporting] =
+        useState(false);
 
-    const [categoryLoading, setCategoryLoading] = useState(false);
+    const [categoryLoading, setCategoryLoading] =
+        useState(false);
 
-    const [shopLoading, setShopLoading] = useState(false);
+    const [shopLoading, setShopLoading] =
+        useState(false);
 
 
     /*
@@ -118,9 +134,11 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const [searchInput, setSearchInput] = useState("");
+    const [searchInput, setSearchInput] =
+        useState("");
 
-    const [search, setSearch] = useState("");
+    const [search, setSearch] =
+        useState("");
 
 
     /*
@@ -129,9 +147,11 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const [categoryInput, setCategoryInput] = useState("");
+    const [categoryInput, setCategoryInput] =
+        useState("");
 
-    const [category, setCategory] = useState("");
+    const [category, setCategory] =
+        useState("");
 
 
     /*
@@ -140,9 +160,11 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const [shopTypeInput, setShopTypeInput] = useState("");
+    const [shopTypeInput, setShopTypeInput] =
+        useState("");
 
-    const [shopType, setShopType] = useState("");
+    const [shopType, setShopType] =
+        useState("");
 
 
     /*
@@ -151,9 +173,11 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const [shopInput, setShopInput] = useState("");
+    const [shopInput, setShopInput] =
+        useState("");
 
-    const [shop, setShop] = useState("");
+    const [shop, setShop] =
+        useState("");
 
 
     /*
@@ -162,9 +186,11 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const [paymentModeInput, setPaymentModeInput] = useState("");
+    const [paymentModeInput, setPaymentModeInput] =
+        useState("");
 
-    const [paymentMode, setPaymentMode] = useState("");
+    const [paymentMode, setPaymentMode] =
+        useState("");
 
 
     /*
@@ -173,9 +199,11 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const [bankInput, setBankInput] = useState("");
+    const [bankInput, setBankInput] =
+        useState("");
 
-    const [bank, setBank] = useState("");
+    const [bank, setBank] =
+        useState("");
 
 
     /*
@@ -184,13 +212,17 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const [fromDateInput, setFromDateInput] = useState("");
+    const [fromDateInput, setFromDateInput] =
+        useState("");
 
-    const [toDateInput, setToDateInput] = useState("");
+    const [toDateInput, setToDateInput] =
+        useState("");
 
-    const [fromDate, setFromDate] = useState("");
+    const [fromDate, setFromDate] =
+        useState("");
 
-    const [toDate, setToDate] = useState("");
+    const [toDate, setToDate] =
+        useState("");
 
 
     /*
@@ -199,42 +231,134 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const [page, setPage] = useState(1);
+    const [page, setPage] =
+        useState(1);
 
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] =
+        useState(10);
 
 
     /*
      * =====================================================
-     * ENUM VALUES
+     * PAYMENT MODES
      * =====================================================
      */
 
     const paymentModes = [
+
         "Cash",
+
         "Paytm",
+
         "PhonePe",
+
         "GPay",
+
         "Bhim",
+
         "Amazon Pay",
+
         "Bank Transfer",
+
         "Other"
+
     ];
 
+
+    /*
+     * =====================================================
+     * BANKS
+     * =====================================================
+     */
 
     const banks = [
+
         "Pnb",
+
         "Rbl",
+
         "icici",
+
         "Cash",
+
         "Other"
+
     ];
 
+
+    /*
+     * =====================================================
+     * SHOP TYPES
+     * =====================================================
+     */
 
     const shopTypes = [
+
         "ONLINE",
+
         "OFFLINE"
+
     ];
+
+
+    /*
+     * =====================================================
+     * GET PAYMENT MODE IMAGE
+     * =====================================================
+     */
+
+    const getPaymentModeImage = (
+        paymentModeName
+    ) => {
+
+        if (!paymentModeName) {
+
+            return null;
+
+        }
+
+
+        return (
+
+            PaymentModeImages[
+                paymentModeName
+            ] ||
+
+            PaymentModeImages.Other
+
+        );
+
+    };
+
+
+    /*
+     * =====================================================
+     * GET BANK IMAGE
+     * =====================================================
+     */
+
+    const getBankImage = (
+        bankName
+    ) => {
+
+        if (!bankName) {
+
+            return null;
+
+        }
+
+
+        return (
+
+            bankImages[
+                bankName
+            ] ||
+
+            bankImages.Other
+
+        );
+
+    };
 
 
     /*
@@ -243,56 +367,73 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const loadCategories = useCallback(async () => {
+    const loadCategories = useCallback(
+        async () => {
 
-        try {
+            try {
 
-            setCategoryLoading(true);
-
-            const response = await getCategories({
-                limit: 100,
-                type: "EXPENSE"
-            });
+                setCategoryLoading(true);
 
 
-            if (response.success) {
+                const response =
+                    await getCategories({
 
-                const rows =
-                    response.data?.rows ||
-                    response.data?.data?.rows ||
-                    response.data?.data ||
-                    response.data ||
-                    [];
+                        limit: 100,
+
+                        type: "EXPENSE"
+
+                    });
 
 
-                setCategories(
-                    Array.isArray(rows)
-                        ? rows
-                        : []
+                if (response.success) {
+
+                    const rows =
+
+                        response.data?.rows ||
+
+                        response.data?.data?.rows ||
+
+                        response.data?.data ||
+
+                        response.data ||
+
+                        [];
+
+
+                    setCategories(
+
+                        Array.isArray(rows)
+
+                            ? rows
+
+                            : []
+
+                    );
+
+                } else {
+
+                    setCategories([]);
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Category fetch error:",
+                    error
                 );
-
-            } else {
 
                 setCategories([]);
 
+            } finally {
+
+                setCategoryLoading(false);
+
             }
 
-        } catch (error) {
-
-            console.error(
-                "Category fetch error:",
-                error
-            );
-
-            setCategories([]);
-
-        } finally {
-
-            setCategoryLoading(false);
-
-        }
-
-    }, []);
+        },
+        []
+    );
 
 
     /*
@@ -301,56 +442,73 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const loadShops = useCallback(async () => {
+    const loadShops = useCallback(
+        async () => {
 
-        try {
+            try {
 
-            setShopLoading(true);
-
-            const response = await getShops({
-                limit: 100,
-                status: true
-            });
+                setShopLoading(true);
 
 
-            if (response.success) {
+                const response =
+                    await getShops({
 
-                const rows =
-                    response.data?.rows ||
-                    response.data?.data?.rows ||
-                    response.data?.data ||
-                    response.data ||
-                    [];
+                        limit: 100,
+
+                        status: true
+
+                    });
 
 
-                setShops(
-                    Array.isArray(rows)
-                        ? rows
-                        : []
+                if (response.success) {
+
+                    const rows =
+
+                        response.data?.rows ||
+
+                        response.data?.data?.rows ||
+
+                        response.data?.data ||
+
+                        response.data ||
+
+                        [];
+
+
+                    setShops(
+
+                        Array.isArray(rows)
+
+                            ? rows
+
+                            : []
+
+                    );
+
+                } else {
+
+                    setShops([]);
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Shop fetch error:",
+                    error
                 );
-
-            } else {
 
                 setShops([]);
 
+            } finally {
+
+                setShopLoading(false);
+
             }
 
-        } catch (error) {
-
-            console.error(
-                "Shop fetch error:",
-                error
-            );
-
-            setShops([]);
-
-        } finally {
-
-            setShopLoading(false);
-
-        }
-
-    }, []);
+        },
+        []
+    );
 
 
     /*
@@ -359,21 +517,31 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const filteredShops = shops.filter(item => {
+    const filteredShops =
+        shops.filter(
+            item => {
 
-        if (!shopTypeInput) {
+                if (!shopTypeInput) {
 
-            return true;
+                    return true;
 
-        }
+                }
 
 
-        return (
-            String(item.type || "").toUpperCase() ===
-            String(shopTypeInput || "").toUpperCase()
+                return (
+
+                    String(
+                        item.type || ""
+                    ).toUpperCase() ===
+
+                    String(
+                        shopTypeInput || ""
+                    ).toUpperCase()
+
+                );
+
+            }
         );
-
-    });
 
 
     /*
@@ -382,55 +550,94 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const loadExpense = useCallback(async () => {
+    const loadExpense = useCallback(
+        async () => {
 
-        try {
+            try {
 
-            setLoading(true);
-
-
-            const response = await getExpenses({
-
-                page,
-
-                limit,
-
-                search,
-
-                category,
-
-                shopType,
-
-                shop,
-
-                paymentMode,
-
-                bank,
-
-                from: fromDate,
-
-                to: toDate
-
-            });
+                setLoading(true);
 
 
-            if (response.success) {
+                const response =
+                    await getExpenses({
 
-                setExpenses(
-                    response.data?.data || []
+                        page,
+
+                        limit,
+
+                        search,
+
+                        category,
+
+                        shopType,
+
+                        shop,
+
+                        paymentMode,
+
+                        bank,
+
+                        from: fromDate,
+
+                        to: toDate
+
+                    });
+
+
+                if (response.success) {
+
+                    const rows =
+                        response.data?.data ||
+                        response.data?.rows ||
+                        response.data ||
+                        [];
+
+
+                    setExpenses(
+
+                        Array.isArray(rows)
+
+                            ? rows
+
+                            : []
+
+                    );
+
+
+                    setTotal(
+
+                        response.data?.total ??
+                        rows.length
+
+                    );
+
+
+                    setTotalAmount(
+
+                        Number(
+                            response.data?.totalAmount ||
+                            0
+                        )
+
+                    );
+
+                } else {
+
+                    setExpenses([]);
+
+                    setTotal(0);
+
+                    setTotalAmount(0);
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Expense fetch error:",
+                    error
                 );
 
-
-                setTotal(
-                    response.data?.total || 0
-                );
-
-
-                setTotalAmount(
-                    response.data?.totalAmount || 0
-                );
-
-            } else {
 
                 setExpenses([]);
 
@@ -438,55 +645,51 @@ const ExpenseList = () => {
 
                 setTotalAmount(0);
 
+
+                alert(
+
+                    error.response?.data?.message ||
+
+                    "Unable to fetch expenses."
+
+                );
+
+            } finally {
+
+                setLoading(false);
+
             }
 
-        } catch (error) {
+        },
+        [
 
-            console.error(
-                "Expense fetch error:",
-                error
-            );
+            page,
 
+            limit,
 
-            alert(
-                error.response?.data?.message ||
-                "Unable to fetch expenses."
-            );
+            search,
 
-        } finally {
+            category,
 
-            setLoading(false);
+            shopType,
 
-        }
+            shop,
 
-    }, [
+            paymentMode,
 
-        page,
+            bank,
 
-        limit,
+            fromDate,
 
-        search,
+            toDate
 
-        category,
-
-        shopType,
-
-        shop,
-
-        paymentMode,
-
-        bank,
-
-        fromDate,
-
-        toDate
-
-    ]);
+        ]
+    );
 
 
     /*
      * =====================================================
-     * INITIAL DATA
+     * INITIAL LOAD
      * =====================================================
      */
 
@@ -528,7 +731,9 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const handleFilter = (event) => {
+    const handleFilter = (
+        event
+    ) => {
 
         event.preventDefault();
 
@@ -637,7 +842,9 @@ const ExpenseList = () => {
      * =====================================================
      */
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (
+        id
+    ) => {
 
         if (
             !window.confirm(
@@ -659,20 +866,42 @@ const ExpenseList = () => {
             if (response.success) {
 
                 alert(
+
                     response.message ||
+
                     "Expense deleted successfully."
+
                 );
 
 
-                loadExpense();
+                if (
+
+                    expenses.length === 1 &&
+
+                    page > 1
+
+                ) {
+
+                    setPage(
+                        page - 1
+                    );
+
+                } else {
+
+                    loadExpense();
+
+                }
 
             }
 
         } catch (error) {
 
             alert(
+
                 error.response?.data?.message ||
+
                 "Delete failed."
+
             );
 
         }
@@ -682,7 +911,7 @@ const ExpenseList = () => {
 
     /*
      * =====================================================
-     * IMPORT
+     * IMPORT CLICK
      * =====================================================
      */
 
@@ -693,7 +922,15 @@ const ExpenseList = () => {
     };
 
 
-    const handleImport = async (event) => {
+    /*
+     * =====================================================
+     * IMPORT
+     * =====================================================
+     */
+
+    const handleImport = async (
+        event
+    ) => {
 
         const file =
             event.target.files?.[0];
@@ -712,13 +949,17 @@ const ExpenseList = () => {
 
 
             const response =
-                await importExpensesExcel(file);
+                await importExpensesExcel(
+                    file
+                );
 
 
             if (response.success) {
 
                 alert(
+
                     `${response.data.imported} expenses imported successfully.`
+
                 );
 
 
@@ -737,8 +978,11 @@ const ExpenseList = () => {
         } catch (error) {
 
             alert(
+
                 error.response?.data?.message ||
+
                 "Import failed."
+
             );
 
         } finally {
@@ -788,11 +1032,15 @@ const ExpenseList = () => {
 
 
             const url =
-                window.URL.createObjectURL(blob);
+                window.URL.createObjectURL(
+                    blob
+                );
 
 
             const link =
-                document.createElement("a");
+                document.createElement(
+                    "a"
+                );
 
 
             link.href = url;
@@ -802,7 +1050,9 @@ const ExpenseList = () => {
                 "expense-export.xlsx";
 
 
-            document.body.appendChild(link);
+            document.body.appendChild(
+                link
+            );
 
 
             link.click();
@@ -811,13 +1061,18 @@ const ExpenseList = () => {
             link.remove();
 
 
-            window.URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(
+                url
+            );
 
         } catch (error) {
 
             alert(
+
                 error.response?.data?.message ||
+
                 "Export failed."
+
             );
 
         } finally {
@@ -843,8 +1098,13 @@ const ExpenseList = () => {
 
     const startRecord =
         total === 0
+
             ? 0
-            : ((page - 1) * limit) + 1;
+
+            : (
+                (page - 1) *
+                limit
+            ) + 1;
 
 
     const endRecord =
@@ -852,81 +1112,6 @@ const ExpenseList = () => {
             page * limit,
             total
         );
-
-
-    /*
-     * =====================================================
-     * BANK IMAGE HELPER
-     * =====================================================
-     */
-
-    const getBankImage = (bankName) => {
-
-        if (!bankName) {
-
-            return null;
-
-        }
-
-
-        return (
-            bankImages[bankName] ||
-            bankImages.Other
-        );
-
-    };
-
-
-    /*
-     * =====================================================
-     * PAYMENT MODE IMAGE HELPER
-     * =====================================================
-     */
-
-    const getPaymentModeImage = (paymentModeName) => {
-
-        if (!paymentModeName) {
-
-            return PaymentModeImages.Other;
-
-        }
-
-
-        /*
-         * Exact match
-         */
-
-        if (
-            PaymentModeImages[paymentModeName]
-        ) {
-
-            return PaymentModeImages[
-                paymentModeName
-            ];
-
-        }
-
-
-        /*
-         * Case-insensitive match
-         */
-
-        const matchedMode =
-            Object.keys(
-                PaymentModeImages
-            ).find(
-                key =>
-                    key.toLowerCase() ===
-                    String(paymentModeName)
-                        .toLowerCase()
-            );
-
-
-        return matchedMode
-            ? PaymentModeImages[matchedMode]
-            : PaymentModeImages.Other;
-
-    };
 
 
     /*
@@ -949,7 +1134,9 @@ const ExpenseList = () => {
                 <div className="d-flex align-items-center gap-4">
 
                     <h3 className="mb-0">
+
                         Expense List
+
                     </h3>
 
 
@@ -973,50 +1160,77 @@ const ExpenseList = () => {
 
                 <div className="d-flex gap-2 flex-wrap">
 
+
+                    {/* FILE INPUT */}
+
                     <input
                         ref={fileInputRef}
                         type="file"
                         accept=".xlsx"
                         className="d-none"
-                        onChange={handleImport}
+                        onChange={
+                            handleImport
+                        }
                     />
 
+
+                    {/* IMPORT */}
 
                     <button
                         type="button"
                         className="btn btn-outline-success"
-                        onClick={handleImportClick}
-                        disabled={importing}
+                        onClick={
+                            handleImportClick
+                        }
+                        disabled={
+                            importing
+                        }
                     >
 
                         {importing
+
                             ? "Importing..."
+
                             : "Import Excel"
+
                         }
 
                     </button>
 
+
+                    {/* EXPORT */}
 
                     <button
                         type="button"
                         className="btn btn-outline-primary"
-                        onClick={handleExport}
-                        disabled={exporting}
+                        onClick={
+                            handleExport
+                        }
+                        disabled={
+                            exporting
+                        }
                     >
 
                         {exporting
+
                             ? "Exporting..."
+
                             : "Export Excel"
+
                         }
 
                     </button>
 
+
+                    {/* ADD */}
 
                     <Link
                         to="/expense/add"
                         className="btn btn-primary"
                     >
+
                         Add Expense
+
                     </Link>
 
                 </div>
@@ -1034,7 +1248,9 @@ const ExpenseList = () => {
 
                     <form
                         className="row g-3 align-items-end"
-                        onSubmit={handleFilter}
+                        onSubmit={
+                            handleFilter
+                        }
                     >
 
 
@@ -1043,18 +1259,23 @@ const ExpenseList = () => {
                         <div className="col-12 col-md-6 col-lg-2">
 
                             <label className="form-label">
+
                                 Search
+
                             </label>
 
 
                             <input
                                 type="search"
                                 className="form-control"
-                                value={searchInput}
-                                onChange={(e) =>
-                                    setSearchInput(
-                                        e.target.value
-                                    )
+                                value={
+                                    searchInput
+                                }
+                                onChange={
+                                    event =>
+                                        setSearchInput(
+                                            event.target.value
+                                        )
                                 }
                                 placeholder="Search title"
                             />
@@ -1067,23 +1288,32 @@ const ExpenseList = () => {
                         <div className="col-12 col-md-6 col-lg-2">
 
                             <label className="form-label">
+
                                 Category
+
                             </label>
 
 
                             <select
                                 className="form-select"
-                                value={categoryInput}
-                                onChange={(e) =>
-                                    setCategoryInput(
-                                        e.target.value
-                                    )
+                                value={
+                                    categoryInput
                                 }
-                                disabled={categoryLoading}
+                                onChange={
+                                    event =>
+                                        setCategoryInput(
+                                            event.target.value
+                                        )
+                                }
+                                disabled={
+                                    categoryLoading
+                                }
                             >
 
                                 <option value="">
+
                                     All Categories
+
                                 </option>
 
 
@@ -1118,39 +1348,51 @@ const ExpenseList = () => {
                         <div className="col-12 col-md-6 col-lg-2">
 
                             <label className="form-label">
+
                                 Shop Type
+
                             </label>
 
 
                             <select
                                 className="form-select"
-                                value={shopTypeInput}
-                                onChange={(e) => {
+                                value={
+                                    shopTypeInput
+                                }
+                                onChange={
+                                    event => {
 
-                                    setShopTypeInput(
-                                        e.target.value
-                                    );
+                                        setShopTypeInput(
+                                            event.target.value
+                                        );
 
-                                    setShopInput("");
+                                        setShopInput("");
 
-                                }}
+                                    }
+                                }
                             >
 
                                 <option value="">
+
                                     All Shop Types
+
                                 </option>
 
 
-                                {shopTypes.map(type => (
+                                {shopTypes.map(
+                                    type => (
 
-                                    <option
-                                        key={type}
-                                        value={type}
-                                    >
-                                        {type}
-                                    </option>
+                                        <option
+                                            key={type}
+                                            value={type}
+                                        >
 
-                                ))}
+                                            {type}
+
+                                        </option>
+
+                                    )
+                                )}
 
                             </select>
 
@@ -1162,23 +1404,32 @@ const ExpenseList = () => {
                         <div className="col-12 col-md-6 col-lg-2">
 
                             <label className="form-label">
+
                                 Shop
+
                             </label>
 
 
                             <select
                                 className="form-select"
-                                value={shopInput}
-                                onChange={(e) =>
-                                    setShopInput(
-                                        e.target.value
-                                    )
+                                value={
+                                    shopInput
                                 }
-                                disabled={shopLoading}
+                                onChange={
+                                    event =>
+                                        setShopInput(
+                                            event.target.value
+                                        )
+                                }
+                                disabled={
+                                    shopLoading
+                                }
                             >
 
                                 <option value="">
+
                                     All Shops
+
                                 </option>
 
 
@@ -1213,22 +1464,29 @@ const ExpenseList = () => {
                         <div className="col-12 col-md-6 col-lg-2">
 
                             <label className="form-label">
+
                                 Payment Mode
+
                             </label>
 
 
                             <select
                                 className="form-select"
-                                value={paymentModeInput}
-                                onChange={(e) =>
-                                    setPaymentModeInput(
-                                        e.target.value
-                                    )
+                                value={
+                                    paymentModeInput
+                                }
+                                onChange={
+                                    event =>
+                                        setPaymentModeInput(
+                                            event.target.value
+                                        )
                                 }
                             >
 
                                 <option value="">
+
                                     All Payment Modes
+
                                 </option>
 
 
@@ -1239,7 +1497,9 @@ const ExpenseList = () => {
                                             key={mode}
                                             value={mode}
                                         >
+
                                             {mode}
+
                                         </option>
 
                                     )
@@ -1255,22 +1515,29 @@ const ExpenseList = () => {
                         <div className="col-12 col-md-6 col-lg-2">
 
                             <label className="form-label">
+
                                 Bank
+
                             </label>
 
 
                             <select
                                 className="form-select"
-                                value={bankInput}
-                                onChange={(e) =>
-                                    setBankInput(
-                                        e.target.value
-                                    )
+                                value={
+                                    bankInput
+                                }
+                                onChange={
+                                    event =>
+                                        setBankInput(
+                                            event.target.value
+                                        )
                                 }
                             >
 
                                 <option value="">
+
                                     All Banks
+
                                 </option>
 
 
@@ -1278,10 +1545,16 @@ const ExpenseList = () => {
                                     bankItem => (
 
                                         <option
-                                            key={bankItem}
-                                            value={bankItem}
+                                            key={
+                                                bankItem
+                                            }
+                                            value={
+                                                bankItem
+                                            }
                                         >
+
                                             {bankItem}
+
                                         </option>
 
                                     )
@@ -1292,46 +1565,56 @@ const ExpenseList = () => {
                         </div>
 
 
-                        {/* FROM DATE */}
+                        {/* FROM */}
 
                         <div className="col-6 col-md-6 col-lg-2">
 
                             <label className="form-label">
+
                                 From
+
                             </label>
 
 
                             <input
                                 type="date"
                                 className="form-control"
-                                value={fromDateInput}
-                                onChange={(e) =>
-                                    setFromDateInput(
-                                        e.target.value
-                                    )
+                                value={
+                                    fromDateInput
+                                }
+                                onChange={
+                                    event =>
+                                        setFromDateInput(
+                                            event.target.value
+                                        )
                                 }
                             />
 
                         </div>
 
 
-                        {/* TO DATE */}
+                        {/* TO */}
 
                         <div className="col-6 col-md-6 col-lg-2">
 
                             <label className="form-label">
+
                                 To
+
                             </label>
 
 
                             <input
                                 type="date"
                                 className="form-control"
-                                value={toDateInput}
-                                onChange={(e) =>
-                                    setToDateInput(
-                                        e.target.value
-                                    )
+                                value={
+                                    toDateInput
+                                }
+                                onChange={
+                                    event =>
+                                        setToDateInput(
+                                            event.target.value
+                                        )
                                 }
                             />
 
@@ -1343,24 +1626,28 @@ const ExpenseList = () => {
                         <div className="col-6 col-md-3 col-lg-1">
 
                             <label className="form-label">
+
                                 Per Page
+
                             </label>
 
 
                             <select
                                 className="form-select"
                                 value={limit}
-                                onChange={(e) => {
+                                onChange={
+                                    event => {
 
-                                    setLimit(
-                                        Number(
-                                            e.target.value
-                                        )
-                                    );
+                                        setLimit(
+                                            Number(
+                                                event.target.value
+                                            )
+                                        );
 
-                                    setPage(1);
+                                        setPage(1);
 
-                                }}
+                                    }
+                                }
                             >
 
                                 <option value="10">
@@ -1400,7 +1687,9 @@ const ExpenseList = () => {
                                 type="submit"
                                 className="btn btn-dark w-100"
                             >
+
                                 Filter
+
                             </button>
 
                         </div>
@@ -1417,7 +1706,9 @@ const ExpenseList = () => {
                                     handleClearFilter
                                 }
                             >
+
                                 Clear
+
                             </button>
 
                         </div>
@@ -1443,25 +1734,45 @@ const ExpenseList = () => {
 
                             <tr>
 
-                                <th>#</th>
+                                <th>
+                                    #
+                                </th>
 
-                                <th>Title</th>
+                                <th>
+                                    Title
+                                </th>
 
-                                <th>Note</th>
+                                <th>
+                                    Note
+                                </th>
 
-                                <th>Amount</th>
+                                <th>
+                                    Amount
+                                </th>
 
-                                <th>Category</th>
+                                <th>
+                                    Category
+                                </th>
 
-                                <th>Shop Type</th>
+                                <th>
+                                    Shop Type
+                                </th>
 
-                                <th>Shop</th>
+                                <th>
+                                    Shop
+                                </th>
 
-                                <th>Payment Mode</th>
+                                <th className="text-center">
+                                    Payment Mode
+                                </th>
 
-                                <th>Bank</th>
+                                <th className="text-center">
+                                    Bank
+                                </th>
 
-                                <th>Date</th>
+                                <th>
+                                    Date
+                                </th>
 
                                 <th width="170">
                                     Action
@@ -1480,7 +1791,7 @@ const ExpenseList = () => {
 
                                     <td
                                         colSpan="11"
-                                        className="text-center"
+                                        className="text-center py-4"
                                     >
 
                                         <div
@@ -1502,7 +1813,9 @@ const ExpenseList = () => {
                                         colSpan="11"
                                         className="text-center text-muted py-4"
                                     >
+
                                         No Record Found
+
                                     </td>
 
                                 </tr>
@@ -1510,308 +1823,393 @@ const ExpenseList = () => {
                             ) : (
 
                                 expenses.map(
-                                    (item, index) => (
+                                    (
+                                        item,
+                                        index
+                                    ) => {
 
-                                        <tr
-                                            key={
-                                                item._id
-                                            }
-                                        >
+                                        /*
+                                         * =================================================
+                                         * IMAGE VARIABLES
+                                         * =================================================
+                                         */
+
+                                        const paymentImage =
+                                            getPaymentModeImage(
+                                                item.paymentMode
+                                            );
 
 
-                                            {/* # */}
+                                        const bankImage =
+                                            getBankImage(
+                                                item.bank
+                                            );
 
-                                            <td>
 
-                                                {
-                                                    (
-                                                        (page - 1) *
-                                                        limit
-                                                    ) +
-                                                    index +
-                                                    1
+                                        return (
+
+                                            <tr
+                                                key={
+                                                    item._id
                                                 }
-
-                                            </td>
-
-
-                                            {/* TITLE */}
-
-                                            <td>
-
-                                                {
-                                                    item.title ||
-                                                    "-"
-                                                }
-
-                                            </td>
+                                            >
 
 
-                                            {/* NOTE */}
+                                                {/* =================================================
+                                                    #
+                                                ================================================= */}
 
-                                            <td>
-
-                                                {
-                                                    item.note ||
-                                                    "-"
-                                                }
-
-                                            </td>
-
-
-                                            {/* AMOUNT */}
-
-                                            <td>
-
-                                                ₹{" "}
-
-                                                {Number(
-                                                    item.amount || 0
-                                                ).toLocaleString(
-                                                    "en-IN",
-                                                    {
-                                                        maximumFractionDigits: 2
-                                                    }
-                                                )}
-
-                                            </td>
-
-
-                                            {/* CATEGORY */}
-
-                                            <td>
-
-                                                <span
-                                                    className="badge"
-                                                    style={
-                                                        getCategoryBadgeStyle(
-                                                            item.category
-                                                        )
-                                                    }
-                                                >
+                                                <td>
 
                                                     {
-                                                        item.category?.name ||
-                                                        item.categoryName ||
+                                                        (
+                                                            (
+                                                                page -
+                                                                1
+                                                            ) *
+                                                            limit
+                                                        ) +
+                                                        index +
+                                                        1
+                                                    }
+
+                                                </td>
+
+
+                                                {/* =================================================
+                                                    TITLE
+                                                ================================================= */}
+
+                                                <td>
+
+                                                    {
+                                                        item.title ||
                                                         "-"
                                                     }
 
-                                                </span>
-
-                                            </td>
+                                                </td>
 
 
-                                            {/* SHOP TYPE */}
+                                                {/* =================================================
+                                                    NOTE
+                                                ================================================= */}
 
-                                            <td>
+                                                <td>
 
-                                                {
-                                                    item.shopType ===
-                                                        "ONLINE" ? (
+                                                    {
+                                                        item.note ||
+                                                        "-"
+                                                    }
 
-                                                        <span className="badge bg-primary">
-                                                            ONLINE
-                                                        </span>
+                                                </td>
 
-                                                    ) : item.shopType ===
-                                                        "OFFLINE" ? (
 
-                                                        <span className="badge bg-success">
-                                                            OFFLINE
-                                                        </span>
+                                                {/* =================================================
+                                                    AMOUNT
+                                                ================================================= */}
+
+                                                <td>
+
+                                                    ₹{" "}
+
+                                                    {Number(
+                                                        item.amount ||
+                                                        0
+                                                    ).toLocaleString(
+                                                        "en-IN",
+                                                        {
+                                                            maximumFractionDigits:
+                                                                2
+                                                        }
+                                                    )}
+
+                                                </td>
+
+
+                                                {/* =================================================
+                                                    CATEGORY
+                                                ================================================= */}
+
+                                                <td>
+
+                                                    <span
+                                                        className="badge"
+                                                        style={
+                                                            getCategoryBadgeStyle(
+                                                                item.category
+                                                            )
+                                                        }
+                                                    >
+
+                                                        {
+                                                            item.category?.name ||
+                                                            item.categoryName ||
+                                                            "-"
+                                                        }
+
+                                                    </span>
+
+                                                </td>
+
+
+                                                {/* =================================================
+                                                    SHOP TYPE
+                                                ================================================= */}
+
+                                                <td>
+
+                                                    {
+                                                        item.shopType ===
+                                                            "ONLINE"
+
+                                                            ? (
+
+                                                                <span className="badge bg-primary">
+
+                                                                    ONLINE
+
+                                                                </span>
+
+                                                            )
+
+                                                            : item.shopType ===
+                                                                "OFFLINE"
+
+                                                                ? (
+
+                                                                    <span className="badge bg-success">
+
+                                                                        OFFLINE
+
+                                                                    </span>
+
+                                                                )
+
+                                                                : (
+
+                                                                    <span className="text-muted">
+
+                                                                        -
+
+                                                                    </span>
+
+                                                                )
+                                                    }
+
+                                                </td>
+
+
+                                                {/* =================================================
+                                                    SHOP
+                                                ================================================= */}
+
+                                                <td>
+
+                                                    {
+                                                        item.shop?.name ||
+                                                        item.shopName ||
+                                                        "-"
+                                                    }
+
+                                                </td>
+
+
+                                                {/* =================================================
+                                                    PAYMENT MODE IMAGE
+                                                ================================================= */}
+
+                                                <td className="text-center">
+
+                                                    {item.paymentMode ? (
+
+                                                        paymentImage ? (
+
+                                                            <img
+                                                                src={
+                                                                    paymentImage
+                                                                }
+                                                                alt={
+                                                                    item.paymentMode
+                                                                }
+                                                                title={
+                                                                    item.paymentMode
+                                                                }
+                                                                style={{
+                                                                    width:
+                                                                        "65px",
+
+                                                                    height:
+                                                                        "55px",
+
+                                                                    objectFit:
+                                                                        "contain",
+
+                                                                    display:
+                                                                        "inline-block"
+                                                                }}
+                                                                onError={
+                                                                    event => {
+
+                                                                        event.currentTarget.src =
+                                                                            PaymentModeImages.Other;
+
+                                                                    }
+                                                                }
+                                                            />
+
+                                                        ) : (
+
+                                                            <span>
+
+                                                                {
+                                                                    item.paymentMode
+                                                                }
+
+                                                            </span>
+
+                                                        )
 
                                                     ) : (
 
                                                         <span className="text-muted">
+
                                                             -
-                                                        </span>
-
-                                                    )
-                                                }
-
-                                            </td>
-
-
-                                            {/* SHOP */}
-
-                                            <td>
-
-                                                {
-                                                    item.shop?.name ||
-                                                    item.shopName ||
-                                                    "-"
-                                                }
-
-                                            </td>
-
-
-                                            {/* PAYMENT MODE */}
-
-                                            <td>
-
-                                                {item.paymentMode ? (
-
-                                                    <div
-                                                        className="d-flex align-items-center gap-2"
-                                                        style={{
-                                                            minWidth: "130px"
-                                                        }}
-                                                    >
-
-                                                        <img
-                                                            src={
-                                                                getPaymentModeImage(
-                                                                    item.paymentMode
-                                                                )
-                                                            }
-                                                            alt={
-                                                                item.paymentMode
-                                                            }
-                                                            title={
-                                                                item.paymentMode
-                                                            }
-                                                            style={{
-                                                                width: "45px",
-                                                                height: "45px",
-                                                                objectFit: "contain",
-                                                                borderRadius: "6px",
-                                                                flexShrink: 0
-                                                            }}
-                                                            onError={(e) => {
-
-                                                                e.currentTarget.src =
-                                                                    PaymentModeImages.Other;
-
-                                                            }}
-                                                        />
-
-
-                                                        <span
-                                                            className={
-                                                                getPaymentModeBadgeClass(
-                                                                    item.paymentMode
-                                                                )
-                                                            }
-                                                        >
-
-                                                            {
-                                                                item.paymentMode
-                                                            }
 
                                                         </span>
 
-                                                    </div>
+                                                    )}
 
-                                                ) : (
-
-                                                    <span className="text-muted">
-                                                        -
-                                                    </span>
-
-                                                )}
-
-                                            </td>
+                                                </td>
 
 
-                                            {/* BANK IMAGE */}
+                                                {/* =================================================
+                                                    BANK IMAGE
+                                                ================================================= */}
 
-                                            <td>
+                                                <td className="text-center">
 
-                                                {item.bank ? (
+                                                    {item.bank ? (
 
-                                                    <div
-                                                        className="d-flex align-items-center"
-                                                        style={{
-                                                            minWidth: "80px"
-                                                        }}
-                                                    >
+                                                        bankImage ? (
 
-                                                        <img
-                                                            src={
-                                                                getBankImage(
+                                                            <img
+                                                                src={
+                                                                    bankImage
+                                                                }
+                                                                alt={
                                                                     item.bank
-                                                                )
-                                                            }
-                                                            alt={
-                                                                item.bank
-                                                            }
-                                                            title={
-                                                                item.bank
-                                                            }
-                                                            style={{
-                                                                width: "50px",
-                                                                height: "45px",
-                                                                objectFit: "contain"
-                                                            }}
-                                                            onError={(e) => {
+                                                                }
+                                                                title={
+                                                                    item.bank
+                                                                }
+                                                                style={{
+                                                                    width:
+                                                                        "65px",
 
-                                                                e.currentTarget.src =
-                                                                    bankImages.Other;
+                                                                    height:
+                                                                        "55px",
 
-                                                            }}
-                                                        />
+                                                                    objectFit:
+                                                                        "contain",
 
-                                                    </div>
+                                                                    display:
+                                                                        "inline-block"
+                                                                }}
+                                                                onError={
+                                                                    event => {
 
-                                                ) : (
+                                                                        event.currentTarget.src =
+                                                                            bankImages.Other;
 
-                                                    <span className="text-muted">
-                                                        -
-                                                    </span>
+                                                                    }
+                                                                }
+                                                            />
 
-                                                )}
+                                                        ) : (
 
-                                            </td>
+                                                            <span>
 
+                                                                {
+                                                                    item.bank
+                                                                }
 
-                                            {/* DATE */}
+                                                            </span>
 
-                                            <td>
-
-                                                {
-                                                    item.date
-                                                        ? new Date(
-                                                            item.date
-                                                        ).toLocaleDateString(
-                                                            "en-IN"
                                                         )
-                                                        : "-"
-                                                }
 
-                                            </td>
+                                                    ) : (
+
+                                                        <span className="text-muted">
+
+                                                            -
+
+                                                        </span>
+
+                                                    )}
+
+                                                </td>
 
 
-                                            {/* ACTION */}
+                                                {/* =================================================
+                                                    DATE
+                                                ================================================= */}
 
-                                            <td>
+                                                <td>
 
-                                                <Link
-                                                    className="btn btn-warning btn-sm me-2"
-                                                    to={
-                                                        `/expense/edit/${item._id}`
+                                                    {
+                                                        item.date
+
+                                                            ? new Date(
+                                                                item.date
+                                                            ).toLocaleDateString(
+                                                                "en-IN"
+                                                            )
+
+                                                            : "-"
                                                     }
-                                                >
-                                                    Edit
-                                                </Link>
+
+                                                </td>
 
 
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-danger btn-sm"
-                                                    onClick={() =>
-                                                        handleDelete(
-                                                            item._id
-                                                        )
-                                                    }
-                                                >
-                                                    Delete
-                                                </button>
+                                                {/* =================================================
+                                                    ACTION
+                                                ================================================= */}
 
-                                            </td>
+                                                <td>
 
-                                        </tr>
+                                                    <Link
+                                                        className="btn btn-warning btn-sm me-2"
+                                                        to={
+                                                            `/expense/edit/${item._id}`
+                                                        }
+                                                    >
 
-                                    )
+                                                        Edit
+
+                                                    </Link>
+
+
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                item._id
+                                                            )
+                                                        }
+                                                    >
+
+                                                        Delete
+
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                        );
+
+                                    }
                                 )
 
                             )}
@@ -1853,11 +2251,15 @@ const ExpenseList = () => {
                         limit={limit}
                         total={total}
                         onPageChange={
-                            (nextPage) => {
+                            nextPage => {
 
                                 if (
+
                                     nextPage >= 1 &&
-                                    nextPage <= totalPages
+
+                                    nextPage <=
+                                    totalPages
+
                                 ) {
 
                                     setPage(
