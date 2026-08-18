@@ -21,17 +21,19 @@ const ExpenseForm = ({
         title: "",
         amount: "",
         category: "",
+        shopType: "",
         shop: "",
-        paymentMode: "UPI",
+        paymentMode: "Cash",
+        bank: "icici",
         date: new Date().toISOString().split("T")[0],
         note: ""
     });
 
 
     /*
-     * =========================
+     * =====================================================
      * LOAD CATEGORIES
-     * =========================
+     * =====================================================
      */
 
     useEffect(() => {
@@ -68,6 +70,8 @@ const ExpenseForm = ({
                     error
                 );
 
+                setCategories([]);
+
             }
 
         };
@@ -78,9 +82,9 @@ const ExpenseForm = ({
 
 
     /*
-     * =========================
+     * =====================================================
      * LOAD SHOPS
-     * =========================
+     * =====================================================
      */
 
     useEffect(() => {
@@ -134,9 +138,9 @@ const ExpenseForm = ({
 
 
     /*
-     * =========================
+     * =====================================================
      * LOAD ITEMS BY CATEGORY
-     * =========================
+     * =====================================================
      */
 
     const loadItems = async (categoryId) => {
@@ -200,9 +204,9 @@ const ExpenseForm = ({
 
 
     /*
-     * =========================
+     * =====================================================
      * EDIT MODE
-     * =========================
+     * =====================================================
      */
 
     useEffect(() => {
@@ -229,25 +233,55 @@ const ExpenseForm = ({
             "";
 
 
+        /*
+         * shopType can come from:
+         *
+         * initialValues.shopType
+         *
+         * OR
+         *
+         * initialValues.shop.type
+         */
+
+        const shopType =
+            initialValues.shopType ||
+            initialValues.shop?.type ||
+            "";
+
+
         setForm({
 
             title:
                 initialValues.title ||
                 "",
 
+
             amount:
                 initialValues.amount ??
                 "",
 
+
             category:
                 categoryId,
+
+
+            shopType:
+                shopType,
+
 
             shop:
                 shopId,
 
+
             paymentMode:
                 initialValues.paymentMode ||
-                "UPI",
+                "Cash",
+
+
+            bank:
+                initialValues.bank ||
+                "icici",
+
 
             date:
                 initialValues.date
@@ -255,6 +289,7 @@ const ExpenseForm = ({
                     : new Date()
                         .toISOString()
                         .split("T")[0],
+
 
             note:
                 initialValues.note ||
@@ -277,9 +312,9 @@ const ExpenseForm = ({
 
 
     /*
-     * =========================
+     * =====================================================
      * HANDLE CHANGE
-     * =========================
+     * =====================================================
      */
 
     const handleChange = async (e) => {
@@ -291,7 +326,9 @@ const ExpenseForm = ({
 
 
         /*
+         * =================================================
          * CATEGORY CHANGED
+         * =================================================
          */
 
         if (name === "category") {
@@ -315,7 +352,33 @@ const ExpenseForm = ({
 
 
         /*
+         * =================================================
+         * SHOP TYPE CHANGED
+         * =================================================
+         */
+
+        if (name === "shopType") {
+
+            setForm(prev => ({
+
+                ...prev,
+
+                shopType: value,
+
+                // Reset shop when type changes
+                shop: ""
+
+            }));
+
+            return;
+
+        }
+
+
+        /*
+         * =================================================
          * NORMAL FIELD
+         * =================================================
          */
 
         setForm(prev => ({
@@ -330,9 +393,31 @@ const ExpenseForm = ({
 
 
     /*
-     * =========================
+     * =====================================================
+     * FILTER SHOPS BY SHOP TYPE
+     * =====================================================
+     */
+
+    const filteredShops = shops.filter(shop => {
+
+        if (!form.shopType) {
+
+            return false;
+
+        }
+
+        return (
+            String(shop.type).toUpperCase() ===
+            String(form.shopType).toUpperCase()
+        );
+
+    });
+
+
+    /*
+     * =====================================================
      * SUBMIT
-     * =========================
+     * =====================================================
      */
 
     const handleSubmit = (e) => {
@@ -344,6 +429,17 @@ const ExpenseForm = ({
 
             alert(
                 "Please select Category"
+            );
+
+            return;
+
+        }
+
+
+        if (!form.shopType) {
+
+            alert(
+                "Please select Shop Type"
             );
 
             return;
@@ -402,15 +498,16 @@ const ExpenseForm = ({
 
         <div className="card shadow">
 
-            {/* =========================
+            {/* =====================================================
                 HEADER
-            ========================= */}
+            ===================================================== */}
 
             <div className="card-header d-flex justify-content-between align-items-center">
 
                 <h5 className="mb-0">
                     Expense Details
                 </h5>
+
 
                 <button
                     type="button"
@@ -429,9 +526,48 @@ const ExpenseForm = ({
 
                 <form onSubmit={handleSubmit}>
 
-                    {/* =========================
+
+                    {/* =================================================
+                        SHOP TYPE
+                    ================================================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
+                            Shop Type
+                        </label>
+
+
+                        <select
+                            className="form-select"
+                            name="shopType"
+                            value={form.shopType}
+                            onChange={handleChange}
+                            required
+                        >
+
+                            <option value="">
+                                Select Shop Type
+                            </option>
+
+
+                            <option value="ONLINE">
+                                ONLINE
+                            </option>
+
+
+                            <option value="OFFLINE">
+                                OFFLINE
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {/* =================================================
                         SHOP
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
@@ -439,43 +575,64 @@ const ExpenseForm = ({
                             Shop
                         </label>
 
+
                         <select
                             className="form-select"
                             name="shop"
                             value={form.shop}
                             onChange={handleChange}
                             required
+                            disabled={!form.shopType}
                         >
 
                             <option value="">
-                                Select Shop
+
+                                {form.shopType
+                                    ? "Select Shop"
+                                    : "Select Shop Type First"
+                                }
+
                             </option>
 
-                            {shops.map(shop => (
+
+                            {filteredShops.map(shop => (
 
                                 <option
                                     key={shop._id}
                                     value={shop._id}
                                 >
+
                                     {shop.name}
+
                                 </option>
 
                             ))}
 
                         </select>
 
+
+                        {form.shopType &&
+                            filteredShops.length === 0 && (
+
+                                <small className="text-danger">
+                                    No {form.shopType} shops available
+                                </small>
+
+                            )}
+
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         CATEGORY
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
                             Category
                         </label>
+
 
                         <select
                             className="form-select"
@@ -489,13 +646,16 @@ const ExpenseForm = ({
                                 Select Category
                             </option>
 
+
                             {categories.map(category => (
 
                                 <option
                                     key={category._id}
                                     value={category._id}
                                 >
+
                                     {category.name}
+
                                 </option>
 
                             ))}
@@ -505,15 +665,16 @@ const ExpenseForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         ITEM
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
                             Item
                         </label>
+
 
                         <select
                             className="form-select"
@@ -528,9 +689,11 @@ const ExpenseForm = ({
 
                                 {form.category
                                     ? "Select Item"
-                                    : "Select Category First"}
+                                    : "Select Category First"
+                                }
 
                             </option>
+
 
                             {items.map(item => (
 
@@ -538,7 +701,9 @@ const ExpenseForm = ({
                                     key={item._id}
                                     value={item.name}
                                 >
+
                                     {item.name}
+
                                 </option>
 
                             ))}
@@ -548,15 +713,16 @@ const ExpenseForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         AMOUNT
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
                             Amount
                         </label>
+
 
                         <input
                             type="number"
@@ -572,15 +738,16 @@ const ExpenseForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         PAYMENT MODE
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
                             Payment Mode
                         </label>
+
 
                         <select
                             className="form-select"
@@ -589,24 +756,28 @@ const ExpenseForm = ({
                             onChange={handleChange}
                         >
 
-                            <option value="UPI">
-                                UPI
-                            </option>
-
                             <option value="Cash">
                                 Cash
                             </option>
 
-                            <option value="Card">
-                                Card
+                            <option value="Paytm">
+                                Paytm
                             </option>
 
-                            <option value="Bank Transfer">
-                                Bank Transfer
+                            <option value="PhonePe">
+                                PhonePe
                             </option>
 
-                            <option value="Cheque">
-                                Cheque
+                            <option value="GPay">
+                                GPay
+                            </option>
+
+                            <option value="Bhim">
+                                Bhim
+                            </option>
+
+                            <option value="Amazon Pay">
+                                Amazon Pay
                             </option>
 
                             <option value="Other">
@@ -618,15 +789,59 @@ const ExpenseForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
+                        BANK
+                    ================================================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
+                            Bank
+                        </label>
+
+
+                        <select
+                            className="form-select"
+                            name="bank"
+                            value={form.bank}
+                            onChange={handleChange}
+                        >
+
+                            <option value="Pnb">
+                                Pnb
+                            </option>
+
+                            <option value="Rbl">
+                                Rbl
+                            </option>
+
+                            <option value="icici">
+                                icici
+                            </option>
+
+                            <option value="Cash">
+                                Cash
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {/* =================================================
                         DATE
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
                             Date
                         </label>
+
 
                         <input
                             type="date"
@@ -639,15 +854,16 @@ const ExpenseForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         NOTE
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
                             Note
                         </label>
+
 
                         <textarea
                             className="form-control"
@@ -661,9 +877,9 @@ const ExpenseForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         SUBMIT
-                    ========================= */}
+                    ================================================= */}
 
                     <button
                         type="submit"
@@ -673,7 +889,8 @@ const ExpenseForm = ({
 
                         {loading
                             ? "Please wait..."
-                            : "Save Expense"}
+                            : "Save Expense"
+                        }
 
                     </button>
 

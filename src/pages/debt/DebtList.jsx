@@ -22,20 +22,72 @@ const DebtList = () => {
     const [limit, setLimit] = useState(10);
     const [total, setTotal] = useState(0);
 
-    // Input filters
+    /*
+     * =========================
+     * INPUT FILTERS
+     * =========================
+     */
+
     const [categoryInput, setCategoryInput] = useState("");
+    const [paymentModeInput, setPaymentModeInput] = useState("");
+    const [bankInput, setBankInput] = useState("");
+
     const [fromDateInput, setFromDateInput] = useState("");
     const [toDateInput, setToDateInput] = useState("");
 
-    // Applied filters
+
+    /*
+     * =========================
+     * APPLIED FILTERS
+     * =========================
+     */
+
     const [category, setCategory] = useState("");
+    const [paymentMode, setPaymentMode] = useState("");
+    const [bank, setBank] = useState("");
+
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
 
 
     /*
-     * Load Debt Categories
+     * =========================
+     * PAYMENT MODES
+     * =========================
      */
+
+    const paymentModes = [
+        "Cash",
+        "Paytm",
+        "PhonePe",
+        "GPay",
+        "Bhim",
+        "Amazon Pay",
+        "Other"
+    ];
+
+
+    /*
+     * =========================
+     * BANKS
+     * =========================
+     */
+
+    const banks = [
+        "Pnb",
+        "Rbl",
+        "icici",
+        "Cash",
+        "Other"
+    ];
+
+
+    /*
+     * =========================
+     * LOAD CATEGORIES
+     * =========================
+     */
+
     const loadCategories = useCallback(async () => {
 
         try {
@@ -48,18 +100,31 @@ const DebtList = () => {
             if (response.success) {
 
                 const rows =
-                    response.data.rows ||
-                    response.data.data ||
+                    response.data?.rows ||
+                    response.data?.data ||
                     response.data ||
                     [];
 
-                setCategories(rows);
+                setCategories(
+                    Array.isArray(rows)
+                        ? rows
+                        : []
+                );
+
+            } else {
+
+                setCategories([]);
 
             }
 
         } catch (error) {
 
-            console.log("Category fetch error:", error);
+            console.log(
+                "Category fetch error:",
+                error
+            );
+
+            setCategories([]);
 
         }
 
@@ -67,8 +132,11 @@ const DebtList = () => {
 
 
     /*
-     * Load Debts
+     * =========================
+     * LOAD DEBTS
+     * =========================
      */
+
     const loadDebt = useCallback(async () => {
 
         try {
@@ -85,7 +153,11 @@ const DebtList = () => {
 
                 to: toDate,
 
-                category
+                category,
+
+                paymentMode,
+
+                bank
 
             });
 
@@ -93,15 +165,19 @@ const DebtList = () => {
             if (response.success) {
 
                 const rows =
-                    response.data.data ||
-                    response.data.rows ||
+                    response.data?.data ||
+                    response.data?.rows ||
                     response.data ||
                     [];
 
-                setDebts(rows);
+                setDebts(
+                    Array.isArray(rows)
+                        ? rows
+                        : []
+                );
 
                 setTotal(
-                    response.data.total ||
+                    response.data?.total ??
                     rows.length
                 );
 
@@ -115,7 +191,10 @@ const DebtList = () => {
 
         } catch (error) {
 
-            console.log("Debt fetch error:", error);
+            console.log(
+                "Debt fetch error:",
+                error
+            );
 
             setDebts([]);
 
@@ -132,13 +211,18 @@ const DebtList = () => {
         limit,
         fromDate,
         toDate,
-        category
+        category,
+        paymentMode,
+        bank
     ]);
 
 
     /*
-     * Load categories on page load
+     * =========================
+     * LOAD CATEGORIES
+     * =========================
      */
+
     useEffect(() => {
 
         loadCategories();
@@ -147,9 +231,11 @@ const DebtList = () => {
 
 
     /*
-     * Load debts whenever
-     * pagination/filter changes
+     * =========================
+     * LOAD DEBTS
+     * =========================
      */
+
     useEffect(() => {
 
         loadDebt();
@@ -158,8 +244,11 @@ const DebtList = () => {
 
 
     /*
-     * Delete Debt
+     * =========================
+     * DELETE DEBT
+     * =========================
      */
+
     const handleDelete = async (id) => {
 
         if (!window.confirm("Delete this debt?")) {
@@ -171,17 +260,19 @@ const DebtList = () => {
 
         try {
 
-            const response = await deleteDebt(id);
+            const response =
+                await deleteDebt(id);
+
 
             if (response.success) {
 
                 alert(response.message);
 
-                /*
-                 * If last record on current page
-                 * and page > 1, go previous page.
-                 */
-                if (debts.length === 1 && page > 1) {
+
+                if (
+                    debts.length === 1 &&
+                    page > 1
+                ) {
 
                     setPage(page - 1);
 
@@ -206,17 +297,34 @@ const DebtList = () => {
 
 
     /*
-     * Apply Filters
+     * =========================
+     * APPLY FILTER
+     * =========================
      */
+
     const handleFilter = (event) => {
 
         event.preventDefault();
 
-        setCategory(categoryInput);
+        setCategory(
+            categoryInput
+        );
 
-        setFromDate(fromDateInput);
+        setPaymentMode(
+            paymentModeInput
+        );
 
-        setToDate(toDateInput);
+        setBank(
+            bankInput
+        );
+
+        setFromDate(
+            fromDateInput
+        );
+
+        setToDate(
+            toDateInput
+        );
 
         setPage(1);
 
@@ -224,26 +332,37 @@ const DebtList = () => {
 
 
     /*
-     * Clear Filters
+     * =========================
+     * CLEAR FILTER
+     * =========================
      */
+
     const handleClearFilter = () => {
 
         setCategoryInput("");
+        setPaymentModeInput("");
+        setBankInput("");
 
         setFromDateInput("");
-
         setToDateInput("");
 
         setCategory("");
+        setPaymentMode("");
+        setBank("");
 
         setFromDate("");
-
         setToDate("");
 
         setPage(1);
 
     };
 
+
+    /*
+     * =========================
+     * PAGINATION
+     * =========================
+     */
 
     const totalPages =
         Math.ceil(total / limit) || 1;
@@ -262,16 +381,24 @@ const DebtList = () => {
         );
 
 
+    /*
+     * =========================
+     * RENDER
+     * =========================
+     */
+
     return (
 
         <div className="container-fluid">
 
 
-            {/* ================= HEADER ================= */}
+            {/* =========================
+                HEADER
+            ========================= */}
 
-            <div className="d-flex justify-content-between mb-3">
+            <div className="d-flex justify-content-between align-items-center mb-3">
 
-                <h3>
+                <h3 className="mb-0">
                     Debt List
                 </h3>
 
@@ -286,15 +413,19 @@ const DebtList = () => {
             </div>
 
 
-            {/* ================= CARD ================= */}
+            {/* =========================
+                CARD
+            ========================= */}
 
             <div className="card">
 
 
-                <div className="card-body table-responsive">
+                <div className="card-body">
 
 
-                    {/* ================= FILTER ================= */}
+                    {/* =========================
+                        FILTER
+                    ========================= */}
 
                     <form
                         className="row g-2 align-items-end mb-3"
@@ -302,9 +433,9 @@ const DebtList = () => {
                     >
 
 
-                        {/* Category */}
+                        {/* CATEGORY */}
 
-                        <div className="col-12 col-md-3">
+                        <div className="col-12 col-md-2">
 
                             <label className="form-label">
                                 Category
@@ -326,25 +457,119 @@ const DebtList = () => {
                                 </option>
 
 
-                                {categories.map(categoryItem => (
+                                {categories.map(
+                                    categoryItem => (
 
-                                    <option
-                                        key={categoryItem._id}
-                                        value={categoryItem._id}
-                                    >
+                                        <option
+                                            key={
+                                                categoryItem._id
+                                            }
+                                            value={
+                                                categoryItem._id
+                                            }
+                                        >
 
-                                        {categoryItem.name}
+                                            {
+                                                categoryItem.name
+                                            }
 
-                                    </option>
+                                        </option>
 
-                                ))}
+                                    )
+                                )}
 
                             </select>
 
                         </div>
 
 
-                        {/* From */}
+                        {/* PAYMENT MODE */}
+
+                        <div className="col-12 col-md-2">
+
+                            <label className="form-label">
+                                Payment Mode
+                            </label>
+
+
+                            <select
+                                className="form-select"
+                                value={
+                                    paymentModeInput
+                                }
+                                onChange={(event) =>
+                                    setPaymentModeInput(
+                                        event.target.value
+                                    )
+                                }
+                            >
+
+                                <option value="">
+                                    All Payment Modes
+                                </option>
+
+
+                                {paymentModes.map(
+                                    mode => (
+
+                                        <option
+                                            key={mode}
+                                            value={mode}
+                                        >
+                                            {mode}
+                                        </option>
+
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+
+                        {/* BANK */}
+
+                        <div className="col-12 col-md-2">
+
+                            <label className="form-label">
+                                Bank
+                            </label>
+
+
+                            <select
+                                className="form-select"
+                                value={bankInput}
+                                onChange={(event) =>
+                                    setBankInput(
+                                        event.target.value
+                                    )
+                                }
+                            >
+
+                                <option value="">
+                                    All Banks
+                                </option>
+
+
+                                {banks.map(
+                                    bankName => (
+
+                                        <option
+                                            key={bankName}
+                                            value={bankName}
+                                        >
+                                            {bankName}
+                                        </option>
+
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+
+                        {/* FROM */}
 
                         <div className="col-12 col-md-2">
 
@@ -367,7 +592,7 @@ const DebtList = () => {
                         </div>
 
 
-                        {/* To */}
+                        {/* TO */}
 
                         <div className="col-12 col-md-2">
 
@@ -390,9 +615,9 @@ const DebtList = () => {
                         </div>
 
 
-                        {/* Per Page */}
+                        {/* PER PAGE */}
 
-                        <div className="col-6 col-md-2">
+                        <div className="col-6 col-md-1">
 
                             <label className="form-label">
                                 Per page
@@ -432,7 +657,7 @@ const DebtList = () => {
                         </div>
 
 
-                        {/* Filter */}
+                        {/* FILTER */}
 
                         <div className="col-6 col-md-1">
 
@@ -446,19 +671,25 @@ const DebtList = () => {
                         </div>
 
 
-                        {/* Clear */}
+                        {/* CLEAR */}
 
-                        <div className="col-6 col-md-2">
+                        <div className="col-6 col-md-1">
 
                             <button
                                 type="button"
                                 className="btn btn-outline-secondary w-100"
-                                onClick={handleClearFilter}
+                                onClick={
+                                    handleClearFilter
+                                }
                                 disabled={
                                     !categoryInput &&
+                                    !paymentModeInput &&
+                                    !bankInput &&
                                     !fromDateInput &&
                                     !toDateInput &&
                                     !category &&
+                                    !paymentMode &&
+                                    !bank &&
                                     !fromDate &&
                                     !toDate
                                 }
@@ -471,214 +702,334 @@ const DebtList = () => {
                     </form>
 
 
-                    {/* ================= TABLE ================= */}
+                    {/* =========================
+                        TABLE
+                    ========================= */}
 
-                    <table className="table table-bordered">
+                    <div className="table-responsive">
 
+                        <table className="table table-bordered">
 
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    #
-                                </th>
-
-                                <th>
-                                    Title
-                                </th>
-
-                                <th>
-                                    Total  Amount
-                                </th>
-                                <th>
-                                    Pending  Amount
-                                </th>
-                                <th>
-                                    Recovered  Amount
-                                </th>
-                                <th>
-                                    Category
-                                </th>
-
-                                <th>
-                                    Payment
-                                </th>
-
-                                <th>
-                                    Date
-                                </th>
-
-                                <th width="170">
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-
-                            {/* Loading */}
-
-                            {loading ? (
+                            <thead>
 
                                 <tr>
 
-                                    <td
-                                        colSpan="7"
-                                        className="text-center"
+                                    <th>
+                                        #
+                                    </th>
+
+                                    <th>
+                                        Title
+                                    </th>
+
+                                    <th>
+                                        Total Amount
+                                    </th>
+
+                                    <th>
+                                        Pending Amount
+                                    </th>
+
+                                    <th>
+                                        Recovered Amount
+                                    </th>
+
+                                    <th>
+                                        Category
+                                    </th>
+
+                                    <th>
+                                        Payment
+                                    </th>
+
+                                    <th>
+                                        Bank
+                                    </th>
+
+                                    <th>
+                                        Date
+                                    </th>
+
+                                    <th
+                                        style={{
+                                            minWidth: "170px"
+                                        }}
                                     >
-                                        Loading...
-                                    </td>
+                                        Action
+                                    </th>
 
                                 </tr>
 
-                            ) : debts.length === 0 ? (
-
-                                /* No Data */
-
-                                <tr>
-
-                                    <td
-                                        colSpan="7"
-                                        className="text-center"
-                                    >
-                                        No Record Found
-                                    </td>
-
-                                </tr>
-
-                            ) : (
-
-                                /* Data */
-
-                                debts.map((item, index) => (
-
-                                    <tr key={item._id}>
+                            </thead>
 
 
-                                        <td>
+                            <tbody>
 
-                                            {
-                                                ((page - 1) * limit)
-                                                + index
-                                                + 1
-                                            }
+                                {loading ? (
 
-                                        </td>
+                                    <tr>
 
-
-                                        <td>
-
-                                            {item.title}
-
-                                        </td>
-
-
-                                        <td>₹{" "} {Number(item.amount || 0).toLocaleString("en-IN")}</td>
-                                        <td>₹{" "} {Number(item.pendingAmount || 0).toLocaleString("en-IN")}</td>
-                                        <td>₹ {Number((item.amount || 0) - (item.pendingAmount || 0)).toLocaleString("en-IN")}</td>
-
-                                        <td>
-
-                                            <span
-                                                className="badge"
-                                                style={
-                                                    getCategoryBadgeStyle(
-                                                        item.category
-                                                    )
-                                                }
-                                            >
-
-                                                {
-                                                    item.category?.name ||
-                                                    "-"
-                                                }
-
-                                            </span>
-
-                                        </td>
-
-
-                                        <td>
-
-                                            <span
-                                                className={
-                                                    getPaymentModeBadgeClass(
-                                                        item.paymentMode
-                                                    )
-                                                }
-                                            >
-
-                                                {
-                                                    item.paymentMode ||
-                                                    "-"
-                                                }
-
-                                            </span>
-
-                                        </td>
-
-
-                                        <td>
-
-                                            {
-                                                item.date
-                                                    ? new Date(
-                                                        item.date
-                                                    ).toLocaleDateString()
-                                                    : "-"
-                                            }
-
-                                        </td>
-
-
-                                        <td>
-
-
-                                            <Link
-                                                className="btn btn-warning btn-sm me-2"
-                                                to={`/debt/edit/${item._id}`}
-                                            >
-                                                Edit
-                                            </Link>
-
-
-                                            <button
-                                                className="btn btn-danger btn-sm"
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        item._id
-                                                    )
-                                                }
-                                            >
-                                                Delete
-                                            </button>
-
-
+                                        <td
+                                            colSpan="10"
+                                            className="text-center"
+                                        >
+                                            Loading...
                                         </td>
 
                                     </tr>
 
-                                ))
+                                ) : debts.length === 0 ? (
 
-                            )}
+                                    <tr>
+
+                                        <td
+                                            colSpan="10"
+                                            className="text-center"
+                                        >
+                                            No Record Found
+                                        </td>
+
+                                    </tr>
+
+                                ) : (
+
+                                    debts.map(
+                                        (item, index) => {
+
+                                            const amount =
+                                                Number(
+                                                    item.amount || 0
+                                                );
+
+                                            const pendingAmount =
+                                                Number(
+                                                    item.pendingAmount || 0
+                                                );
+
+                                            const recoveredAmount =
+                                                amount -
+                                                pendingAmount;
 
 
-                        </tbody>
+                                            return (
 
-                    </table>
+                                                <tr
+                                                    key={
+                                                        item._id
+                                                    }
+                                                >
+
+                                                    {/* NUMBER */}
+
+                                                    <td>
+
+                                                        {
+                                                            ((page - 1) *
+                                                                limit) +
+                                                            index +
+                                                            1
+                                                        }
+
+                                                    </td>
+
+
+                                                    {/* TITLE */}
+
+                                                    <td>
+
+                                                        {
+                                                            item.title
+                                                        }
+
+                                                    </td>
+
+
+                                                    {/* TOTAL */}
+
+                                                    <td>
+
+                                                        ₹{" "}
+
+                                                        {
+                                                            amount.toLocaleString(
+                                                                "en-IN",
+                                                                {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2
+                                                                }
+                                                            )
+                                                        }
+
+                                                    </td>
+
+
+                                                    {/* PENDING */}
+
+                                                    <td>
+
+                                                        ₹{" "}
+
+                                                        {
+                                                            pendingAmount.toLocaleString(
+                                                                "en-IN",
+                                                                {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2
+                                                                }
+                                                            )
+                                                        }
+
+                                                    </td>
+
+
+                                                    {/* RECOVERED */}
+
+                                                    <td>
+
+                                                        ₹{" "}
+
+                                                        {
+                                                            recoveredAmount.toLocaleString(
+                                                                "en-IN",
+                                                                {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2
+                                                                }
+                                                            )
+                                                        }
+
+                                                    </td>
+
+
+                                                    {/* CATEGORY */}
+
+                                                    <td>
+
+                                                        <span
+                                                            className="badge"
+                                                            style={
+                                                                getCategoryBadgeStyle(
+                                                                    item.category
+                                                                )
+                                                            }
+                                                        >
+
+                                                            {
+                                                                item.category?.name ||
+                                                                "-"
+                                                            }
+
+                                                        </span>
+
+                                                    </td>
+
+
+                                                    {/* PAYMENT */}
+
+                                                    <td>
+
+                                                        <span
+                                                            className={
+                                                                getPaymentModeBadgeClass(
+                                                                    item.paymentMode
+                                                                )
+                                                            }
+                                                        >
+
+                                                            {
+                                                                item.paymentMode ||
+                                                                "-"
+                                                            }
+
+                                                        </span>
+
+                                                    </td>
+
+
+                                                    {/* BANK */}
+
+                                                    <td>
+
+                                                        <span className="badge bg-secondary">
+
+                                                            {
+                                                                item.bank ||
+                                                                "-"
+                                                            }
+
+                                                        </span>
+
+                                                    </td>
+
+
+                                                    {/* DATE */}
+
+                                                    <td>
+
+                                                        {
+                                                            item.date
+                                                                ? new Date(
+                                                                    item.date
+                                                                ).toLocaleDateString(
+                                                                    "en-IN"
+                                                                )
+                                                                : "-"
+                                                        }
+
+                                                    </td>
+
+
+                                                    {/* ACTION */}
+
+                                                    <td>
+
+                                                        <Link
+                                                            className="btn btn-warning btn-sm me-2"
+                                                            to={
+                                                                `/debt/edit/${item._id}`
+                                                            }
+                                                        >
+                                                            Edit
+                                                        </Link>
+
+
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-danger btn-sm"
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    item._id
+                                                                )
+                                                            }
+                                                        >
+                                                            Delete
+                                                        </button>
+
+                                                    </td>
+
+                                                </tr>
+
+                                            );
+
+                                        }
+                                    )
+
+                                )}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
 
-                {/* ================= PAGINATION ================= */}
+                {/* =========================
+                    PAGINATION
+                ========================= */}
 
                 <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
-
 
                     <small className="text-muted">
 
@@ -697,22 +1048,25 @@ const DebtList = () => {
                         page={page}
                         limit={limit}
                         total={total}
-                        onPageChange={(nextPage) => {
+                        onPageChange={
+                            (nextPage) => {
 
-                            if (
-                                nextPage >= 1 &&
-                                nextPage <= totalPages
-                            ) {
+                                if (
+                                    nextPage >= 1 &&
+                                    nextPage <= totalPages
+                                ) {
 
-                                setPage(nextPage);
+                                    setPage(
+                                        nextPage
+                                    );
+
+                                }
 
                             }
-
-                        }}
+                        }
                     />
 
                 </div>
-
 
             </div>
 

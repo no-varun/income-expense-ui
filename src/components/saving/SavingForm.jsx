@@ -20,18 +20,58 @@ const SavingForm = ({
         title: "",
         amount: "",
         category: "",
-        paymentMode: "Cash",
+        paymentMode: "Paytm",
+        bank: "icici",
         date: new Date().toISOString().split("T")[0],
         note: ""
     });
 
 
     /*
-     * ============================
+     * =========================
      * LOAD CATEGORIES
-     * ============================
+     * =========================
      */
+
     useEffect(() => {
+
+        const loadCategories = async () => {
+
+            try {
+
+                const response = await getCategories({
+                    limit: 100,
+                    type: "SAVING"
+                });
+
+                if (response.success) {
+
+                    const rows =
+                        response.data?.rows ||
+                        response.data?.data ||
+                        response.data ||
+                        [];
+
+                    setCategories(
+                        Array.isArray(rows)
+                            ? rows
+                            : []
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Category fetch error:",
+                    error
+                );
+
+                setCategories([]);
+
+            }
+
+        };
 
         loadCategories();
 
@@ -39,121 +79,11 @@ const SavingForm = ({
 
 
     /*
-     * ============================
-     * EDIT MODE
-     * ============================
+     * =========================
+     * LOAD ITEMS
+     * =========================
      */
-    useEffect(() => {
 
-        if (
-            !initialValues ||
-            Object.keys(initialValues).length === 0
-        ) {
-            return;
-        }
-
-        const categoryId =
-            initialValues.category?._id ||
-            initialValues.category ||
-            "";
-
-        const title =
-            initialValues.title || "";
-
-        setForm({
-            title,
-
-            amount:
-                initialValues.amount ?? "",
-
-            category:
-                categoryId,
-
-            paymentMode:
-                initialValues.paymentMode || "Cash",
-
-            date:
-                initialValues.date
-                    ? initialValues.date.substring(0, 10)
-                    : new Date()
-                        .toISOString()
-                        .split("T")[0],
-
-            note:
-                initialValues.note || ""
-        });
-
-
-        /*
-         * Load items for existing category
-         */
-        if (categoryId) {
-
-            loadItems(categoryId);
-
-        } else {
-
-            setItems([]);
-
-        }
-
-    }, [initialValues]);
-
-
-    /*
-     * ============================
-     * FETCH SAVING CATEGORIES
-     * ============================
-     */
-    const loadCategories = async () => {
-
-        try {
-
-            const response = await getCategories({
-                limit: 100,
-                type: "SAVING"
-            });
-
-
-            if (response.success) {
-
-                const rows =
-                    response.data?.rows ||
-                    response.data?.data ||
-                    response.data ||
-                    [];
-
-                setCategories(
-                    Array.isArray(rows)
-                        ? rows
-                        : []
-                );
-
-            } else {
-
-                setCategories([]);
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Category fetch error:",
-                error
-            );
-
-            setCategories([]);
-
-        }
-
-    };
-
-
-    /*
-     * ============================
-     * FETCH ITEMS BY CATEGORY
-     * ============================
-     */
     const loadItems = async (categoryId) => {
 
         if (!categoryId) {
@@ -164,32 +94,24 @@ const SavingForm = ({
 
         }
 
-
         try {
 
             setItemsLoading(true);
-
             setItems([]);
 
-
             const response = await getItems({
-
                 limit: 1000,
-
                 category: categoryId,
-
                 type: "SAVING",
-
                 status: true
-
             });
-
 
             if (response.success) {
 
                 const rows =
-                    response.data?.data ||
                     response.data?.rows ||
+                    response.data?.data?.rows ||
+                    response.data?.data ||
                     response.data ||
                     [];
 
@@ -224,85 +146,81 @@ const SavingForm = ({
 
 
     /*
-     * ============================
-     * CATEGORY CHANGE
-     * ============================
+     * =========================
+     * EDIT MODE
+     * =========================
      */
-    const handleCategoryChange = async (e) => {
 
-        const categoryId =
-            e.target.value;
+    useEffect(() => {
 
-
-        /*
-         * Clear selected item
-         */
-        setForm(prev => ({
-            ...prev,
-            category: categoryId,
-            title: ""
-        }));
-
-
-        /*
-         * Clear old items immediately
-         */
-        setItems([]);
-
-
-        if (!categoryId) {
+        if (
+            !initialValues ||
+            Object.keys(initialValues).length === 0
+        ) {
 
             return;
 
         }
 
+        const categoryId =
+            initialValues.category?._id ||
+            initialValues.category ||
+            "";
 
-        await loadItems(categoryId);
-
-    };
-
-
-    /*
-     * ============================
-     * ITEM CHANGE
-     * ============================
-     */
-    const handleItemChange = (e) => {
-
-        const itemId =
-            e.target.value;
-
-
-        const selectedItem =
-            items.find(
-                item =>
-                    String(item._id) ===
-                    String(itemId)
-            );
-
-
-        setForm(prev => ({
-            ...prev,
-
+        setForm({
             title:
-                selectedItem?.name || ""
-        }));
+                initialValues.title || "",
 
-    };
+            amount:
+                initialValues.amount ?? "",
+
+            category:
+                categoryId,
+
+            paymentMode:
+                initialValues.paymentMode ||
+                "Cash",
+
+            bank:
+                initialValues.bank ||
+                "icici",
+
+            date:
+                initialValues.date
+                    ? initialValues.date.substring(0, 10)
+                    : new Date()
+                        .toISOString()
+                        .split("T")[0],
+
+            note:
+                initialValues.note || ""
+        });
+
+        if (categoryId) {
+
+            loadItems(categoryId);
+
+        } else {
+
+            setItems([]);
+
+        }
+
+    }, [initialValues]);
 
 
     /*
-     * ============================
-     * NORMAL INPUT CHANGE
-     * ============================
+     * =========================
+     * INPUT CHANGE
+     * =========================
      */
+
     const handleChange = (e) => {
 
         const {
             name,
             value
         } = e.target;
-
 
         setForm(prev => ({
             ...prev,
@@ -313,47 +231,98 @@ const SavingForm = ({
 
 
     /*
-     * ============================
-     * SUBMIT
-     * ============================
+     * =========================
+     * CATEGORY CHANGE
+     * =========================
      */
+
+    const handleCategoryChange = async (e) => {
+
+        const categoryId =
+            e.target.value;
+
+        setForm(prev => ({
+            ...prev,
+            category: categoryId,
+            title: ""
+        }));
+
+        setItems([]);
+
+        if (categoryId) {
+
+            await loadItems(categoryId);
+
+        }
+
+    };
+
+
+    /*
+     * =========================
+     * ITEM CHANGE
+     * =========================
+     */
+
+    const handleItemChange = (e) => {
+
+        const itemId =
+            e.target.value;
+
+        const selectedItem =
+            items.find(
+                item =>
+                    String(item._id) ===
+                    String(itemId)
+            );
+
+        setForm(prev => ({
+            ...prev,
+            title:
+                selectedItem?.name || ""
+        }));
+
+    };
+
+
+    /*
+     * =========================
+     * SUBMIT
+     * =========================
+     */
+
     const handleSubmit = (e) => {
 
         e.preventDefault();
 
-
         if (!form.category) {
 
-            alert(
-                "Please select category"
-            );
+            alert("Please select category");
 
             return;
 
         }
-
 
         if (!form.title.trim()) {
 
-            alert(
-                "Please select item"
-            );
+            alert("Please select item");
 
             return;
 
         }
 
-
-        if (!form.category) {
+        if (
+            !form.amount ||
+            Number(form.amount) <= 0
+        ) {
 
             alert(
-                "Please select category"
+                "Amount should be greater than zero"
             );
 
             return;
 
         }
-
 
         onSubmit({
             ...form,
@@ -364,12 +333,11 @@ const SavingForm = ({
 
 
     /*
-     * ============================
+     * =========================
      * SELECTED ITEM
-     * ============================
-     *
-     * Needed for edit mode.
+     * =========================
      */
+
     const selectedItemId =
         items.find(
             item =>
@@ -381,15 +349,11 @@ const SavingForm = ({
 
         <div className="card shadow">
 
-
-            {/* ================= HEADER ================= */}
-
             <div className="card-header d-flex justify-content-between align-items-center">
 
                 <h5 className="mb-0">
                     Saving Details
                 </h5>
-
 
                 <button
                     type="button"
@@ -408,8 +372,7 @@ const SavingForm = ({
 
                 <form onSubmit={handleSubmit}>
 
-
-                    {/* ================= CATEGORY ================= */}
+                    {/* CATEGORY */}
 
                     <div className="mb-3">
 
@@ -417,10 +380,8 @@ const SavingForm = ({
                             Category
                         </label>
 
-
                         <select
                             className="form-select"
-                            name="category"
                             value={form.category}
                             onChange={
                                 handleCategoryChange
@@ -432,32 +393,23 @@ const SavingForm = ({
                                 Select Category
                             </option>
 
+                            {categories.map(category => (
 
-                            {categories.map(
-                                category => (
+                                <option
+                                    key={category._id}
+                                    value={category._id}
+                                >
+                                    {category.name}
+                                </option>
 
-                                    <option
-                                        key={
-                                            category._id
-                                        }
-                                        value={
-                                            category._id
-                                        }
-                                    >
-                                        {
-                                            category.name
-                                        }
-                                    </option>
-
-                                )
-                            )}
+                            ))}
 
                         </select>
 
                     </div>
 
 
-                    {/* ================= ITEM ================= */}
+                    {/* ITEM */}
 
                     <div className="mb-3">
 
@@ -465,15 +417,10 @@ const SavingForm = ({
                             Item
                         </label>
 
-
                         <select
                             className="form-select"
-                            value={
-                                selectedItemId
-                            }
-                            onChange={
-                                handleItemChange
-                            }
+                            value={selectedItemId}
+                            onChange={handleItemChange}
                             disabled={
                                 !form.category ||
                                 itemsLoading
@@ -494,7 +441,6 @@ const SavingForm = ({
 
                             </option>
 
-
                             {items.map(item => (
 
                                 <option
@@ -511,7 +457,7 @@ const SavingForm = ({
                     </div>
 
 
-                    {/* ================= AMOUNT ================= */}
+                    {/* AMOUNT */}
 
                     <div className="mb-3">
 
@@ -519,15 +465,13 @@ const SavingForm = ({
                             Amount
                         </label>
 
-
                         <input
                             type="number"
                             className="form-control"
                             name="amount"
                             value={form.amount}
                             onChange={handleChange}
-                            required
-                            min="-1000"
+                            min="0"
                             step="0.01"
                             required
                         />
@@ -535,7 +479,7 @@ const SavingForm = ({
                     </div>
 
 
-                    {/* ================= PAYMENT MODE ================= */}
+                    {/* PAYMENT MODE */}
 
                     <div className="mb-3">
 
@@ -543,34 +487,36 @@ const SavingForm = ({
                             Payment Mode
                         </label>
 
-
                         <select
                             className="form-select"
                             name="paymentMode"
-                            value={
-                                form.paymentMode
-                            }
+                            value={form.paymentMode}
                             onChange={handleChange}
+                            required
                         >
 
                             <option value="Cash">
                                 Cash
                             </option>
 
-                            <option value="UPI">
-                                UPI
+                            <option value="Paytm">
+                                Paytm
                             </option>
 
-                            <option value="Card">
-                                Card
+                            <option value="PhonePe">
+                                PhonePe
                             </option>
 
-                            <option value="Bank Transfer">
-                                Bank Transfer
+                            <option value="GPay">
+                                GPay
                             </option>
 
-                            <option value="Cheque">
-                                Cheque
+                            <option value="Bhim">
+                                Bhim
+                            </option>
+
+                            <option value="Amazon Pay">
+                                Amazon Pay
                             </option>
 
                             <option value="Other">
@@ -582,7 +528,47 @@ const SavingForm = ({
                     </div>
 
 
-                    {/* ================= DATE ================= */}
+                    {/* BANK */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
+                            Bank
+                        </label>
+
+                        <select
+                            className="form-select"
+                            name="bank"
+                            value={form.bank}
+                            onChange={handleChange}
+                        >
+
+                            <option value="Pnb">
+                                PNB
+                            </option>
+
+                            <option value="Rbl">
+                                RBL
+                            </option>
+
+                            <option value="icici">
+                                ICICI
+                            </option>
+
+                            <option value="Cash">
+                                Cash
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {/* DATE */}
 
                     <div className="mb-3">
 
@@ -590,19 +576,19 @@ const SavingForm = ({
                             Date
                         </label>
 
-
                         <input
                             type="date"
                             className="form-control"
                             name="date"
                             value={form.date}
                             onChange={handleChange}
+                            required
                         />
 
                     </div>
 
 
-                    {/* ================= NOTE ================= */}
+                    {/* NOTE */}
 
                     <div className="mb-3">
 
@@ -610,19 +596,19 @@ const SavingForm = ({
                             Note
                         </label>
 
-
                         <textarea
                             rows="3"
                             className="form-control"
                             name="note"
                             value={form.note}
                             onChange={handleChange}
+                            placeholder="Enter note"
                         />
 
                     </div>
 
 
-                    {/* ================= SUBMIT ================= */}
+                    {/* SUBMIT */}
 
                     <button
                         type="submit"

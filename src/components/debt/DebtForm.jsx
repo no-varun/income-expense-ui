@@ -19,8 +19,10 @@ const DebtForm = ({
     const [form, setForm] = useState({
         title: "",
         amount: "",
+        pendingAmount: "",
         category: "",
         paymentMode: "Cash",
+        bank: "Cash",
         date: new Date().toISOString().split("T")[0],
         note: ""
     });
@@ -28,9 +30,42 @@ const DebtForm = ({
 
     /*
      * ============================
+     * PAYMENT MODES
+     * ============================
+     */
+
+    const paymentModes = [
+        "Cash",
+        "Paytm",
+        "PhonePe",
+        "GPay",
+        "Bhim",
+        "Amazon Pay",
+        "Other"
+    ];
+
+
+    /*
+     * ============================
+     * BANKS
+     * ============================
+     */
+
+    const banks = [
+        "Pnb",
+        "Rbl",
+        "icici",
+        "Cash",
+        "Other"
+    ];
+
+
+    /*
+     * ============================
      * LOAD DEBT CATEGORIES
      * ============================
      */
+
     useEffect(() => {
 
         const loadCategories = async () => {
@@ -45,12 +80,20 @@ const DebtForm = ({
                 if (response.success) {
 
                     const rows =
-                        response.data.rows ||
-                        response.data.data ||
+                        response.data?.rows ||
+                        response.data?.data ||
                         response.data ||
                         [];
 
-                    setCategories(rows);
+                    setCategories(
+                        Array.isArray(rows)
+                            ? rows
+                            : []
+                    );
+
+                } else {
+
+                    setCategories([]);
 
                 }
 
@@ -74,57 +117,10 @@ const DebtForm = ({
 
     /*
      * ============================
-     * EDIT MODE
-     * ============================
-     */
-    useEffect(() => {
-
-        if (
-            !initialValues ||
-            Object.keys(initialValues).length === 0
-        ) {
-            return;
-        }
-
-        const categoryId =
-            initialValues.category?._id ||
-            initialValues.category ||
-            "";
-
-        setForm({
-            title: initialValues.title || "",
-
-            amount: initialValues.amount || "",
-
-            category: categoryId,
-
-            paymentMode:
-                initialValues.paymentMode ||
-                "Cash",
-
-            date: initialValues.date
-                ? initialValues.date.substring(0, 10)
-                : new Date()
-                    .toISOString()
-                    .split("T")[0],
-
-            note: initialValues.note || ""
-        });
-
-        if (categoryId) {
-            loadItems(categoryId);
-        } else {
-            setItems([]);
-        }
-
-    }, [initialValues]);
-
-
-    /*
-     * ============================
      * LOAD ITEMS BY CATEGORY
      * ============================
      */
+
     const loadItems = async (categoryId) => {
 
         if (!categoryId) {
@@ -193,20 +189,100 @@ const DebtForm = ({
 
     /*
      * ============================
+     * EDIT MODE
+     * ============================
+     */
+
+    useEffect(() => {
+
+        if (
+            !initialValues ||
+            Object.keys(initialValues).length === 0
+        ) {
+
+            return;
+
+        }
+
+        const categoryId =
+            initialValues.category?._id ||
+            initialValues.category ||
+            "";
+
+        const amount =
+            initialValues.amount ?? "";
+
+        const pendingAmount =
+            initialValues.pendingAmount ??
+            amount;
+
+        setForm({
+
+            title:
+                initialValues.title ||
+                "",
+
+            amount,
+
+            pendingAmount,
+
+            category:
+                categoryId,
+
+            paymentMode:
+                initialValues.paymentMode ||
+                "Cash",
+
+            bank:
+                initialValues.bank ||
+                "Cash",
+
+            date:
+                initialValues.date
+                    ? initialValues.date.substring(0, 10)
+                    : new Date()
+                        .toISOString()
+                        .split("T")[0],
+
+            note:
+                initialValues.note ||
+                ""
+
+        });
+
+
+        if (categoryId) {
+
+            loadItems(categoryId);
+
+        } else {
+
+            setItems([]);
+
+        }
+
+    }, [initialValues]);
+
+
+    /*
+     * ============================
      * CATEGORY CHANGE
      * ============================
      */
+
     const handleCategoryChange = async (e) => {
 
-        const categoryId = e.target.value;
+        const categoryId =
+            e.target.value;
 
-        /*
-         * Clear old item when category changes
-         */
         setForm(prev => ({
+
             ...prev,
+
             category: categoryId,
+
             title: ""
+
         }));
 
         setItems([]);
@@ -225,17 +301,27 @@ const DebtForm = ({
      * ITEM CHANGE
      * ============================
      */
+
     const handleItemChange = (e) => {
 
-        const itemId = e.target.value;
+        const itemId =
+            e.target.value;
 
-        const selectedItem = items.find(
-            item => item._id === itemId
-        );
+        const selectedItem =
+            items.find(
+                item =>
+                    String(item._id) ===
+                    String(itemId)
+            );
 
         setForm(prev => ({
+
             ...prev,
-            title: selectedItem?.name || ""
+
+            title:
+                selectedItem?.name ||
+                ""
+
         }));
 
     };
@@ -246,6 +332,7 @@ const DebtForm = ({
      * NORMAL INPUT CHANGE
      * ============================
      */
+
     const handleChange = (e) => {
 
         const {
@@ -254,8 +341,11 @@ const DebtForm = ({
         } = e.target;
 
         setForm(prev => ({
+
             ...prev,
+
             [name]: value
+
         }));
 
     };
@@ -266,6 +356,7 @@ const DebtForm = ({
      * SUBMIT
      * ============================
      */
+
     const handleSubmit = (e) => {
 
         e.preventDefault();
@@ -273,7 +364,9 @@ const DebtForm = ({
 
         if (!form.category) {
 
-            alert("Please select category");
+            alert(
+                "Please select category"
+            );
 
             return;
 
@@ -282,14 +375,19 @@ const DebtForm = ({
 
         if (!form.title.trim()) {
 
-            alert("Please select item");
+            alert(
+                "Please select item"
+            );
 
             return;
 
         }
 
 
-        if (Number(form.amount) <= 0) {
+        if (
+            !form.amount ||
+            Number(form.amount) <= 0
+        ) {
 
             alert(
                 "Amount should be greater than zero"
@@ -300,9 +398,44 @@ const DebtForm = ({
         }
 
 
+        if (
+            form.pendingAmount === "" ||
+            Number(form.pendingAmount) < 0
+        ) {
+
+            alert(
+                "Please enter valid pending amount"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            Number(form.pendingAmount) >
+            Number(form.amount)
+        ) {
+
+            alert(
+                "Pending amount cannot be greater than total amount"
+            );
+
+            return;
+
+        }
+
+
         onSubmit({
+
             ...form,
-            amount: Number(form.amount)
+
+            amount:
+                Number(form.amount),
+
+            pendingAmount:
+                Number(form.pendingAmount)
+
         });
 
     };
@@ -312,15 +445,13 @@ const DebtForm = ({
      * ============================
      * SELECTED ITEM
      * ============================
-     *
-     * Finds item using title because
-     * backend currently stores item name
-     * in title.
      */
+
     const selectedItemId =
         items.find(
             item =>
-                item.name === form.title
+                item.name ===
+                form.title
         )?._id || "";
 
 
@@ -371,7 +502,9 @@ const DebtForm = ({
                             className="form-select"
                             name="category"
                             value={form.category}
-                            onChange={handleCategoryChange}
+                            onChange={
+                                handleCategoryChange
+                            }
                             required
                         >
 
@@ -380,16 +513,26 @@ const DebtForm = ({
                             </option>
 
 
-                            {categories.map(category => (
+                            {categories.map(
+                                category => (
 
-                                <option
-                                    key={category._id}
-                                    value={category._id}
-                                >
-                                    {category.name}
-                                </option>
+                                    <option
+                                        key={
+                                            category._id
+                                        }
+                                        value={
+                                            category._id
+                                        }
+                                    >
 
-                            ))}
+                                        {
+                                            category.name
+                                        }
+
+                                    </option>
+
+                                )
+                            )}
 
                         </select>
 
@@ -407,8 +550,12 @@ const DebtForm = ({
 
                         <select
                             className="form-select"
-                            value={selectedItemId}
-                            onChange={handleItemChange}
+                            value={
+                                selectedItemId
+                            }
+                            onChange={
+                                handleItemChange
+                            }
                             disabled={
                                 !form.category ||
                                 itemsLoading
@@ -433,10 +580,18 @@ const DebtForm = ({
                             {items.map(item => (
 
                                 <option
-                                    key={item._id}
-                                    value={item._id}
+                                    key={
+                                        item._id
+                                    }
+                                    value={
+                                        item._id
+                                    }
                                 >
-                                    {item.name}
+
+                                    {
+                                        item.name
+                                    }
+
                                 </option>
 
                             ))}
@@ -446,12 +601,12 @@ const DebtForm = ({
                     </div>
 
 
-                    {/* ================= AMOUNT ================= */}
+                    {/* ================= TOTAL AMOUNT ================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
-                            Amount
+                            Total Amount
                         </label>
 
 
@@ -459,12 +614,72 @@ const DebtForm = ({
                             type="number"
                             className="form-control"
                             name="amount"
-                            value={form.amount}
-                            onChange={handleChange}
+                            value={
+                                form.amount
+                            }
+                            onChange={
+                                handleChange
+                            }
                             min="0"
                             step="0.01"
                             required
                         />
+
+                    </div>
+
+
+                    {/* ================= PENDING AMOUNT ================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
+                            Pending Amount
+                        </label>
+
+
+                        <input
+                            type="number"
+                            className="form-control"
+                            name="pendingAmount"
+                            value={
+                                form.pendingAmount
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            min="0"
+                            step="0.01"
+                            max={
+                                form.amount ||
+                                undefined
+                            }
+                            required
+                        />
+
+
+                        {form.amount !== "" && (
+                            <small className="text-muted">
+
+                                Recovered Amount: ₹{" "}
+
+                                {Math.max(
+                                    0,
+                                    Number(
+                                        form.amount || 0
+                                    ) -
+                                    Number(
+                                        form.pendingAmount || 0
+                                    )
+                                ).toLocaleString(
+                                    "en-IN",
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                )}
+
+                            </small>
+                        )}
 
                     </div>
 
@@ -481,33 +696,70 @@ const DebtForm = ({
                         <select
                             className="form-select"
                             name="paymentMode"
-                            value={form.paymentMode}
-                            onChange={handleChange}
+                            value={
+                                form.paymentMode
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            required
                         >
 
-                            <option value="Cash">
-                                Cash
-                            </option>
+                            {paymentModes.map(
+                                mode => (
 
-                            <option value="UPI">
-                                UPI
-                            </option>
+                                    <option
+                                        key={mode}
+                                        value={mode}
+                                    >
 
-                            <option value="Card">
-                                Card
-                            </option>
+                                        {mode}
 
-                            <option value="Bank Transfer">
-                                Bank Transfer
-                            </option>
+                                    </option>
 
-                            <option value="Cheque">
-                                Cheque
-                            </option>
+                                )
+                            )}
 
-                            <option value="Other">
-                                Other
-                            </option>
+                        </select>
+
+                    </div>
+
+
+                    {/* ================= BANK ================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
+                            Bank
+                        </label>
+
+
+                        <select
+                            className="form-select"
+                            name="bank"
+                            value={
+                                form.bank
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            required
+                        >
+
+                            {banks.map(
+                                bank => (
+
+                                    <option
+                                        key={bank}
+                                        value={bank}
+                                    >
+
+                                        {bank}
+
+                                    </option>
+
+                                )
+                            )}
 
                         </select>
 
@@ -527,8 +779,12 @@ const DebtForm = ({
                             type="date"
                             className="form-control"
                             name="date"
-                            value={form.date}
-                            onChange={handleChange}
+                            value={
+                                form.date
+                            }
+                            onChange={
+                                handleChange
+                            }
                             required
                         />
 
@@ -548,8 +804,13 @@ const DebtForm = ({
                             rows="3"
                             className="form-control"
                             name="note"
-                            value={form.note}
-                            onChange={handleChange}
+                            value={
+                                form.note
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            placeholder="Enter note"
                         />
 
                     </div>

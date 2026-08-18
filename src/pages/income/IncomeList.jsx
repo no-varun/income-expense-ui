@@ -1,4 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useState
+} from "react";
+
 import { Link } from "react-router-dom";
 
 import {
@@ -15,7 +20,14 @@ import {
     getPaymentModeBadgeClass
 } from "../../utils/badgeStyles";
 
+
 const IncomeList = () => {
+
+    /*
+     * =====================================================
+     * DATA STATES
+     * =====================================================
+     */
 
     const [loading, setLoading] = useState(true);
 
@@ -23,47 +35,103 @@ const IncomeList = () => {
 
     const [categories, setCategories] = useState([]);
 
+    const [totalAmount, setTotalAmount] = useState(0);
+
+
+    /*
+     * =====================================================
+     * PAGINATION
+     * =====================================================
+     */
+
     const [page, setPage] = useState(1);
 
     const [limit, setLimit] = useState(10);
 
     const [total, setTotal] = useState(0);
 
+
     /*
-     * =========================
-     * DATE FILTERS
-     * =========================
+     * =====================================================
+     * SEARCH
+     * =====================================================
      */
 
-    const [fromDateInput, setFromDateInput] = useState("");
-    const [toDateInput, setToDateInput] = useState("");
+    const [searchInput, setSearchInput] = useState("");
 
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
+    const [search, setSearch] = useState("");
+
 
     /*
-     * =========================
-     * CATEGORY FILTER
-     * =========================
+     * =====================================================
+     * CATEGORY
+     * =====================================================
      */
 
     const [categoryInput, setCategoryInput] = useState("");
+
     const [category, setCategory] = useState("");
 
+
     /*
-     * =========================
+     * =====================================================
+     * PAYMENT MODE
+     * =====================================================
+     */
+
+    const [paymentModeInput, setPaymentModeInput] =
+        useState("");
+
+    const [paymentMode, setPaymentMode] =
+        useState("");
+
+
+    /*
+     * =====================================================
+     * BANK
+     * =====================================================
+     */
+
+    const [bankInput, setBankInput] = useState("");
+
+    const [bank, setBank] = useState("");
+
+
+    /*
+     * =====================================================
+     * DATE FILTERS
+     * =====================================================
+     */
+
+    const [fromDateInput, setFromDateInput] =
+        useState("");
+
+    const [toDateInput, setToDateInput] =
+        useState("");
+
+    const [fromDate, setFromDate] =
+        useState("");
+
+    const [toDate, setToDate] =
+        useState("");
+
+
+    /*
+     * =====================================================
      * LOAD CATEGORIES
-     * =========================
+     * =====================================================
      */
 
     const loadCategories = useCallback(async () => {
 
         try {
 
-            const response = await getCategories({
-                limit: 100,
-                type: "INCOME"
-            });
+            const response =
+                await getCategories({
+                    limit: 100,
+                    type: "INCOME"
+                });
+
 
             if (response.success) {
 
@@ -73,29 +141,37 @@ const IncomeList = () => {
                     response.data ||
                     [];
 
+
                 setCategories(
                     Array.isArray(rows)
                         ? rows
                         : []
                 );
 
+            } else {
+
+                setCategories([]);
+
             }
 
         } catch (error) {
 
-            console.log(
+            console.error(
                 "Category load error:",
                 error
             );
+
+            setCategories([]);
 
         }
 
     }, []);
 
+
     /*
-     * =========================
+     * =====================================================
      * LOAD INCOME
-     * =========================
+     * =====================================================
      */
 
     const loadIncome = useCallback(async () => {
@@ -104,19 +180,28 @@ const IncomeList = () => {
 
             setLoading(true);
 
-            const response = await getIncomes({
 
-                page,
+            const response =
+                await getIncomes({
 
-                limit,
+                    page,
 
-                from: fromDate,
+                    limit,
 
-                to: toDate,
+                    search,
 
-                category
+                    category,
 
-            });
+                    paymentMode,
+
+                    bank,
+
+                    from: fromDate,
+
+                    to: toDate
+
+                });
+
 
             if (response.success) {
 
@@ -126,16 +211,61 @@ const IncomeList = () => {
                     response.data ||
                     [];
 
-                setIncomes(
+
+                const incomeRows =
                     Array.isArray(rows)
                         ? rows
-                        : []
+                        : [];
+
+
+                setIncomes(
+                    incomeRows
                 );
+
 
                 setTotal(
                     response.data?.total ??
-                    rows.length
+                    incomeRows.length
                 );
+
+
+                /*
+                 * Backend totalAmount support.
+                 *
+                 * If backend returns totalAmount,
+                 * show it.
+                 *
+                 * Otherwise calculate from
+                 * current response.
+                 */
+
+                if (
+                    response.data?.totalAmount !==
+                    undefined
+                ) {
+
+                    setTotalAmount(
+                        response.data.totalAmount || 0
+                    );
+
+                } else {
+
+                    const amount =
+                        incomeRows.reduce(
+                            (sum, item) =>
+                                sum +
+                                Number(
+                                    item.amount || 0
+                                ),
+                            0
+                        );
+
+
+                    setTotalAmount(
+                        amount
+                    );
+
+                }
 
             } else {
 
@@ -143,18 +273,29 @@ const IncomeList = () => {
 
                 setTotal(0);
 
+                setTotalAmount(0);
+
             }
 
         } catch (error) {
 
-            console.log(
+            console.error(
                 "Income load error:",
                 error
             );
 
+
             setIncomes([]);
 
             setTotal(0);
+
+            setTotalAmount(0);
+
+
+            console.error(
+                error.response?.data?.message ||
+                "Unable to fetch income."
+            );
 
         } finally {
 
@@ -163,41 +304,60 @@ const IncomeList = () => {
         }
 
     }, [
-        fromDate,
-        toDate,
-        category,
+
+        page,
+
         limit,
-        page
+
+        search,
+
+        category,
+
+        paymentMode,
+
+        bank,
+
+        fromDate,
+
+        toDate
+
     ]);
 
+
     /*
-     * =========================
+     * =====================================================
      * INITIAL LOAD
-     * =========================
+     * =====================================================
      */
 
     useEffect(() => {
 
         loadCategories();
 
-    }, [loadCategories]);
+    }, [
+        loadCategories
+    ]);
+
 
     /*
-     * =========================
+     * =====================================================
      * LOAD INCOME DATA
-     * =========================
+     * =====================================================
      */
 
     useEffect(() => {
 
         loadIncome();
 
-    }, [loadIncome]);
+    }, [
+        loadIncome
+    ]);
+
 
     /*
-     * =========================
+     * =====================================================
      * DELETE INCOME
-     * =========================
+     * =====================================================
      */
 
     const handleDelete = async (id) => {
@@ -212,18 +372,24 @@ const IncomeList = () => {
 
         }
 
+
         try {
 
             const response =
                 await deleteIncome(id);
 
+
             if (response.success) {
 
-                alert(response.message);
+                alert(
+                    response.message
+                );
+
 
                 /*
-                 * If last record on current page,
-                 * move to previous page.
+                 * If current page has only
+                 * one record, move to
+                 * previous page.
                  */
 
                 if (
@@ -254,60 +420,94 @@ const IncomeList = () => {
 
     };
 
+
     /*
-     * =========================
+     * =====================================================
      * APPLY FILTER
-     * =========================
+     * =====================================================
      */
 
     const handleFilter = (event) => {
 
         event.preventDefault();
 
-        setFromDate(
-            fromDateInput
+
+        setSearch(
+            searchInput.trim()
         );
 
-        setToDate(
-            toDateInput
-        );
 
         setCategory(
             categoryInput
         );
 
+
+        setPaymentMode(
+            paymentModeInput
+        );
+
+
+        setBank(
+            bankInput
+        );
+
+
+        setFromDate(
+            fromDateInput
+        );
+
+
+        setToDate(
+            toDateInput
+        );
+
+
         setPage(1);
 
     };
 
+
     /*
-     * =========================
+     * =====================================================
      * CLEAR FILTER
-     * =========================
+     * =====================================================
      */
 
     const handleClearFilter = () => {
+
+        setSearchInput("");
+
+        setSearch("");
+
+        setCategoryInput("");
+
+        setCategory("");
+
+        setPaymentModeInput("");
+
+        setPaymentMode("");
+
+        setBankInput("");
+
+        setBank("");
 
         setFromDateInput("");
 
         setToDateInput("");
 
-        setCategoryInput("");
-
         setFromDate("");
 
         setToDate("");
-
-        setCategory("");
 
         setPage(1);
 
     };
 
+
     /*
-     * =========================
+     * =====================================================
      * PAGINATION
-     * =========================
+     * =====================================================
      */
 
     const totalPages =
@@ -315,10 +515,12 @@ const IncomeList = () => {
             total / limit
         ) || 1;
 
+
     const startRecord =
         total === 0
             ? 0
             : ((page - 1) * limit) + 1;
+
 
     const endRecord =
         Math.min(
@@ -326,25 +528,48 @@ const IncomeList = () => {
             total
         );
 
+
     /*
-     * =========================
+     * =====================================================
      * RENDER
-     * =========================
+     * =====================================================
      */
 
     return (
 
         <div className="container-fluid">
 
-            {/* =========================
+
+            {/* =================================================
                 HEADER
-            ========================= */}
+            ================================================= */}
 
-            <div className="d-flex justify-content-between align-items-center mb-3">
+            <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 
-                <h3 className="mb-0">
-                    Income List
-                </h3>
+                <div className="d-flex align-items-center gap-4">
+
+                    <h3 className="mb-0">
+                        Income List
+                    </h3>
+
+
+                    <h5 className="mb-0 text-success">
+
+                        Total Income: ₹{" "}
+
+                        {Number(
+                            totalAmount || 0
+                        ).toLocaleString(
+                            "en-IN",
+                            {
+                                maximumFractionDigits: 2
+                            }
+                        )}
+
+                    </h5>
+
+                </div>
+
 
                 <Link
                     to="/income/add"
@@ -355,76 +580,73 @@ const IncomeList = () => {
 
             </div>
 
-            <div className="card">
+
+            {/* =================================================
+                FILTER CARD
+            ================================================= */}
+
+            <div className="card mb-3">
 
                 <div className="card-body">
 
-                    {/* =========================
-                        FILTER
-                    ========================= */}
-
                     <form
-                        className="row g-2 align-items-end mb-3"
-                        onSubmit={handleFilter}
+                        className="row g-2 align-items-end"
+                        onSubmit={
+                            handleFilter
+                        }
                     >
 
-                        {/* FROM */}
 
-                        <div className="col-12 col-md-2">
+                        {/* =================================================
+                            SEARCH
+                        ================================================= */}
+
+                        <div className="col-12 col-lg-2">
 
                             <label className="form-label">
-                                From
+                                Search
                             </label>
 
+
                             <input
-                                type="date"
+                                type="search"
                                 className="form-control"
-                                value={fromDateInput}
-                                onChange={(event) =>
-                                    setFromDateInput(
-                                        event.target.value
-                                    )
+                                value={
+                                    searchInput
                                 }
+                                onChange={
+                                    event =>
+                                        setSearchInput(
+                                            event.target.value
+                                        )
+                                }
+                                placeholder="Search title"
                             />
 
                         </div>
 
-                        {/* TO */}
 
-                        <div className="col-12 col-md-2">
+                        {/* =================================================
+                            CATEGORY
+                        ================================================= */}
 
-                            <label className="form-label">
-                                To
-                            </label>
-
-                            <input
-                                type="date"
-                                className="form-control"
-                                value={toDateInput}
-                                onChange={(event) =>
-                                    setToDateInput(
-                                        event.target.value
-                                    )
-                                }
-                            />
-
-                        </div>
-
-                        {/* CATEGORY */}
-
-                        <div className="col-12 col-md-2">
+                        <div className="col-12 col-lg-2">
 
                             <label className="form-label">
                                 Category
                             </label>
 
+
                             <select
                                 className="form-select"
-                                value={categoryInput}
-                                onChange={(event) =>
-                                    setCategoryInput(
-                                        event.target.value
-                                    )
+                                value={
+                                    categoryInput
+                                }
+                                onChange={
+                                    event =>
+                                        setCategoryInput(
+                                            event.target.value
+                                        )
                                 }
                             >
 
@@ -432,14 +654,21 @@ const IncomeList = () => {
                                     All Categories
                                 </option>
 
+
                                 {categories.map(
-                                    (item) => (
+                                    item => (
 
                                         <option
-                                            key={item._id}
-                                            value={item._id}
+                                            key={
+                                                item._id
+                                            }
+                                            value={
+                                                item._id
+                                            }
                                         >
-                                            {item.name}
+                                            {
+                                                item.name
+                                            }
                                         </option>
 
                                     )
@@ -449,49 +678,257 @@ const IncomeList = () => {
 
                         </div>
 
-                        {/* PER PAGE */}
 
-                        <div className="col-12 col-md-2">
+                        {/* =================================================
+                            PAYMENT MODE
+                        ================================================= */}
+
+                        <div className="col-12 col-lg-2">
 
                             <label className="form-label">
-                                Per page
+                                Payment Mode
                             </label>
+
 
                             <select
                                 className="form-select"
-                                value={limit}
-                                onChange={(event) => {
-
-                                    setLimit(
-                                        Number(
+                                value={
+                                    paymentModeInput
+                                }
+                                onChange={
+                                    event =>
+                                        setPaymentModeInput(
                                             event.target.value
                                         )
-                                    );
-
-                                    setPage(1);
-
-                                }}
+                                }
                             >
 
-                                <option value="10">
-                                    10
+                                <option value="">
+                                    All Payment Modes
                                 </option>
 
-                                <option value="25">
-                                    25
+
+                                <option value="Cash">
+                                    Cash
                                 </option>
 
-                                <option value="50">
-                                    50
+
+                                <option value="Paytm">
+                                    Paytm
+                                </option>
+
+
+                                <option value="PhonePe">
+                                    PhonePe
+                                </option>
+
+
+                                <option value="GPay">
+                                    GPay
+                                </option>
+
+
+                                <option value="Bhim">
+                                    Bhim
+                                </option>
+
+
+                                <option value="Amazon Pay">
+                                    Amazon Pay
+                                </option>
+
+
+                                <option value="Other">
+                                    Other
                                 </option>
 
                             </select>
 
                         </div>
 
-                        {/* FILTER */}
 
-                        <div className="col-6 col-md-2">
+                        {/* =================================================
+                            BANK
+                        ================================================= */}
+
+                        <div className="col-12 col-lg-2">
+
+                            <label className="form-label">
+                                Bank
+                            </label>
+
+
+                            <select
+                                className="form-select"
+                                value={
+                                    bankInput
+                                }
+                                onChange={
+                                    event =>
+                                        setBankInput(
+                                            event.target.value
+                                        )
+                                }
+                            >
+
+                                <option value="">
+                                    All Banks
+                                </option>
+
+
+                                <option value="Pnb">
+                                    Pnb
+                                </option>
+
+
+                                <option value="Rbl">
+                                    Rbl
+                                </option>
+
+
+                                <option value="icici">
+                                    icici
+                                </option>
+
+
+                                <option value="Cash">
+                                    Cash
+                                </option>
+
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        {/* =================================================
+                            FROM DATE
+                        ================================================= */}
+
+                        <div className="col-6 col-lg-1">
+
+                            <label className="form-label">
+                                From
+                            </label>
+
+
+                            <input
+                                type="date"
+                                className="form-control"
+                                value={
+                                    fromDateInput
+                                }
+                                onChange={
+                                    event =>
+                                        setFromDateInput(
+                                            event.target.value
+                                        )
+                                }
+                            />
+
+                        </div>
+
+
+                        {/* =================================================
+                            TO DATE
+                        ================================================= */}
+
+                        <div className="col-6 col-lg-1">
+
+                            <label className="form-label">
+                                To
+                            </label>
+
+
+                            <input
+                                type="date"
+                                className="form-control"
+                                value={
+                                    toDateInput
+                                }
+                                onChange={
+                                    event =>
+                                        setToDateInput(
+                                            event.target.value
+                                        )
+                                }
+                            />
+
+                        </div>
+
+
+                        {/* =================================================
+                            PER PAGE
+                        ================================================= */}
+
+                        <div className="col-6 col-lg-1">
+
+                            <label className="form-label">
+                                Per page
+                            </label>
+
+
+                            <select
+                                className="form-select"
+                                value={limit}
+                                onChange={
+                                    event => {
+
+                                        setLimit(
+                                            Number(
+                                                event.target.value
+                                            )
+                                        );
+
+                                        setPage(1);
+
+                                    }
+                                }
+                            >
+
+                                <option value="10">
+                                    10
+                                </option>
+
+
+                                <option value="25">
+                                    25
+                                </option>
+
+
+                                <option value="50">
+                                    50
+                                </option>
+
+
+                                <option value="75">
+                                    75
+                                </option>
+
+
+                                <option value="100">
+                                    100
+                                </option>
+
+
+                                <option value="150">
+                                    150
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        {/* =================================================
+                            FILTER BUTTON
+                        ================================================= */}
+
+                        <div className="col-6 col-lg-1">
 
                             <button
                                 type="submit"
@@ -502,9 +939,12 @@ const IncomeList = () => {
 
                         </div>
 
-                        {/* CLEAR */}
 
-                        <div className="col-6 col-md-2">
+                        {/* =================================================
+                            CLEAR BUTTON
+                        ================================================= */}
+
+                        <div className="col-6 col-lg-1">
 
                             <button
                                 type="button"
@@ -513,12 +953,20 @@ const IncomeList = () => {
                                     handleClearFilter
                                 }
                                 disabled={
+
+                                    !searchInput &&
+                                    !search &&
+                                    !categoryInput &&
+                                    !category &&
+                                    !paymentModeInput &&
+                                    !paymentMode &&
+                                    !bankInput &&
+                                    !bank &&
                                     !fromDateInput &&
                                     !toDateInput &&
-                                    !categoryInput &&
                                     !fromDate &&
-                                    !toDate &&
-                                    !category
+                                    !toDate
+
                                 }
                             >
                                 Clear
@@ -528,256 +976,328 @@ const IncomeList = () => {
 
                     </form>
 
-                    {/* =========================
-                        TABLE
-                    ========================= */}
+                </div>
 
-                    <div className="table-responsive">
+            </div>
 
-                        <table className="table table-bordered">
 
-                            <thead>
+            {/* =================================================
+                INCOME TABLE
+            ================================================= */}
+
+            <div className="card">
+
+                <div className="card-body table-responsive">
+
+                    <table className="table table-bordered table-hover align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Title
+                                </th>
+
+                                <th>
+                                    Amount
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Payment
+                                </th>
+
+                                <th>
+                                    Bank
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th
+                                    width="170"
+                                >
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {loading ? (
 
                                 <tr>
 
-                                    <th>
-                                        #
-                                    </th>
-
-                                    <th>
-                                        Title
-                                    </th>
-
-                                    <th>
-                                        Amount
-                                    </th>
-
-                                    <th>
-                                        Category
-                                    </th>
-
-                                    <th>
-                                        Payment
-                                    </th>
-
-                                    <th>
-                                        Date
-                                    </th>
-
-                                    <th
-                                        style={{
-                                            minWidth: "170px"
-                                        }}
+                                    <td
+                                        colSpan="8"
+                                        className="text-center"
                                     >
-                                        Action
-                                    </th>
+
+                                        <div
+                                            className="spinner-border spinner-border-sm me-2"
+                                            role="status"
+                                        />
+
+                                        Loading...
+
+                                    </td>
 
                                 </tr>
 
-                            </thead>
+                            ) : incomes.length === 0 ? (
 
-                            <tbody>
+                                <tr>
 
-                                {loading ? (
+                                    <td
+                                        colSpan="8"
+                                        className="text-center text-muted py-4"
+                                    >
+                                        No Record Found
+                                    </td>
 
-                                    <tr>
+                                </tr>
 
-                                        <td
-                                            colSpan="7"
-                                            className="text-center"
+                            ) : (
+
+                                incomes.map(
+                                    (
+                                        item,
+                                        index
+                                    ) => (
+
+                                        <tr
+                                            key={
+                                                item._id
+                                            }
                                         >
-                                            Loading...
-                                        </td>
 
-                                    </tr>
 
-                                ) : incomes.length === 0 ? (
+                                            {/* =================================================
+                                                #
+                                            ================================================= */}
 
-                                    <tr>
+                                            <td>
 
-                                        <td
-                                            colSpan="7"
-                                            className="text-center"
-                                        >
-                                            No Record Found
-                                        </td>
-
-                                    </tr>
-
-                                ) : (
-
-                                    incomes.map(
-                                        (item, index) => (
-
-                                            <tr
-                                                key={
-                                                    item._id
+                                                {
+                                                    (
+                                                        (page - 1) *
+                                                        limit
+                                                    ) +
+                                                    index +
+                                                    1
                                                 }
-                                            >
 
-                                                {/* NUMBER */}
+                                            </td>
 
-                                                <td>
 
-                                                    {
-                                                        ((page - 1) * limit) +
-                                                        index +
-                                                        1
-                                                    }
+                                            {/* =================================================
+                                                TITLE
+                                            ================================================= */}
 
-                                                </td>
+                                            <td>
 
-                                                {/* TITLE */}
+                                                {
+                                                    item.title ||
+                                                    "-"
+                                                }
 
-                                                <td>
+                                            </td>
 
-                                                    {
-                                                        item.title
-                                                    }
 
-                                                </td>
+                                            {/* =================================================
+                                                AMOUNT
+                                            ================================================= */}
 
-                                                {/* AMOUNT */}
+                                            <td>
 
-                                                <td>
+                                                ₹{" "}
 
-                                                    ₹{" "}
+                                                {
+                                                    Number(
+                                                        item.amount ||
+                                                        0
+                                                    ).toLocaleString(
+                                                        "en-IN",
+                                                        {
+                                                            maximumFractionDigits:
+                                                                2
+                                                        }
+                                                    )
+                                                }
 
-                                                    {
-                                                        Number(
-                                                            item.amount || 0
-                                                        ).toLocaleString(
-                                                            "en-IN"
+                                            </td>
+
+
+                                            {/* =================================================
+                                                CATEGORY
+                                            ================================================= */}
+
+                                            <td>
+
+                                                <span
+                                                    className="badge"
+                                                    style={
+                                                        getCategoryBadgeStyle(
+                                                            item.category
                                                         )
                                                     }
-
-                                                </td>
-
-                                                {/* CATEGORY */}
-
-                                                <td>
-
-                                                    <span
-                                                        className="badge"
-                                                        style={
-                                                            getCategoryBadgeStyle(
-                                                                item.category
-                                                            )
-                                                        }
-                                                    >
-
-                                                        {
-                                                            item.category?.name ||
-                                                            "-"
-                                                        }
-
-                                                    </span>
-
-                                                </td>
-
-                                                {/* PAYMENT */}
-
-                                                <td>
-
-                                                    <span
-                                                        className={
-                                                            getPaymentModeBadgeClass(
-                                                                item.paymentMode
-                                                            )
-                                                        }
-                                                    >
-
-                                                        {
-                                                            item.paymentMode ||
-                                                            "-"
-                                                        }
-
-                                                    </span>
-
-                                                </td>
-
-                                                {/* DATE */}
-
-                                                <td>
+                                                >
 
                                                     {
-                                                        item.date
-                                                            ? new Date(
-                                                                item.date
-                                                            ).toLocaleDateString(
-                                                                "en-IN"
-                                                            )
-                                                            : "-"
+                                                        item.category?.name ||
+                                                        item.categoryName ||
+                                                        "-"
                                                     }
 
-                                                </td>
+                                                </span>
 
-                                                {/* ACTION */}
+                                            </td>
 
-                                                <td>
 
-                                                    <Link
-                                                        className="btn btn-warning btn-sm me-2"
-                                                        to={
-                                                            `/income/edit/${item._id}`
-                                                        }
-                                                    >
-                                                        Edit
-                                                    </Link>
+                                            {/* =================================================
+                                                PAYMENT
+                                            ================================================= */}
 
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-danger btn-sm"
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                item._id
-                                                            )
-                                                        }
-                                                    >
-                                                        Delete
-                                                    </button>
+                                            <td>
 
-                                                </td>
+                                                <span
+                                                    className={
+                                                        getPaymentModeBadgeClass(
+                                                            item.paymentMode
+                                                        )
+                                                    }
+                                                >
 
-                                            </tr>
+                                                    {
+                                                        item.paymentMode ||
+                                                        "-"
+                                                    }
 
-                                        )
+                                                </span>
+
+                                            </td>
+
+
+                                            {/* =================================================
+                                                BANK
+                                            ================================================= */}
+
+                                            <td>
+
+                                                {
+                                                    item.bank ||
+                                                    "-"
+                                                }
+
+                                            </td>
+
+
+                                            {/* =================================================
+                                                DATE
+                                            ================================================= */}
+
+                                            <td>
+
+                                                {
+                                                    item.date
+                                                        ? new Date(
+                                                            item.date
+                                                        ).toLocaleDateString(
+                                                            "en-IN"
+                                                        )
+                                                        : "-"
+                                                }
+
+                                            </td>
+
+
+                                            {/* =================================================
+                                                ACTION
+                                            ================================================= */}
+
+                                            <td>
+
+                                                <Link
+                                                    className="btn btn-warning btn-sm me-2"
+                                                    to={
+                                                        `/income/edit/${item._id}`
+                                                    }
+                                                >
+                                                    Edit
+                                                </Link>
+
+
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-danger btn-sm"
+                                                    onClick={() =>
+                                                        handleDelete(
+                                                            item._id
+                                                        )
+                                                    }
+                                                >
+                                                    Delete
+                                                </button>
+
+                                            </td>
+
+                                        </tr>
+
                                     )
+                                )
 
-                                )}
+                            )}
 
-                            </tbody>
+                        </tbody>
 
-                        </table>
-
-                    </div>
+                    </table>
 
                 </div>
 
-                {/* =========================
+
+                {/* =================================================
                     FOOTER
-                ========================= */}
+                ================================================= */}
 
                 <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
 
                     <small className="text-muted">
 
                         Showing{" "}
+
                         {startRecord}
+
                         {" "}to{" "}
+
                         {endRecord}
+
                         {" "}of{" "}
+
                         {total}
+
                         {" "}records
 
                     </small>
+
 
                     <Pagination
                         page={page}
                         limit={limit}
                         total={total}
                         onPageChange={
-                            (nextPage) => {
+                            nextPage => {
 
                                 if (
                                     nextPage >= 1 &&
@@ -803,5 +1323,6 @@ const IncomeList = () => {
     );
 
 };
+
 
 export default IncomeList;

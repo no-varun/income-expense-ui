@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getCategories } from "../../api/categoryApi";
 import { getItems } from "../../api/itemApi";
+import { getShops } from "../../api/shopApi";
 
 const IncomeForm = ({
     initialValues = {},
@@ -14,23 +15,29 @@ const IncomeForm = ({
 
     const [categories, setCategories] = useState([]);
     const [items, setItems] = useState([]);
+    const [shops, setShops] = useState([]);
+
     const [itemsLoading, setItemsLoading] = useState(false);
+    const [shopsLoading, setShopsLoading] = useState(false);
 
     const [form, setForm] = useState({
         title: "",
         itemId: "",
         amount: "",
         category: "",
+        shopType: "",
+        shop: "",
         paymentMode: "Cash",
+        bank: "icici",
         date: new Date().toISOString().split("T")[0],
         note: ""
     });
 
 
     /*
-     * =========================
+     * =====================================================
      * LOAD CATEGORIES
-     * =========================
+     * =====================================================
      */
 
     useEffect(() => {
@@ -48,6 +55,7 @@ const IncomeForm = ({
 
                     const rows =
                         response.data?.rows ||
+                        response.data?.data?.rows ||
                         response.data?.data ||
                         response.data ||
                         [];
@@ -58,6 +66,10 @@ const IncomeForm = ({
                             : []
                     );
 
+                } else {
+
+                    setCategories([]);
+
                 }
 
             } catch (error) {
@@ -66,6 +78,8 @@ const IncomeForm = ({
                     "Category fetch error:",
                     error
                 );
+
+                setCategories([]);
 
             }
 
@@ -77,9 +91,71 @@ const IncomeForm = ({
 
 
     /*
-     * =========================
+     * =====================================================
+     * LOAD SHOPS
+     * =====================================================
+     */
+
+    useEffect(() => {
+
+        const loadShops = async () => {
+
+            try {
+
+                setShopsLoading(true);
+
+                const response = await getShops({
+                    limit: 100,
+                    status: true
+                });
+
+                if (response.success) {
+
+                    const rows =
+                        response.data?.rows ||
+                        response.data?.data?.rows ||
+                        response.data?.data ||
+                        response.data ||
+                        [];
+
+                    setShops(
+                        Array.isArray(rows)
+                            ? rows
+                            : []
+                    );
+
+                } else {
+
+                    setShops([]);
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Shop fetch error:",
+                    error
+                );
+
+                setShops([]);
+
+            } finally {
+
+                setShopsLoading(false);
+
+            }
+
+        };
+
+        loadShops();
+
+    }, []);
+
+
+    /*
+     * =====================================================
      * LOAD ITEMS BY CATEGORY
-     * =========================
+     * =====================================================
      */
 
     const loadItems = async (categoryId) => {
@@ -95,14 +171,21 @@ const IncomeForm = ({
             }
 
             setItemsLoading(true);
+
             setItems([]);
 
             const response = await getItems({
+
                 limit: 1000,
+
                 category: categoryId,
+
                 type: "INCOME",
+
                 status: true
+
             });
+
 
             if (response.success) {
 
@@ -123,6 +206,8 @@ const IncomeForm = ({
                 return itemRows;
 
             }
+
+            setItems([]);
 
             return [];
 
@@ -147,9 +232,9 @@ const IncomeForm = ({
 
 
     /*
-     * =========================
+     * =====================================================
      * EDIT MODE
-     * =========================
+     * =====================================================
      */
 
     useEffect(() => {
@@ -163,22 +248,41 @@ const IncomeForm = ({
 
         }
 
+
         const categoryId =
             initialValues.category?._id ||
             initialValues.category ||
             "";
 
+
+        const shopId =
+            initialValues.shop?._id ||
+            initialValues.shop ||
+            "";
+
+
+        const shopType =
+            initialValues.shopType ||
+            initialValues.shop?.type ||
+            "";
+
+
         const title =
-            initialValues.title || "";
+            initialValues.title ||
+            "";
+
+
+        const itemId =
+            initialValues.item?._id ||
+            initialValues.itemId ||
+            "";
+
 
         setForm({
 
             title,
 
-            itemId:
-                initialValues.item?._id ||
-                initialValues.itemId ||
-                "",
+            itemId,
 
             amount:
                 initialValues.amount ?? "",
@@ -186,9 +290,19 @@ const IncomeForm = ({
             category:
                 categoryId,
 
+            shopType:
+                shopType,
+
+            shop:
+                shopId,
+
             paymentMode:
                 initialValues.paymentMode ||
                 "Cash",
+
+            bank:
+                initialValues.bank ||
+                "icici",
 
             date:
                 initialValues.date
@@ -205,7 +319,7 @@ const IncomeForm = ({
 
 
         /*
-         * Load items for existing category.
+         * Load items for existing category
          */
 
         if (categoryId) {
@@ -222,9 +336,9 @@ const IncomeForm = ({
 
 
     /*
-     * =========================
-     * HANDLE NORMAL INPUT
-     * =========================
+     * =====================================================
+     * HANDLE NORMAL CHANGE
+     * =====================================================
      */
 
     const handleChange = (e) => {
@@ -233,6 +347,32 @@ const IncomeForm = ({
             name,
             value
         } = e.target;
+
+
+        /*
+         * SHOP TYPE CHANGE
+         */
+
+        if (name === "shopType") {
+
+            setForm(prev => ({
+
+                ...prev,
+
+                shopType: value,
+
+                shop: ""
+
+            }));
+
+            return;
+
+        }
+
+
+        /*
+         * NORMAL FIELD
+         */
 
         setForm(prev => ({
 
@@ -246,15 +386,16 @@ const IncomeForm = ({
 
 
     /*
-     * =========================
+     * =====================================================
      * CATEGORY CHANGE
-     * =========================
+     * =====================================================
      */
 
     const handleCategoryChange = async (e) => {
 
         const categoryId =
             e.target.value;
+
 
         setForm(prev => ({
 
@@ -268,7 +409,9 @@ const IncomeForm = ({
 
         }));
 
+
         setItems([]);
+
 
         if (categoryId) {
 
@@ -280,15 +423,16 @@ const IncomeForm = ({
 
 
     /*
-     * =========================
+     * =====================================================
      * ITEM CHANGE
-     * =========================
+     * =====================================================
      */
 
     const handleItemChange = (e) => {
 
         const itemId =
             e.target.value;
+
 
         const selectedItem =
             items.find(
@@ -297,6 +441,7 @@ const IncomeForm = ({
                     String(itemId)
             );
 
+
         setForm(prev => ({
 
             ...prev,
@@ -304,7 +449,8 @@ const IncomeForm = ({
             itemId,
 
             title:
-                selectedItem?.name || ""
+                selectedItem?.name ||
+                ""
 
         }));
 
@@ -312,9 +458,32 @@ const IncomeForm = ({
 
 
     /*
-     * =========================
+     * =====================================================
+     * FILTER SHOPS BY SHOP TYPE
+     * =====================================================
+     */
+
+    const filteredShops = shops.filter(shop => {
+
+        if (!form.shopType) {
+
+            return false;
+
+        }
+
+
+        return (
+            String(shop.type).toUpperCase() ===
+            String(form.shopType).toUpperCase()
+        );
+
+    });
+
+
+    /*
+     * =====================================================
      * SUBMIT
-     * =========================
+     * =====================================================
      */
 
     const handleSubmit = (e) => {
@@ -333,10 +502,35 @@ const IncomeForm = ({
         }
 
 
-        if (!form.itemId && !form.title.trim()) {
+        if (
+            !form.itemId &&
+            !form.title.trim()
+        ) {
 
             alert(
                 "Please select item"
+            );
+
+            return;
+
+        }
+
+
+        if (!form.shopType) {
+
+            alert(
+                "Please select Shop Type"
+            );
+
+            return;
+
+        }
+
+
+        if (!form.shop) {
+
+            alert(
+                "Please select Shop"
             );
 
             return;
@@ -371,19 +565,17 @@ const IncomeForm = ({
 
 
     /*
-     * =========================
-     * SELECTED ITEM ID
-     *
-     * Needed for edit mode when
-     * only title exists.
-     * =========================
+     * =====================================================
+     * SELECTED ITEM
+     * =====================================================
      */
 
     const selectedItemId =
         form.itemId ||
         items.find(
             item =>
-                item.name === form.title
+                item.name ===
+                form.title
         )?._id ||
         "";
 
@@ -393,16 +585,14 @@ const IncomeForm = ({
         <div className="card shadow">
 
 
-            {/* =========================
+            {/* =====================================================
                 HEADER
-            ========================= */}
+            ===================================================== */}
 
             <div className="card-header d-flex justify-content-between align-items-center">
 
                 <h5 className="mb-0">
-
                     Income Details
-
                 </h5>
 
 
@@ -413,9 +603,7 @@ const IncomeForm = ({
                         navigate("/income")
                     }
                 >
-
                     Back
-
                 </button>
 
             </div>
@@ -426,16 +614,129 @@ const IncomeForm = ({
                 <form onSubmit={handleSubmit}>
 
 
-                    {/* =========================
-                        CATEGORY
-                    ========================= */}
+                    {/* =================================================
+                        SHOP TYPE
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
+                            Shop Type
+                        </label>
 
+
+                        <select
+                            className="form-select"
+                            name="shopType"
+                            value={form.shopType}
+                            onChange={handleChange}
+                            required
+                        >
+
+                            <option value="">
+                                Select Shop Type
+                            </option>
+
+
+                            <option value="ONLINE">
+                                ONLINE
+                            </option>
+
+
+                            <option value="OFFLINE">
+                                OFFLINE
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {/* =================================================
+                        SHOP
+                    ================================================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
+                            Shop
+                        </label>
+
+
+                        <select
+                            className="form-select"
+                            name="shop"
+                            value={form.shop}
+                            onChange={handleChange}
+                            disabled={
+                                !form.shopType ||
+                                shopsLoading
+                            }
+                            required
+                        >
+
+                            <option value="">
+
+                                {shopsLoading
+
+                                    ? "Loading shops..."
+
+                                    : !form.shopType
+
+                                        ? "First select shop type"
+
+                                        : filteredShops.length === 0
+
+                                            ? "No shops found"
+
+                                            : "Select Shop"
+
+                                }
+
+                            </option>
+
+
+                            {filteredShops.map(shop => (
+
+                                <option
+                                    key={shop._id}
+                                    value={shop._id}
+                                >
+
+                                    {shop.name}
+
+                                </option>
+
+                            ))}
+
+                        </select>
+
+
+                        {form.shopType &&
+                            !shopsLoading &&
+                            filteredShops.length === 0 && (
+
+                                <small className="text-danger">
+
+                                    No{" "}
+                                    {form.shopType}
+                                    {" "}shops available
+
+                                </small>
+
+                            )}
+
+                    </div>
+
+
+                    {/* =================================================
+                        CATEGORY
+                    ================================================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
                             Category
-
                         </label>
 
 
@@ -450,9 +751,7 @@ const IncomeForm = ({
                         >
 
                             <option value="">
-
                                 Select Category
-
                             </option>
 
 
@@ -482,16 +781,14 @@ const IncomeForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         ITEM
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Item
-
                         </label>
 
 
@@ -547,16 +844,14 @@ const IncomeForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         AMOUNT
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Amount
-
                         </label>
 
 
@@ -574,46 +869,47 @@ const IncomeForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         PAYMENT MODE
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Payment Mode
-
                         </label>
 
 
                         <select
                             className="form-select"
                             name="paymentMode"
-                            value={
-                                form.paymentMode
-                            }
+                            value={form.paymentMode}
                             onChange={handleChange}
+                            required
                         >
 
                             <option value="Cash">
                                 Cash
                             </option>
 
-                            <option value="UPI">
-                                UPI
+                            <option value="Paytm">
+                                Paytm
                             </option>
 
-                            <option value="Card">
-                                Card
+                            <option value="PhonePe">
+                                PhonePe
                             </option>
 
-                            <option value="Bank Transfer">
-                                Bank Transfer
+                            <option value="GPay">
+                                GPay
                             </option>
 
-                            <option value="Cheque">
-                                Cheque
+                            <option value="Bhim">
+                                Bhim
+                            </option>
+
+                            <option value="Amazon Pay">
+                                Amazon Pay
                             </option>
 
                             <option value="Other">
@@ -625,16 +921,58 @@ const IncomeForm = ({
                     </div>
 
 
-                    {/* =========================
-                        DATE
-                    ========================= */}
+                    {/* =================================================
+                        BANK
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
+                            Bank
+                        </label>
 
+
+                        <select
+                            className="form-select"
+                            name="bank"
+                            value={form.bank}
+                            onChange={handleChange}
+                            required
+                        >
+
+                            <option value="Pnb">
+                                Pnb
+                            </option>
+
+                            <option value="Rbl">
+                                Rbl
+                            </option>
+
+                            <option value="icici">
+                                icici
+                            </option>
+
+                            <option value="Cash">
+                                Cash
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    {/* =================================================
+                        DATE
+                    ================================================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
                             Date
-
                         </label>
 
 
@@ -649,16 +987,14 @@ const IncomeForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         NOTE
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Note
-
                         </label>
 
 
@@ -674,22 +1010,24 @@ const IncomeForm = ({
                     </div>
 
 
-                    {/* =========================
+                    {/* =================================================
                         SUBMIT
-                    ========================= */}
+                    ================================================= */}
 
                     <button
                         type="submit"
                         className="btn btn-primary"
                         disabled={
                             loading ||
-                            itemsLoading
+                            itemsLoading ||
+                            shopsLoading
                         }
                     >
 
                         {loading
                             ? "Please wait..."
-                            : "Save Income"}
+                            : "Save Income"
+                        }
 
                     </button>
 

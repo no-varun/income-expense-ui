@@ -26,20 +26,85 @@ const SavingList = () => {
     const [limit, setLimit] = useState(10);
     const [total, setTotal] = useState(0);
 
+    /*
+     * =========================
+     * DATE FILTERS
+     * =========================
+     */
+
     const [fromDateInput, setFromDateInput] = useState("");
     const [toDateInput, setToDateInput] = useState("");
 
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
 
+    /*
+     * =========================
+     * CATEGORY FILTER
+     * =========================
+     */
+
     const [categoryInput, setCategoryInput] = useState("");
     const [category, setCategory] = useState("");
 
+    /*
+     * =========================
+     * PAYMENT MODE FILTER
+     * =========================
+     */
+
+    const [paymentModeInput, setPaymentModeInput] = useState("");
+    const [paymentMode, setPaymentMode] = useState("");
 
     /*
-     * Load Saving Categories
+     * =========================
+     * BANK FILTER
+     * =========================
      */
-    const loadCategories = async () => {
+
+    const [bankInput, setBankInput] = useState("");
+    const [bank, setBank] = useState("");
+
+
+    /*
+     * =========================
+     * PAYMENT MODES
+     * =========================
+     */
+
+    const paymentModes = [
+        "Cash",
+        "Paytm",
+        "PhonePe",
+        "GPay",
+        "Bhim",
+        "Amazon Pay",
+        "Other"
+    ];
+
+
+    /*
+     * =========================
+     * BANKS
+     * =========================
+     */
+
+    const banks = [
+        "Pnb",
+        "Rbl",
+        "icici",
+        "Cash",
+        "Other"
+    ];
+
+
+    /*
+     * =========================
+     * LOAD CATEGORIES
+     * =========================
+     */
+
+    const loadCategories = useCallback(async () => {
 
         try {
 
@@ -51,27 +116,43 @@ const SavingList = () => {
             if (response.success) {
 
                 const rows =
-                    response.data.rows ||
-                    response.data.data ||
+                    response.data?.rows ||
+                    response.data?.data ||
                     response.data ||
                     [];
 
-                setCategories(rows);
+                setCategories(
+                    Array.isArray(rows)
+                        ? rows
+                        : []
+                );
+
+            } else {
+
+                setCategories([]);
 
             }
 
         } catch (error) {
 
-            console.log("Category fetch error:", error);
+            console.log(
+                "Category fetch error:",
+                error
+            );
+
+            setCategories([]);
 
         }
 
-    };
+    }, []);
 
 
     /*
-     * Load Savings
+     * =========================
+     * LOAD SAVINGS
+     * =========================
      */
+
     const loadSaving = useCallback(async () => {
 
         try {
@@ -86,31 +167,50 @@ const SavingList = () => {
                 from: fromDate,
                 to: toDate,
 
-                category
+                category,
+
+                paymentMode,
+
+                bank
 
             });
-
 
             if (response.success) {
 
                 const rows =
-                    response.data.data ||
-                    response.data.rows ||
+                    response.data?.data ||
+                    response.data?.rows ||
                     response.data ||
                     [];
 
-                setSavings(rows);
+                const savingRows =
+                    Array.isArray(rows)
+                        ? rows
+                        : [];
+
+                setSavings(savingRows);
 
                 setTotal(
-                    response.data.total ??
-                    rows.length
+                    response.data?.total ??
+                    savingRows.length
                 );
+
+            } else {
+
+                setSavings([]);
+                setTotal(0);
 
             }
 
         } catch (error) {
 
-            console.log(error);
+            console.log(
+                "Saving load error:",
+                error
+            );
+
+            setSavings([]);
+            setTotal(0);
 
         } finally {
 
@@ -119,28 +219,35 @@ const SavingList = () => {
         }
 
     }, [
+        page,
+        limit,
         fromDate,
         toDate,
         category,
-        page,
-        limit
+        paymentMode,
+        bank
     ]);
 
 
     /*
-     * Load categories once
+     * =========================
+     * INITIAL LOAD
+     * =========================
      */
+
     useEffect(() => {
 
         loadCategories();
 
-    }, []);
+    }, [loadCategories]);
 
 
     /*
-     * Load savings whenever
-     * pagination/filter changes
+     * =========================
+     * LOAD SAVINGS
+     * =========================
      */
+
     useEffect(() => {
 
         loadSaving();
@@ -149,27 +256,33 @@ const SavingList = () => {
 
 
     /*
-     * Delete
+     * =========================
+     * DELETE SAVING
+     * =========================
      */
+
     const handleDelete = async (id) => {
 
-        if (!window.confirm("Delete this saving?")) {
+        if (
+            !window.confirm(
+                "Delete this saving?"
+            )
+        ) {
 
             return;
 
         }
-
 
         try {
 
             const response =
                 await deleteSaving(id);
 
-
             if (response.success) {
 
-                alert(response.message);
-
+                alert(
+                    response.message
+                );
 
                 if (
                     savings.length === 1 &&
@@ -199,17 +312,34 @@ const SavingList = () => {
 
 
     /*
-     * Apply Filter
+     * =========================
+     * APPLY FILTER
+     * =========================
      */
+
     const handleFilter = (event) => {
 
         event.preventDefault();
 
-        setFromDate(fromDateInput);
+        setFromDate(
+            fromDateInput
+        );
 
-        setToDate(toDateInput);
+        setToDate(
+            toDateInput
+        );
 
-        setCategory(categoryInput);
+        setCategory(
+            categoryInput
+        );
+
+        setPaymentMode(
+            paymentModeInput
+        );
+
+        setBank(
+            bankInput
+        );
 
         setPage(1);
 
@@ -217,36 +347,49 @@ const SavingList = () => {
 
 
     /*
-     * Clear Filter
+     * =========================
+     * CLEAR FILTER
+     * =========================
      */
+
     const handleClearFilter = () => {
 
         setFromDateInput("");
-
         setToDateInput("");
 
         setCategoryInput("");
 
-        setFromDate("");
+        setPaymentModeInput("");
+        setBankInput("");
 
+        setFromDate("");
         setToDate("");
 
         setCategory("");
+
+        setPaymentMode("");
+        setBank("");
 
         setPage(1);
 
     };
 
 
-    const totalPages =
-        Math.ceil(total / limit) || 1;
+    /*
+     * =========================
+     * PAGINATION
+     * =========================
+     */
 
+    const totalPages =
+        Math.ceil(
+            total / limit
+        ) || 1;
 
     const startRecord =
         total === 0
             ? 0
             : ((page - 1) * limit) + 1;
-
 
     const endRecord =
         Math.min(
@@ -255,15 +398,23 @@ const SavingList = () => {
         );
 
 
+    /*
+     * =========================
+     * RENDER
+     * =========================
+     */
+
     return (
 
         <div className="container-fluid">
 
-            {/* Header */}
+            {/* =========================
+                HEADER
+            ========================= */}
 
-            <div className="d-flex justify-content-between mb-3">
+            <div className="d-flex justify-content-between align-items-center mb-3">
 
-                <h3>
+                <h3 className="mb-0">
                     Saving List
                 </h3>
 
@@ -279,20 +430,20 @@ const SavingList = () => {
 
             <div className="card">
 
-                <div className="card-body table-responsive">
+                <div className="card-body">
 
-
-                    {/* ================= FILTER ================= */}
+                    {/* =========================
+                        FILTER
+                    ========================= */}
 
                     <form
                         className="row g-2 align-items-end mb-3"
                         onSubmit={handleFilter}
                     >
 
+                        {/* FROM */}
 
-                        {/* From */}
-
-                        <div className="col-12 col-md-3">
+                        <div className="col-12 col-md-2">
 
                             <label className="form-label">
                                 From
@@ -301,7 +452,9 @@ const SavingList = () => {
                             <input
                                 type="date"
                                 className="form-control"
-                                value={fromDateInput}
+                                value={
+                                    fromDateInput
+                                }
                                 onChange={(event) =>
                                     setFromDateInput(
                                         event.target.value
@@ -312,9 +465,9 @@ const SavingList = () => {
                         </div>
 
 
-                        {/* To */}
+                        {/* TO */}
 
-                        <div className="col-12 col-md-3">
+                        <div className="col-12 col-md-2">
 
                             <label className="form-label">
                                 To
@@ -323,7 +476,9 @@ const SavingList = () => {
                             <input
                                 type="date"
                                 className="form-control"
-                                value={toDateInput}
+                                value={
+                                    toDateInput
+                                }
                                 onChange={(event) =>
                                     setToDateInput(
                                         event.target.value
@@ -334,9 +489,9 @@ const SavingList = () => {
                         </div>
 
 
-                        {/* Category */}
+                        {/* CATEGORY */}
 
-                        <div className="col-12 col-md-3">
+                        <div className="col-12 col-md-2">
 
                             <label className="form-label">
                                 Category
@@ -344,7 +499,9 @@ const SavingList = () => {
 
                             <select
                                 className="form-select"
-                                value={categoryInput}
+                                value={
+                                    categoryInput
+                                }
                                 onChange={(event) =>
                                     setCategoryInput(
                                         event.target.value
@@ -357,7 +514,7 @@ const SavingList = () => {
                                 </option>
 
                                 {categories.map(
-                                    categoryItem => (
+                                    (categoryItem) => (
 
                                         <option
                                             key={
@@ -380,7 +537,89 @@ const SavingList = () => {
                         </div>
 
 
-                        {/* Per Page */}
+                        {/* PAYMENT MODE */}
+
+                        <div className="col-12 col-md-2">
+
+                            <label className="form-label">
+                                Payment Mode
+                            </label>
+
+                            <select
+                                className="form-select"
+                                value={
+                                    paymentModeInput
+                                }
+                                onChange={(event) =>
+                                    setPaymentModeInput(
+                                        event.target.value
+                                    )
+                                }
+                            >
+
+                                <option value="">
+                                    All Payment Modes
+                                </option>
+
+                                {paymentModes.map(
+                                    (mode) => (
+
+                                        <option
+                                            key={mode}
+                                            value={mode}
+                                        >
+                                            {mode}
+                                        </option>
+
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+
+                        {/* BANK */}
+
+                        <div className="col-12 col-md-2">
+
+                            <label className="form-label">
+                                Bank
+                            </label>
+
+                            <select
+                                className="form-select"
+                                value={bankInput}
+                                onChange={(event) =>
+                                    setBankInput(
+                                        event.target.value
+                                    )
+                                }
+                            >
+
+                                <option value="">
+                                    All Banks
+                                </option>
+
+                                {banks.map(
+                                    (bankItem) => (
+
+                                        <option
+                                            key={bankItem}
+                                            value={bankItem}
+                                        >
+                                            {bankItem}
+                                        </option>
+
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+
+                        {/* PER PAGE */}
 
                         <div className="col-6 col-md-1">
 
@@ -421,7 +660,7 @@ const SavingList = () => {
                         </div>
 
 
-                        {/* Filter */}
+                        {/* FILTER */}
 
                         <div className="col-6 col-md-1">
 
@@ -435,21 +674,27 @@ const SavingList = () => {
                         </div>
 
 
-                        {/* Clear */}
+                        {/* CLEAR */}
 
                         <div className="col-6 col-md-1">
 
                             <button
                                 type="button"
                                 className="btn btn-outline-secondary w-100"
-                                onClick={handleClearFilter}
+                                onClick={
+                                    handleClearFilter
+                                }
                                 disabled={
                                     !fromDateInput &&
                                     !toDateInput &&
                                     !categoryInput &&
+                                    !paymentModeInput &&
+                                    !bankInput &&
                                     !fromDate &&
                                     !toDate &&
-                                    !category
+                                    !category &&
+                                    !paymentMode &&
+                                    !bank
                                 }
                             >
                                 Clear
@@ -460,182 +705,281 @@ const SavingList = () => {
                     </form>
 
 
-                    {/* ================= TABLE ================= */}
+                    {/* =========================
+                        TABLE
+                    ========================= */}
 
-                    <table className="table table-bordered">
+                    <div className="table-responsive">
 
-                        <thead>
+                        <table className="table table-bordered">
 
-                            <tr>
-
-                                <th>#</th>
-
-                                <th>Title</th>
-
-                                <th>Amount</th>
-
-                                <th>Category</th>
-
-                                <th>Payment</th>
-
-                                <th>Date</th>
-
-                                <th width="170">
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {loading ? (
+                            <thead>
 
                                 <tr>
 
-                                    <td
-                                        colSpan="7"
-                                        className="text-center"
+                                    <th>
+                                        #
+                                    </th>
+
+                                    <th>
+                                        Title
+                                    </th>
+
+                                    <th>
+                                        Amount
+                                    </th>
+
+                                    <th>
+                                        Category
+                                    </th>
+
+                                    <th>
+                                        Payment Mode
+                                    </th>
+
+                                    <th>
+                                        Bank
+                                    </th>
+
+                                    <th>
+                                        Date
+                                    </th>
+
+                                    <th
+                                        style={{
+                                            minWidth: "170px"
+                                        }}
                                     >
-                                        Loading...
-                                    </td>
+                                        Action
+                                    </th>
 
                                 </tr>
 
-                            ) : savings.length === 0 ? (
+                            </thead>
 
-                                <tr>
 
-                                    <td
-                                        colSpan="7"
-                                        className="text-center"
-                                    >
-                                        No Record Found
-                                    </td>
+                            <tbody>
 
-                                </tr>
+                                {loading ? (
 
-                            ) : (
+                                    <tr>
 
-                                savings.map(
-                                    (item, index) => (
-
-                                        <tr
-                                            key={item._id}
+                                        <td
+                                            colSpan="8"
+                                            className="text-center"
                                         >
+                                            Loading...
+                                        </td>
 
-                                            <td>
-                                                {
-                                                    ((page - 1) * limit) +
-                                                    index +
-                                                    1
+                                    </tr>
+
+                                ) : savings.length === 0 ? (
+
+                                    <tr>
+
+                                        <td
+                                            colSpan="8"
+                                            className="text-center"
+                                        >
+                                            No Record Found
+                                        </td>
+
+                                    </tr>
+
+                                ) : (
+
+                                    savings.map(
+                                        (item, index) => (
+
+                                            <tr
+                                                key={
+                                                    item._id
                                                 }
-                                            </td>
+                                            >
 
+                                                {/* NUMBER */}
 
-                                            <td>
-                                                {item.title}
-                                            </td>
+                                                <td>
 
-
-                                            <td>
-                                                ₹ {item.amount}
-                                            </td>
-
-
-                                            <td>
-
-                                                <span
-                                                    className="badge"
-                                                    style={
-                                                        getCategoryBadgeStyle(
-                                                            item.category
-                                                        )
-                                                    }
-                                                >
                                                     {
-                                                        item.category?.name ||
+                                                        ((page - 1) * limit) +
+                                                        index +
+                                                        1
+                                                    }
+
+                                                </td>
+
+
+                                                {/* TITLE */}
+
+                                                <td>
+
+                                                    {
+                                                        item.title ||
                                                         "-"
                                                     }
-                                                </span>
 
-                                            </td>
+                                                </td>
 
 
-                                            <td>
+                                                {/* AMOUNT */}
 
-                                                <span
-                                                    className={
-                                                        getPaymentModeBadgeClass(
-                                                            item.paymentMode
-                                                        )
-                                                    }
-                                                >
+                                                <td>
+
+                                                    ₹{" "}
+
                                                     {
-                                                        item.paymentMode
-                                                    }
-                                                </span>
-
-                                            </td>
-
-
-                                            <td>
-
-                                                {
-                                                    new Date(
-                                                        item.date
-                                                    ).toLocaleDateString()
-                                                }
-
-                                            </td>
-
-
-                                            <td>
-
-                                                <Link
-                                                    className="btn btn-warning btn-sm me-2"
-                                                    to={`/saving/edit/${item._id}`}
-                                                >
-                                                    Edit
-                                                </Link>
-
-
-                                                <button
-                                                    className="btn btn-danger btn-sm"
-                                                    onClick={() =>
-                                                        handleDelete(
-                                                            item._id
+                                                        Number(
+                                                            item.amount || 0
+                                                        ).toLocaleString(
+                                                            "en-IN",
+                                                            {
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2
+                                                            }
                                                         )
                                                     }
-                                                >
-                                                    Delete
-                                                </button>
 
-                                            </td>
+                                                </td>
 
-                                        </tr>
 
+                                                {/* CATEGORY */}
+
+                                                <td>
+
+                                                    <span
+                                                        className="badge"
+                                                        style={
+                                                            getCategoryBadgeStyle(
+                                                                item.category
+                                                            )
+                                                        }
+                                                    >
+
+                                                        {
+                                                            item.category?.name ||
+                                                            "-"
+                                                        }
+
+                                                    </span>
+
+                                                </td>
+
+
+                                                {/* PAYMENT MODE */}
+
+                                                <td>
+
+                                                    <span
+                                                        className={
+                                                            getPaymentModeBadgeClass(
+                                                                item.paymentMode
+                                                            )
+                                                        }
+                                                    >
+
+                                                        {
+                                                            item.paymentMode ||
+                                                            "-"
+                                                        }
+
+                                                    </span>
+
+                                                </td>
+
+
+                                                {/* BANK */}
+
+                                                <td>
+
+                                                    <span className="badge bg-secondary">
+
+                                                        {
+                                                            item.bank ||
+                                                            "-"
+                                                        }
+
+                                                    </span>
+
+                                                </td>
+
+
+                                                {/* DATE */}
+
+                                                <td>
+
+                                                    {
+                                                        item.date
+                                                            ? new Date(
+                                                                item.date
+                                                            ).toLocaleDateString(
+                                                                "en-IN"
+                                                            )
+                                                            : "-"
+                                                    }
+
+                                                </td>
+
+
+                                                {/* ACTION */}
+
+                                                <td>
+
+                                                    <Link
+                                                        className="btn btn-warning btn-sm me-2"
+                                                        to={
+                                                            `/saving/edit/${item._id}`
+                                                        }
+                                                    >
+                                                        Edit
+                                                    </Link>
+
+
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                item._id
+                                                            )
+                                                        }
+                                                    >
+                                                        Delete
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                        )
                                     )
-                                )
 
-                            )}
+                                )}
 
-                        </tbody>
+                            </tbody>
 
-                    </table>
+                        </table>
+
+                    </div>
 
                 </div>
 
 
-                {/* ================= PAGINATION ================= */}
+                {/* =========================
+                    PAGINATION
+                ========================= */}
 
                 <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
 
                     <small className="text-muted">
 
-                        Showing {startRecord} to {endRecord} of {total} records
+                        Showing{" "}
+                        {startRecord}
+                        {" "}to{" "}
+                        {endRecord}
+                        {" "}of{" "}
+                        {total}
+                        {" "}records
 
                     </small>
 
@@ -645,14 +989,16 @@ const SavingList = () => {
                         limit={limit}
                         total={total}
                         onPageChange={
-                            nextPage => {
+                            (nextPage) => {
 
                                 if (
                                     nextPage >= 1 &&
                                     nextPage <= totalPages
                                 ) {
 
-                                    setPage(nextPage);
+                                    setPage(
+                                        nextPage
+                                    );
 
                                 }
 
