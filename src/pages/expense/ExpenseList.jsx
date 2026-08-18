@@ -25,9 +25,31 @@ import {
 } from "../../utils/badgeStyles";
 
 
+/*
+ * =====================================================
+ * BANK IMAGES
+ * =====================================================
+ */
+
+const bankImages = {
+
+    Pnb: "/images/banks/pnb.png",
+
+    Rbl: "/images/banks/rbl.png",
+
+    icici: "/images/banks/icici.png",
+
+    Cash: "/images/banks/cash.png",
+
+    Other: "/images/banks/card.png"
+
+};
+
+
 const ExpenseList = () => {
 
     const fileInputRef = useRef(null);
+
 
     /*
      * =====================================================
@@ -36,10 +58,13 @@ const ExpenseList = () => {
      */
 
     const [expenses, setExpenses] = useState([]);
+
     const [categories, setCategories] = useState([]);
+
     const [shops, setShops] = useState([]);
 
     const [total, setTotal] = useState(0);
+
     const [totalAmount, setTotalAmount] = useState(0);
 
 
@@ -50,10 +75,13 @@ const ExpenseList = () => {
      */
 
     const [loading, setLoading] = useState(true);
+
     const [importing, setImporting] = useState(false);
+
     const [exporting, setExporting] = useState(false);
 
     const [categoryLoading, setCategoryLoading] = useState(false);
+
     const [shopLoading, setShopLoading] = useState(false);
 
 
@@ -64,6 +92,7 @@ const ExpenseList = () => {
      */
 
     const [searchInput, setSearchInput] = useState("");
+
     const [search, setSearch] = useState("");
 
 
@@ -74,6 +103,7 @@ const ExpenseList = () => {
      */
 
     const [categoryInput, setCategoryInput] = useState("");
+
     const [category, setCategory] = useState("");
 
 
@@ -84,6 +114,7 @@ const ExpenseList = () => {
      */
 
     const [shopTypeInput, setShopTypeInput] = useState("");
+
     const [shopType, setShopType] = useState("");
 
 
@@ -94,6 +125,7 @@ const ExpenseList = () => {
      */
 
     const [shopInput, setShopInput] = useState("");
+
     const [shop, setShop] = useState("");
 
 
@@ -104,6 +136,7 @@ const ExpenseList = () => {
      */
 
     const [paymentModeInput, setPaymentModeInput] = useState("");
+
     const [paymentMode, setPaymentMode] = useState("");
 
 
@@ -114,6 +147,7 @@ const ExpenseList = () => {
      */
 
     const [bankInput, setBankInput] = useState("");
+
     const [bank, setBank] = useState("");
 
 
@@ -124,9 +158,11 @@ const ExpenseList = () => {
      */
 
     const [fromDateInput, setFromDateInput] = useState("");
+
     const [toDateInput, setToDateInput] = useState("");
 
     const [fromDate, setFromDate] = useState("");
+
     const [toDate, setToDate] = useState("");
 
 
@@ -137,12 +173,13 @@ const ExpenseList = () => {
      */
 
     const [page, setPage] = useState(1);
+
     const [limit, setLimit] = useState(10);
 
 
     /*
      * =====================================================
-     * SCHEMA ENUM VALUES
+     * ENUM VALUES
      * =====================================================
      */
 
@@ -156,6 +193,7 @@ const ExpenseList = () => {
         "Other"
     ];
 
+
     const banks = [
         "Pnb",
         "Rbl",
@@ -163,6 +201,7 @@ const ExpenseList = () => {
         "Cash",
         "Other"
     ];
+
 
     const shopTypes = [
         "ONLINE",
@@ -187,6 +226,7 @@ const ExpenseList = () => {
                 type: "EXPENSE"
             });
 
+
             if (response.success) {
 
                 const rows =
@@ -195,6 +235,7 @@ const ExpenseList = () => {
                     response.data?.data ||
                     response.data ||
                     [];
+
 
                 setCategories(
                     Array.isArray(rows)
@@ -243,6 +284,7 @@ const ExpenseList = () => {
                 status: true
             });
 
+
             if (response.success) {
 
                 const rows =
@@ -251,6 +293,7 @@ const ExpenseList = () => {
                     response.data?.data ||
                     response.data ||
                     [];
+
 
                 setShops(
                     Array.isArray(rows)
@@ -291,8 +334,11 @@ const ExpenseList = () => {
     const filteredShops = shops.filter(item => {
 
         if (!shopTypeInput) {
+
             return true;
+
         }
+
 
         return (
             String(item.type || "").toUpperCase() ===
@@ -314,21 +360,27 @@ const ExpenseList = () => {
 
             setLoading(true);
 
+
             const response = await getExpenses({
 
                 page,
+
                 limit,
 
                 search,
+
                 category,
 
                 shopType,
+
                 shop,
 
                 paymentMode,
+
                 bank,
 
                 from: fromDate,
+
                 to: toDate
 
             });
@@ -340,9 +392,11 @@ const ExpenseList = () => {
                     response.data?.data || []
                 );
 
+
                 setTotal(
                     response.data?.total || 0
                 );
+
 
                 setTotalAmount(
                     response.data?.totalAmount || 0
@@ -351,7 +405,9 @@ const ExpenseList = () => {
             } else {
 
                 setExpenses([]);
+
                 setTotal(0);
+
                 setTotalAmount(0);
 
             }
@@ -362,6 +418,7 @@ const ExpenseList = () => {
                 "Expense fetch error:",
                 error
             );
+
 
             alert(
                 error.response?.data?.message ||
@@ -375,16 +432,27 @@ const ExpenseList = () => {
         }
 
     }, [
+
         page,
+
         limit,
+
         search,
+
         category,
+
         shopType,
+
         shop,
+
         paymentMode,
+
         bank,
+
         fromDate,
+
         toDate
+
     ]);
 
 
@@ -397,17 +465,21 @@ const ExpenseList = () => {
     useEffect(() => {
 
         loadCategories();
+
         loadShops();
 
     }, [
+
         loadCategories,
+
         loadShops
+
     ]);
 
 
     /*
      * =====================================================
-     * EXPENSE API
+     * LOAD EXPENSE DATA
      * =====================================================
      */
 
@@ -416,7 +488,9 @@ const ExpenseList = () => {
         loadExpense();
 
     }, [
+
         loadExpense
+
     ]);
 
 
@@ -430,37 +504,46 @@ const ExpenseList = () => {
 
         event.preventDefault();
 
+
         setSearch(
             searchInput.trim()
         );
+
 
         setCategory(
             categoryInput
         );
 
+
         setShopType(
             shopTypeInput
         );
+
 
         setShop(
             shopInput
         );
 
+
         setPaymentMode(
             paymentModeInput
         );
+
 
         setBank(
             bankInput
         );
 
+
         setFromDate(
             fromDateInput
         );
 
+
         setToDate(
             toDateInput
         );
+
 
         setPage(1);
 
@@ -476,28 +559,44 @@ const ExpenseList = () => {
     const handleClearFilter = () => {
 
         setSearchInput("");
+
         setSearch("");
 
+
         setCategoryInput("");
+
         setCategory("");
 
+
         setShopTypeInput("");
+
         setShopType("");
 
+
         setShopInput("");
+
         setShop("");
 
+
         setPaymentModeInput("");
+
         setPaymentMode("");
 
+
         setBankInput("");
+
         setBank("");
 
+
         setFromDateInput("");
+
         setToDateInput("");
 
+
         setFromDate("");
+
         setToDate("");
+
 
         setPage(1);
 
@@ -512,14 +611,22 @@ const ExpenseList = () => {
 
     const handleDelete = async (id) => {
 
-        if (!window.confirm("Delete this expense?")) {
+        if (
+            !window.confirm(
+                "Delete this expense?"
+            )
+        ) {
+
             return;
+
         }
+
 
         try {
 
             const response =
                 await deleteExpense(id);
+
 
             if (response.success) {
 
@@ -527,6 +634,7 @@ const ExpenseList = () => {
                     response.message ||
                     "Expense deleted successfully."
                 );
+
 
                 loadExpense();
 
@@ -562,22 +670,29 @@ const ExpenseList = () => {
         const file =
             event.target.files?.[0];
 
+
         if (!file) {
+
             return;
+
         }
+
 
         try {
 
             setImporting(true);
 
+
             const response =
                 await importExpensesExcel(file);
+
 
             if (response.success) {
 
                 alert(
                     `${response.data.imported} expenses imported successfully.`
                 );
+
 
                 if (page === 1) {
 
@@ -621,19 +736,24 @@ const ExpenseList = () => {
 
             setExporting(true);
 
+
             const blob =
                 await exportExpensesExcel({
 
                     search,
+
                     category,
 
                     shopType,
+
                     shop,
 
                     paymentMode,
+
                     bank,
 
                     from: fromDate,
+
                     to: toDate
 
                 });
@@ -642,19 +762,26 @@ const ExpenseList = () => {
             const url =
                 window.URL.createObjectURL(blob);
 
+
             const link =
                 document.createElement("a");
 
+
             link.href = url;
+
 
             link.download =
                 "expense-export.xlsx";
 
+
             document.body.appendChild(link);
+
 
             link.click();
 
+
             link.remove();
+
 
             window.URL.revokeObjectURL(url);
 
@@ -681,18 +808,45 @@ const ExpenseList = () => {
      */
 
     const totalPages =
-        Math.ceil(total / limit) || 1;
+        Math.ceil(
+            total / limit
+        ) || 1;
+
 
     const startRecord =
         total === 0
             ? 0
             : ((page - 1) * limit) + 1;
 
+
     const endRecord =
         Math.min(
             page * limit,
             total
         );
+
+
+    /*
+     * =====================================================
+     * BANK IMAGE HELPER
+     * =====================================================
+     */
+
+    const getBankImage = (bankName) => {
+
+        if (!bankName) {
+
+            return null;
+
+        }
+
+
+        return (
+            bankImages[bankName] ||
+            bankImages.Other
+        );
+
+    };
 
 
     /*
@@ -705,6 +859,7 @@ const ExpenseList = () => {
 
         <div className="container-fluid">
 
+
             {/* =================================================
                 HEADER
             ================================================= */}
@@ -716,6 +871,7 @@ const ExpenseList = () => {
                     <h3 className="mb-0">
                         Expense List
                     </h3>
+
 
                     <h5 className="mb-0 text-danger">
 
@@ -737,6 +893,7 @@ const ExpenseList = () => {
 
                 <div className="d-flex gap-2 flex-wrap">
 
+
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -744,6 +901,7 @@ const ExpenseList = () => {
                         className="d-none"
                         onChange={handleImport}
                     />
+
 
                     <button
                         type="button"
@@ -800,6 +958,7 @@ const ExpenseList = () => {
                         onSubmit={handleFilter}
                     >
 
+
                         {/* SEARCH */}
 
                         <div className="col-12 col-md-6 col-lg-2">
@@ -807,6 +966,7 @@ const ExpenseList = () => {
                             <label className="form-label">
                                 Search
                             </label>
+
 
                             <input
                                 type="search"
@@ -831,6 +991,7 @@ const ExpenseList = () => {
                                 Category
                             </label>
 
+
                             <select
                                 className="form-select"
                                 value={categoryInput}
@@ -846,16 +1007,27 @@ const ExpenseList = () => {
                                     All Categories
                                 </option>
 
-                                {categories.map(categoryItem => (
 
-                                    <option
-                                        key={categoryItem._id}
-                                        value={categoryItem._id}
-                                    >
-                                        {categoryItem.name}
-                                    </option>
+                                {categories.map(
+                                    categoryItem => (
 
-                                ))}
+                                        <option
+                                            key={
+                                                categoryItem._id
+                                            }
+                                            value={
+                                                categoryItem._id
+                                            }
+                                        >
+
+                                            {
+                                                categoryItem.name
+                                            }
+
+                                        </option>
+
+                                    )
+                                )}
 
                             </select>
 
@@ -869,6 +1041,7 @@ const ExpenseList = () => {
                             <label className="form-label">
                                 Shop Type
                             </label>
+
 
                             <select
                                 className="form-select"
@@ -887,6 +1060,7 @@ const ExpenseList = () => {
                                 <option value="">
                                     All Shop Types
                                 </option>
+
 
                                 {shopTypes.map(type => (
 
@@ -912,6 +1086,7 @@ const ExpenseList = () => {
                                 Shop
                             </label>
 
+
                             <select
                                 className="form-select"
                                 value={shopInput}
@@ -927,16 +1102,27 @@ const ExpenseList = () => {
                                     All Shops
                                 </option>
 
-                                {filteredShops.map(shopItem => (
 
-                                    <option
-                                        key={shopItem._id}
-                                        value={shopItem._id}
-                                    >
-                                        {shopItem.name}
-                                    </option>
+                                {filteredShops.map(
+                                    shopItem => (
 
-                                ))}
+                                        <option
+                                            key={
+                                                shopItem._id
+                                            }
+                                            value={
+                                                shopItem._id
+                                            }
+                                        >
+
+                                            {
+                                                shopItem.name
+                                            }
+
+                                        </option>
+
+                                    )
+                                )}
 
                             </select>
 
@@ -950,6 +1136,7 @@ const ExpenseList = () => {
                             <label className="form-label">
                                 Payment Mode
                             </label>
+
 
                             <select
                                 className="form-select"
@@ -965,16 +1152,19 @@ const ExpenseList = () => {
                                     All Payment Modes
                                 </option>
 
-                                {paymentModes.map(mode => (
 
-                                    <option
-                                        key={mode}
-                                        value={mode}
-                                    >
-                                        {mode}
-                                    </option>
+                                {paymentModes.map(
+                                    mode => (
 
-                                ))}
+                                        <option
+                                            key={mode}
+                                            value={mode}
+                                        >
+                                            {mode}
+                                        </option>
+
+                                    )
+                                )}
 
                             </select>
 
@@ -988,6 +1178,7 @@ const ExpenseList = () => {
                             <label className="form-label">
                                 Bank
                             </label>
+
 
                             <select
                                 className="form-select"
@@ -1003,16 +1194,19 @@ const ExpenseList = () => {
                                     All Banks
                                 </option>
 
-                                {banks.map(bankItem => (
 
-                                    <option
-                                        key={bankItem}
-                                        value={bankItem}
-                                    >
-                                        {bankItem}
-                                    </option>
+                                {banks.map(
+                                    bankItem => (
 
-                                ))}
+                                        <option
+                                            key={bankItem}
+                                            value={bankItem}
+                                        >
+                                            {bankItem}
+                                        </option>
+
+                                    )
+                                )}
 
                             </select>
 
@@ -1026,6 +1220,7 @@ const ExpenseList = () => {
                             <label className="form-label">
                                 From
                             </label>
+
 
                             <input
                                 type="date"
@@ -1049,6 +1244,7 @@ const ExpenseList = () => {
                                 To
                             </label>
 
+
                             <input
                                 type="date"
                                 className="form-control"
@@ -1070,6 +1266,7 @@ const ExpenseList = () => {
                             <label className="form-label">
                                 Per Page
                             </label>
+
 
                             <select
                                 className="form-select"
@@ -1116,7 +1313,7 @@ const ExpenseList = () => {
                         </div>
 
 
-                        {/* FILTER BUTTON */}
+                        {/* FILTER */}
 
                         <div className="col-6 col-md-3 col-lg-1">
 
@@ -1130,7 +1327,7 @@ const ExpenseList = () => {
                         </div>
 
 
-                        {/* CLEAR BUTTON */}
+                        {/* CLEAR */}
 
                         <div className="col-6 col-md-3 col-lg-1">
 
@@ -1237,10 +1434,16 @@ const ExpenseList = () => {
                                     (item, index) => (
 
                                         <tr
-                                            key={item._id}
+                                            key={
+                                                item._id
+                                            }
                                         >
 
+
+                                            {/* # */}
+
                                             <td>
+
                                                 {
                                                     (
                                                         (page - 1) *
@@ -1249,24 +1452,35 @@ const ExpenseList = () => {
                                                     index +
                                                     1
                                                 }
+
                                             </td>
 
 
+                                            {/* TITLE */}
+
                                             <td>
+
                                                 {
                                                     item.title ||
                                                     "-"
                                                 }
+
                                             </td>
 
 
+                                            {/* NOTE */}
+
                                             <td>
+
                                                 {
                                                     item.note ||
                                                     "-"
                                                 }
+
                                             </td>
 
+
+                                            {/* AMOUNT */}
 
                                             <td>
 
@@ -1283,6 +1497,8 @@ const ExpenseList = () => {
 
                                             </td>
 
+
+                                            {/* CATEGORY */}
 
                                             <td>
 
@@ -1305,6 +1521,8 @@ const ExpenseList = () => {
 
                                             </td>
 
+
+                                            {/* SHOP TYPE */}
 
                                             <td>
 
@@ -1335,6 +1553,8 @@ const ExpenseList = () => {
                                             </td>
 
 
+                                            {/* SHOP */}
+
                                             <td>
 
                                                 {
@@ -1345,6 +1565,8 @@ const ExpenseList = () => {
 
                                             </td>
 
+
+                                            {/* PAYMENT MODE */}
 
                                             <td>
 
@@ -1366,30 +1588,58 @@ const ExpenseList = () => {
                                             </td>
 
 
+                                            {/* BANK IMAGE */}
+
                                             <td>
 
-                                                {
-                                                    item.bank ? (
+                                                {item.bank ? (
 
-                                                        <span className="badge bg-secondary">
+                                                    <div
+                                                        className="d-flex align-items-center"
+                                                        style={{
+                                                            minWidth: "80px"
+                                                        }}
+                                                    >
 
-                                                            {
+                                                        <img
+                                                            src={
+                                                                getBankImage(
+                                                                    item.bank
+                                                                )
+                                                            }
+                                                            alt={
                                                                 item.bank
                                                             }
+                                                            title={
+                                                                item.bank
+                                                            }
+                                                            style={{
+                                                                width: "45px",
+                                                                height: "35px",
+                                                                objectFit: "contain"
+                                                            }}
+                                                            onError={(e) => {
 
-                                                        </span>
+                                                                e.currentTarget.src =
+                                                                    bankImages.Other;
 
-                                                    ) : (
+                                                            }}
+                                                        />
 
-                                                        <span className="text-muted">
-                                                            -
-                                                        </span>
+                                                    </div>
 
-                                                    )
-                                                }
+                                                ) : (
+
+                                                    <span className="text-muted">
+                                                        -
+                                                    </span>
+
+                                                )}
 
                                             </td>
 
+
+                                            {/* DATE */}
 
                                             <td>
 
@@ -1405,6 +1655,8 @@ const ExpenseList = () => {
 
                                             </td>
 
+
+                                            {/* ACTION */}
 
                                             <td>
 
@@ -1455,11 +1707,17 @@ const ExpenseList = () => {
                     <small className="text-muted">
 
                         Showing{" "}
+
                         {startRecord}
+
                         {" "}to{" "}
+
                         {endRecord}
+
                         {" "}of{" "}
+
                         {total}
+
                         {" "}records
 
                     </small>
@@ -1469,18 +1727,22 @@ const ExpenseList = () => {
                         page={page}
                         limit={limit}
                         total={total}
-                        onPageChange={(nextPage) => {
+                        onPageChange={
+                            (nextPage) => {
 
-                            if (
-                                nextPage >= 1 &&
-                                nextPage <= totalPages
-                            ) {
+                                if (
+                                    nextPage >= 1 &&
+                                    nextPage <= totalPages
+                                ) {
 
-                                setPage(nextPage);
+                                    setPage(
+                                        nextPage
+                                    );
+
+                                }
 
                             }
-
-                        }}
+                        }
                     />
 
                 </div>

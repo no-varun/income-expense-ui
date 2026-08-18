@@ -19,9 +19,23 @@ import {
     getCategoryBadgeStyle,
     getPaymentModeBadgeClass
 } from "../../utils/badgeStyles";
+const bankImages = {
+
+    Pnb: "/images/banks/pnb.png",
+
+    Rbl: "/images/banks/rbl.png",
+
+    icici: "/images/banks/icici.png",
+
+    Cash: "/images/banks/cash.png",
+
+    Other: "/images/banks/card.png"
+
+};
 
 
 const IncomeList = () => {
+
 
     /*
      * =====================================================
@@ -29,13 +43,17 @@ const IncomeList = () => {
      * =====================================================
      */
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] =
+        useState(true);
 
-    const [incomes, setIncomes] = useState([]);
+    const [incomes, setIncomes] =
+        useState([]);
 
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] =
+        useState([]);
 
-    const [totalAmount, setTotalAmount] = useState(0);
+    const [totalAmount, setTotalAmount] =
+        useState(0);
 
 
     /*
@@ -44,11 +62,14 @@ const IncomeList = () => {
      * =====================================================
      */
 
-    const [page, setPage] = useState(1);
+    const [page, setPage] =
+        useState(1);
 
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] =
+        useState(10);
 
-    const [total, setTotal] = useState(0);
+    const [total, setTotal] =
+        useState(0);
 
 
     /*
@@ -57,9 +78,11 @@ const IncomeList = () => {
      * =====================================================
      */
 
-    const [searchInput, setSearchInput] = useState("");
+    const [searchInput, setSearchInput] =
+        useState("");
 
-    const [search, setSearch] = useState("");
+    const [search, setSearch] =
+        useState("");
 
 
     /*
@@ -68,9 +91,11 @@ const IncomeList = () => {
      * =====================================================
      */
 
-    const [categoryInput, setCategoryInput] = useState("");
+    const [categoryInput, setCategoryInput] =
+        useState("");
 
-    const [category, setCategory] = useState("");
+    const [category, setCategory] =
+        useState("");
 
 
     /*
@@ -92,9 +117,11 @@ const IncomeList = () => {
      * =====================================================
      */
 
-    const [bankInput, setBankInput] = useState("");
+    const [bankInput, setBankInput] =
+        useState("");
 
-    const [bank, setBank] = useState("");
+    const [bank, setBank] =
+        useState("");
 
 
     /*
@@ -122,50 +149,53 @@ const IncomeList = () => {
      * =====================================================
      */
 
-    const loadCategories = useCallback(async () => {
+    const loadCategories = useCallback(
+        async () => {
 
-        try {
+            try {
 
-            const response =
-                await getCategories({
-                    limit: 100,
-                    type: "INCOME"
-                });
-
-
-            if (response.success) {
-
-                const rows =
-                    response.data?.rows ||
-                    response.data?.data ||
-                    response.data ||
-                    [];
+                const response =
+                    await getCategories({
+                        limit: 100,
+                        type: "INCOME"
+                    });
 
 
-                setCategories(
-                    Array.isArray(rows)
-                        ? rows
-                        : []
+                if (response.success) {
+
+                    const rows =
+                        response.data?.rows ||
+                        response.data?.data ||
+                        response.data ||
+                        [];
+
+
+                    setCategories(
+                        Array.isArray(rows)
+                            ? rows
+                            : []
+                    );
+
+                } else {
+
+                    setCategories([]);
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Category load error:",
+                    error
                 );
-
-            } else {
 
                 setCategories([]);
 
             }
 
-        } catch (error) {
-
-            console.error(
-                "Category load error:",
-                error
-            );
-
-            setCategories([]);
-
-        }
-
-    }, []);
+        },
+        []
+    );
 
 
     /*
@@ -174,100 +204,125 @@ const IncomeList = () => {
      * =====================================================
      */
 
-    const loadIncome = useCallback(async () => {
+    const loadIncome = useCallback(
+        async () => {
 
-        try {
+            try {
 
-            setLoading(true);
-
-
-            const response =
-                await getIncomes({
-
-                    page,
-
-                    limit,
-
-                    search,
-
-                    category,
-
-                    paymentMode,
-
-                    bank,
-
-                    from: fromDate,
-
-                    to: toDate
-
-                });
+                setLoading(true);
 
 
-            if (response.success) {
+                const response =
+                    await getIncomes({
 
-                const rows =
-                    response.data?.data ||
-                    response.data?.rows ||
-                    response.data ||
-                    [];
+                        page,
 
+                        limit,
 
-                const incomeRows =
-                    Array.isArray(rows)
-                        ? rows
-                        : [];
+                        search,
 
+                        category,
 
-                setIncomes(
-                    incomeRows
-                );
+                        paymentMode,
 
+                        bank,
 
-                setTotal(
-                    response.data?.total ??
-                    incomeRows.length
-                );
+                        from: fromDate,
+
+                        to: toDate
+
+                    });
 
 
-                /*
-                 * Backend totalAmount support.
-                 *
-                 * If backend returns totalAmount,
-                 * show it.
-                 *
-                 * Otherwise calculate from
-                 * current response.
-                 */
+                if (response.success) {
 
-                if (
-                    response.data?.totalAmount !==
-                    undefined
-                ) {
+                    const rows =
+                        response.data?.data ||
+                        response.data?.rows ||
+                        response.data ||
+                        [];
 
-                    setTotalAmount(
-                        response.data.totalAmount || 0
+
+                    const incomeRows =
+                        Array.isArray(rows)
+                            ? rows
+                            : [];
+
+
+                    setIncomes(
+                        incomeRows
                     );
+
+
+                    setTotal(
+                        response.data?.total ??
+                        incomeRows.length
+                    );
+
+
+                    /*
+                     * =================================================
+                     * TOTAL AMOUNT
+                     * =================================================
+                     */
+
+                    if (
+                        response.data?.totalAmount !==
+                        undefined
+                    ) {
+
+                        setTotalAmount(
+                            Number(
+                                response.data.totalAmount ||
+                                0
+                            )
+                        );
+
+                    } else {
+
+                        const amount =
+                            incomeRows.reduce(
+                                (
+                                    sum,
+                                    item
+                                ) => {
+
+                                    return (
+                                        sum +
+                                        Number(
+                                            item.amount ||
+                                            0
+                                        )
+                                    );
+
+                                },
+                                0
+                            );
+
+
+                        setTotalAmount(
+                            amount
+                        );
+
+                    }
 
                 } else {
 
-                    const amount =
-                        incomeRows.reduce(
-                            (sum, item) =>
-                                sum +
-                                Number(
-                                    item.amount || 0
-                                ),
-                            0
-                        );
+                    setIncomes([]);
 
+                    setTotal(0);
 
-                    setTotalAmount(
-                        amount
-                    );
+                    setTotalAmount(0);
 
                 }
 
-            } else {
+            } catch (error) {
+
+                console.error(
+                    "Income load error:",
+                    error
+                );
+
 
                 setIncomes([]);
 
@@ -275,53 +330,30 @@ const IncomeList = () => {
 
                 setTotalAmount(0);
 
+
+                console.error(
+                    error.response?.data?.message ||
+                    "Unable to fetch income."
+                );
+
+            } finally {
+
+                setLoading(false);
+
             }
 
-        } catch (error) {
-
-            console.error(
-                "Income load error:",
-                error
-            );
-
-
-            setIncomes([]);
-
-            setTotal(0);
-
-            setTotalAmount(0);
-
-
-            console.error(
-                error.response?.data?.message ||
-                "Unable to fetch income."
-            );
-
-        } finally {
-
-            setLoading(false);
-
-        }
-
-    }, [
-
-        page,
-
-        limit,
-
-        search,
-
-        category,
-
-        paymentMode,
-
-        bank,
-
-        fromDate,
-
-        toDate
-
-    ]);
+        },
+        [
+            page,
+            limit,
+            search,
+            category,
+            paymentMode,
+            bank,
+            fromDate,
+            toDate
+        ]
+    );
 
 
     /*
@@ -385,12 +417,6 @@ const IncomeList = () => {
                     response.message
                 );
 
-
-                /*
-                 * If current page has only
-                 * one record, move to
-                 * previous page.
-                 */
 
                 if (
                     incomes.length === 1 &&
@@ -506,7 +532,7 @@ const IncomeList = () => {
 
     /*
      * =====================================================
-     * PAGINATION
+     * TOTAL PAGES
      * =====================================================
      */
 
@@ -515,6 +541,12 @@ const IncomeList = () => {
             total / limit
         ) || 1;
 
+
+    /*
+     * =====================================================
+     * RECORD RANGE
+     * =====================================================
+     */
 
     const startRecord =
         total === 0
@@ -666,9 +698,11 @@ const IncomeList = () => {
                                                 item._id
                                             }
                                         >
+
                                             {
                                                 item.name
                                             }
+
                                         </option>
 
                                     )
@@ -894,26 +928,21 @@ const IncomeList = () => {
                                     10
                                 </option>
 
-
                                 <option value="25">
                                     25
                                 </option>
-
 
                                 <option value="50">
                                     50
                                 </option>
 
-
                                 <option value="75">
                                     75
                                 </option>
 
-
                                 <option value="100">
                                     100
                                 </option>
-
 
                                 <option value="150">
                                     150
@@ -925,7 +954,7 @@ const IncomeList = () => {
 
 
                         {/* =================================================
-                            FILTER BUTTON
+                            FILTER
                         ================================================= */}
 
                         <div className="col-6 col-lg-1">
@@ -941,7 +970,7 @@ const IncomeList = () => {
 
 
                         {/* =================================================
-                            CLEAR BUTTON
+                            CLEAR
                         ================================================= */}
 
                         <div className="col-6 col-lg-1">
@@ -1015,7 +1044,7 @@ const IncomeList = () => {
                                     Payment
                                 </th>
 
-                                <th>
+                                <th className="text-center">
                                     Bank
                                 </th>
 
@@ -1023,9 +1052,7 @@ const IncomeList = () => {
                                     Date
                                 </th>
 
-                                <th
-                                    width="170"
-                                >
+                                <th width="170">
                                     Action
                                 </th>
 
@@ -1035,6 +1062,11 @@ const IncomeList = () => {
 
 
                         <tbody>
+
+
+                            {/* =================================================
+                                LOADING
+                            ================================================= */}
 
                             {loading ? (
 
@@ -1056,7 +1088,13 @@ const IncomeList = () => {
 
                                 </tr>
 
+
                             ) : incomes.length === 0 ? (
+
+
+                                /* =================================================
+                                    NO DATA
+                                ================================================= */
 
                                 <tr>
 
@@ -1069,7 +1107,13 @@ const IncomeList = () => {
 
                                 </tr>
 
+
                             ) : (
+
+
+                                /* =================================================
+                                    DATA
+                                ================================================= */
 
                                 incomes.map(
                                     (
@@ -1191,15 +1235,59 @@ const IncomeList = () => {
 
 
                                             {/* =================================================
-                                                BANK
+                                                BANK IMAGE
                                             ================================================= */}
 
-                                            <td>
+                                            <td className="text-center">
 
-                                                {
-                                                    item.bank ||
+                                                {item.bank ? (
+
+                                                    bankImages[
+                                                        item.bank
+                                                    ] ? (
+
+                                                        <img
+                                                            src={
+                                                                bankImages[
+                                                                    item.bank
+                                                                ]
+                                                            }
+                                                            alt={
+                                                                item.bank
+                                                            }
+                                                            title={
+                                                                item.bank
+                                                            }
+                                                            style={{
+                                                                width:
+                                                                    "45px",
+
+                                                                height:
+                                                                    "45px",
+
+                                                                objectFit:
+                                                                    "contain",
+
+                                                                display:
+                                                                    "inline-block"
+                                                            }}
+                                                        />
+
+                                                    ) : (
+
+                                                        <span>
+                                                            {
+                                                                item.bank
+                                                            }
+                                                        </span>
+
+                                                    )
+
+                                                ) : (
+
                                                     "-"
-                                                }
+
+                                                )}
 
                                             </td>
 
@@ -1268,7 +1356,7 @@ const IncomeList = () => {
 
 
                 {/* =================================================
-                    FOOTER
+                    FOOTER / PAGINATION
                 ================================================= */}
 
                 <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">

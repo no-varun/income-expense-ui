@@ -11,49 +11,94 @@ import {
     getPaymentModeBadgeClass
 } from "../../utils/badgeStyles";
 
+
+/*
+ * =====================================================
+ * BANK IMAGES
+ * =====================================================
+ */
+
+const bankImages = {
+
+    Pnb: "/images/banks/pnb.png",
+
+    Rbl: "/images/banks/rbl.png",
+
+    icici: "/images/banks/icici.png",
+
+    Cash: "/images/banks/cash.png",
+
+    Other: "/images/banks/card.png"
+
+};
+
+
 const DebtList = () => {
+
+    /*
+     * =====================================================
+     * DATA
+     * =====================================================
+     */
 
     const [loading, setLoading] = useState(true);
 
     const [debts, setDebts] = useState([]);
+
     const [categories, setCategories] = useState([]);
 
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(10);
-    const [total, setTotal] = useState(0);
 
     /*
-     * =========================
+     * =====================================================
+     * PAGINATION
+     * =====================================================
+     */
+
+    const [page, setPage] = useState(1);
+
+    const [limit, setLimit] = useState(10);
+
+    const [total, setTotal] = useState(0);
+
+
+    /*
+     * =====================================================
      * INPUT FILTERS
-     * =========================
+     * =====================================================
      */
 
     const [categoryInput, setCategoryInput] = useState("");
+
     const [paymentModeInput, setPaymentModeInput] = useState("");
+
     const [bankInput, setBankInput] = useState("");
 
     const [fromDateInput, setFromDateInput] = useState("");
+
     const [toDateInput, setToDateInput] = useState("");
 
 
     /*
-     * =========================
+     * =====================================================
      * APPLIED FILTERS
-     * =========================
+     * =====================================================
      */
 
     const [category, setCategory] = useState("");
+
     const [paymentMode, setPaymentMode] = useState("");
+
     const [bank, setBank] = useState("");
 
     const [fromDate, setFromDate] = useState("");
+
     const [toDate, setToDate] = useState("");
 
 
     /*
-     * =========================
+     * =====================================================
      * PAYMENT MODES
-     * =========================
+     * =====================================================
      */
 
     const paymentModes = [
@@ -68,9 +113,9 @@ const DebtList = () => {
 
 
     /*
-     * =========================
+     * =====================================================
      * BANKS
-     * =========================
+     * =====================================================
      */
 
     const banks = [
@@ -83,9 +128,9 @@ const DebtList = () => {
 
 
     /*
-     * =========================
+     * =====================================================
      * LOAD CATEGORIES
-     * =========================
+     * =====================================================
      */
 
     const loadCategories = useCallback(async () => {
@@ -97,6 +142,7 @@ const DebtList = () => {
                 type: "DEBT"
             });
 
+
             if (response.success) {
 
                 const rows =
@@ -104,6 +150,7 @@ const DebtList = () => {
                     response.data?.data ||
                     response.data ||
                     [];
+
 
                 setCategories(
                     Array.isArray(rows)
@@ -132,9 +179,9 @@ const DebtList = () => {
 
 
     /*
-     * =========================
+     * =====================================================
      * LOAD DEBTS
-     * =========================
+     * =====================================================
      */
 
     const loadDebt = useCallback(async () => {
@@ -142,6 +189,7 @@ const DebtList = () => {
         try {
 
             setLoading(true);
+
 
             const response = await getDebts({
 
@@ -170,11 +218,13 @@ const DebtList = () => {
                     response.data ||
                     [];
 
+
                 setDebts(
                     Array.isArray(rows)
                         ? rows
                         : []
                 );
+
 
                 setTotal(
                     response.data?.total ??
@@ -218,40 +268,48 @@ const DebtList = () => {
 
 
     /*
-     * =========================
+     * =====================================================
      * LOAD CATEGORIES
-     * =========================
+     * =====================================================
      */
 
     useEffect(() => {
 
         loadCategories();
 
-    }, [loadCategories]);
+    }, [
+        loadCategories
+    ]);
 
 
     /*
-     * =========================
+     * =====================================================
      * LOAD DEBTS
-     * =========================
+     * =====================================================
      */
 
     useEffect(() => {
 
         loadDebt();
 
-    }, [loadDebt]);
+    }, [
+        loadDebt
+    ]);
 
 
     /*
-     * =========================
+     * =====================================================
      * DELETE DEBT
-     * =========================
+     * =====================================================
      */
 
     const handleDelete = async (id) => {
 
-        if (!window.confirm("Delete this debt?")) {
+        if (
+            !window.confirm(
+                "Delete this debt?"
+            )
+        ) {
 
             return;
 
@@ -266,7 +324,10 @@ const DebtList = () => {
 
             if (response.success) {
 
-                alert(response.message);
+                alert(
+                    response.message ||
+                    "Debt deleted successfully."
+                );
 
 
                 if (
@@ -297,34 +358,25 @@ const DebtList = () => {
 
 
     /*
-     * =========================
+     * =====================================================
      * APPLY FILTER
-     * =========================
+     * =====================================================
      */
 
     const handleFilter = (event) => {
 
         event.preventDefault();
 
-        setCategory(
-            categoryInput
-        );
 
-        setPaymentMode(
-            paymentModeInput
-        );
+        setCategory(categoryInput);
 
-        setBank(
-            bankInput
-        );
+        setPaymentMode(paymentModeInput);
 
-        setFromDate(
-            fromDateInput
-        );
+        setBank(bankInput);
 
-        setToDate(
-            toDateInput
-        );
+        setFromDate(fromDateInput);
+
+        setToDate(toDateInput);
 
         setPage(1);
 
@@ -332,25 +384,32 @@ const DebtList = () => {
 
 
     /*
-     * =========================
+     * =====================================================
      * CLEAR FILTER
-     * =========================
+     * =====================================================
      */
 
     const handleClearFilter = () => {
 
         setCategoryInput("");
+
         setPaymentModeInput("");
+
         setBankInput("");
 
         setFromDateInput("");
+
         setToDateInput("");
 
+
         setCategory("");
+
         setPaymentMode("");
+
         setBank("");
 
         setFromDate("");
+
         setToDate("");
 
         setPage(1);
@@ -359,9 +418,9 @@ const DebtList = () => {
 
 
     /*
-     * =========================
+     * =====================================================
      * PAGINATION
-     * =========================
+     * =====================================================
      */
 
     const totalPages =
@@ -382,9 +441,54 @@ const DebtList = () => {
 
 
     /*
-     * =========================
+     * =====================================================
+     * BANK IMAGE HELPER
+     * =====================================================
+     */
+
+    const getBankImage = (bankName) => {
+
+        if (!bankName) {
+
+            return null;
+
+        }
+
+
+        /*
+         * Exact match first
+         */
+
+        if (bankImages[bankName]) {
+
+            return bankImages[bankName];
+
+        }
+
+
+        /*
+         * Case-insensitive match
+         */
+
+        const matchedBank =
+            Object.keys(bankImages).find(
+                key =>
+                    key.toLowerCase() ===
+                    String(bankName).toLowerCase()
+            );
+
+
+        return matchedBank
+            ? bankImages[matchedBank]
+            : bankImages.Other;
+
+    };
+
+
+    /*
+     * =====================================================
      * RENDER
-     * =========================
+     * =====================================================
      */
 
     return (
@@ -392,9 +496,9 @@ const DebtList = () => {
         <div className="container-fluid">
 
 
-            {/* =========================
+            {/* =================================================
                 HEADER
-            ========================= */}
+            ================================================= */}
 
             <div className="d-flex justify-content-between align-items-center mb-3">
 
@@ -413,19 +517,18 @@ const DebtList = () => {
             </div>
 
 
-            {/* =========================
+            {/* =================================================
                 CARD
-            ========================= */}
+            ================================================= */}
 
             <div className="card">
-
 
                 <div className="card-body">
 
 
-                    {/* =========================
+                    {/* =================================================
                         FILTER
-                    ========================= */}
+                    ================================================= */}
 
                     <form
                         className="row g-2 align-items-end mb-3"
@@ -461,18 +564,10 @@ const DebtList = () => {
                                     categoryItem => (
 
                                         <option
-                                            key={
-                                                categoryItem._id
-                                            }
-                                            value={
-                                                categoryItem._id
-                                            }
+                                            key={categoryItem._id}
+                                            value={categoryItem._id}
                                         >
-
-                                            {
-                                                categoryItem.name
-                                            }
-
+                                            {categoryItem.name}
                                         </option>
 
                                     )
@@ -494,9 +589,7 @@ const DebtList = () => {
 
                             <select
                                 className="form-select"
-                                value={
-                                    paymentModeInput
-                                }
+                                value={paymentModeInput}
                                 onChange={(event) =>
                                     setPaymentModeInput(
                                         event.target.value
@@ -569,7 +662,7 @@ const DebtList = () => {
                         </div>
 
 
-                        {/* FROM */}
+                        {/* FROM DATE */}
 
                         <div className="col-12 col-md-2">
 
@@ -592,7 +685,7 @@ const DebtList = () => {
                         </div>
 
 
-                        {/* TO */}
+                        {/* TO DATE */}
 
                         <div className="col-12 col-md-2">
 
@@ -678,9 +771,7 @@ const DebtList = () => {
                             <button
                                 type="button"
                                 className="btn btn-outline-secondary w-100"
-                                onClick={
-                                    handleClearFilter
-                                }
+                                onClick={handleClearFilter}
                                 disabled={
                                     !categoryInput &&
                                     !paymentModeInput &&
@@ -702,13 +793,13 @@ const DebtList = () => {
                     </form>
 
 
-                    {/* =========================
+                    {/* =================================================
                         TABLE
-                    ========================= */}
+                    ================================================= */}
 
                     <div className="table-responsive">
 
-                        <table className="table table-bordered">
+                        <table className="table table-bordered table-hover align-middle">
 
                             <thead>
 
@@ -771,9 +862,16 @@ const DebtList = () => {
 
                                         <td
                                             colSpan="10"
-                                            className="text-center"
+                                            className="text-center py-4"
                                         >
+
+                                            <div
+                                                className="spinner-border spinner-border-sm me-2"
+                                                role="status"
+                                            />
+
                                             Loading...
+
                                         </td>
 
                                     </tr>
@@ -784,7 +882,7 @@ const DebtList = () => {
 
                                         <td
                                             colSpan="10"
-                                            className="text-center"
+                                            className="text-center text-muted py-4"
                                         >
                                             No Record Found
                                         </td>
@@ -801,31 +899,44 @@ const DebtList = () => {
                                                     item.amount || 0
                                                 );
 
+
                                             const pendingAmount =
                                                 Number(
                                                     item.pendingAmount || 0
                                                 );
+
 
                                             const recoveredAmount =
                                                 amount -
                                                 pendingAmount;
 
 
+                                            const bankName =
+                                                item.bank || "";
+
+
+                                            const bankImage =
+                                                getBankImage(
+                                                    bankName
+                                                );
+
+
                                             return (
 
                                                 <tr
-                                                    key={
-                                                        item._id
-                                                    }
+                                                    key={item._id}
                                                 >
+
 
                                                     {/* NUMBER */}
 
                                                     <td>
 
                                                         {
-                                                            ((page - 1) *
-                                                                limit) +
+                                                            (
+                                                                (page - 1) *
+                                                                limit
+                                                            ) +
                                                             index +
                                                             1
                                                         }
@@ -838,7 +949,8 @@ const DebtList = () => {
                                                     <td>
 
                                                         {
-                                                            item.title
+                                                            item.title ||
+                                                            "-"
                                                         }
 
                                                     </td>
@@ -867,17 +979,21 @@ const DebtList = () => {
 
                                                     <td>
 
-                                                        ₹{" "}
+                                                        <span className="text-danger">
 
-                                                        {
-                                                            pendingAmount.toLocaleString(
-                                                                "en-IN",
-                                                                {
-                                                                    minimumFractionDigits: 2,
-                                                                    maximumFractionDigits: 2
-                                                                }
-                                                            )
-                                                        }
+                                                            ₹{" "}
+
+                                                            {
+                                                                pendingAmount.toLocaleString(
+                                                                    "en-IN",
+                                                                    {
+                                                                        minimumFractionDigits: 2,
+                                                                        maximumFractionDigits: 2
+                                                                    }
+                                                                )
+                                                            }
+
+                                                        </span>
 
                                                     </td>
 
@@ -886,17 +1002,21 @@ const DebtList = () => {
 
                                                     <td>
 
-                                                        ₹{" "}
+                                                        <span className="text-success">
 
-                                                        {
-                                                            recoveredAmount.toLocaleString(
-                                                                "en-IN",
-                                                                {
-                                                                    minimumFractionDigits: 2,
-                                                                    maximumFractionDigits: 2
-                                                                }
-                                                            )
-                                                        }
+                                                            ₹{" "}
+
+                                                            {
+                                                                recoveredAmount.toLocaleString(
+                                                                    "en-IN",
+                                                                    {
+                                                                        minimumFractionDigits: 2,
+                                                                        maximumFractionDigits: 2
+                                                                    }
+                                                                )
+                                                            }
+
+                                                        </span>
 
                                                     </td>
 
@@ -916,6 +1036,7 @@ const DebtList = () => {
 
                                                             {
                                                                 item.category?.name ||
+                                                                item.categoryName ||
                                                                 "-"
                                                             }
 
@@ -950,14 +1071,50 @@ const DebtList = () => {
 
                                                     <td>
 
-                                                        <span className="badge bg-secondary">
+                                                        {bankName ? (
 
-                                                            {
-                                                                item.bank ||
-                                                                "-"
-                                                            }
+                                                            <div
+                                                                className="d-flex align-items-center gap-2"
+                                                                style={{
+                                                                    minWidth: "120px"
+                                                                }}
+                                                            >
 
-                                                        </span>
+                                                                {bankImage && (
+
+                                                                    <img
+                                                                        src={
+                                                                            bankImage
+                                                                        }
+                                                                        alt={
+                                                                            bankName
+                                                                        }
+                                                                        style={{
+                                                                            width: "45px",
+                                                                            height: "35px",
+                                                                            objectFit: "contain"
+                                                                        }}
+                                                                        onError={(
+                                                                            event
+                                                                        ) => {
+
+                                                                            event.currentTarget.style.display =
+                                                                                "none";
+
+                                                                        }}
+                                                                    />
+
+                                                                )}
+
+                                                            </div>
+
+                                                        ) : (
+
+                                                            <span className="text-muted">
+                                                                -
+                                                            </span>
+
+                                                        )}
 
                                                     </td>
 
@@ -968,11 +1125,13 @@ const DebtList = () => {
 
                                                         {
                                                             item.date
+
                                                                 ? new Date(
                                                                     item.date
                                                                 ).toLocaleDateString(
                                                                     "en-IN"
                                                                 )
+
                                                                 : "-"
                                                         }
 
@@ -1025,20 +1184,26 @@ const DebtList = () => {
                 </div>
 
 
-                {/* =========================
+                {/* =================================================
                     PAGINATION
-                ========================= */}
+                ================================================= */}
 
                 <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
 
                     <small className="text-muted">
 
                         Showing{" "}
+
                         {startRecord}
+
                         {" "}to{" "}
+
                         {endRecord}
+
                         {" "}of{" "}
+
                         {total}
+
                         {" "}records
 
                     </small>
@@ -1048,22 +1213,18 @@ const DebtList = () => {
                         page={page}
                         limit={limit}
                         total={total}
-                        onPageChange={
-                            (nextPage) => {
+                        onPageChange={(nextPage) => {
 
-                                if (
-                                    nextPage >= 1 &&
-                                    nextPage <= totalPages
-                                ) {
+                            if (
+                                nextPage >= 1 &&
+                                nextPage <= totalPages
+                            ) {
 
-                                    setPage(
-                                        nextPage
-                                    );
-
-                                }
+                                setPage(nextPage);
 
                             }
-                        }
+
+                        }}
                     />
 
                 </div>
@@ -1075,5 +1236,6 @@ const DebtList = () => {
     );
 
 };
+
 
 export default DebtList;
