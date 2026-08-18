@@ -406,10 +406,6 @@ const ShopList = () => {
                                     Type
                                 </th>
 
-                                <th>
-                                    Color
-                                </th>
-
                                 <th width="180">
                                     Action
                                 </th>
@@ -509,23 +505,6 @@ const ShopList = () => {
                                                     </span>
 
                                                 </td>
-
-
-                                                <td>
-
-                                                    <span
-                                                        style={{
-                                                            width: "25px",
-                                                            height: "25px",
-                                                            display: "inline-block",
-                                                            borderRadius: "50%",
-                                                            background:
-                                                                item.color
-                                                        }}
-                                                    />
-
-                                                </td>
-
 
                                                 <td>
 
