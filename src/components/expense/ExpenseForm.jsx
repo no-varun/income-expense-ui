@@ -780,6 +780,9 @@ const ExpenseForm = ({
                                 Amazon Pay
                             </option>
 
+                            <option value="Bank Transfer">
+                                Bank Transfer
+                            </option>
                             <option value="Other">
                                 Other
                             </option>

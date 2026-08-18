@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import { getCategories } from "../../api/categoryApi";
 import { getItems } from "../../api/itemApi";
-import { getShops } from "../../api/shopApi";
 
 const IncomeForm = ({
     initialValues = {},
@@ -15,18 +14,14 @@ const IncomeForm = ({
 
     const [categories, setCategories] = useState([]);
     const [items, setItems] = useState([]);
-    const [shops, setShops] = useState([]);
 
     const [itemsLoading, setItemsLoading] = useState(false);
-    const [shopsLoading, setShopsLoading] = useState(false);
 
     const [form, setForm] = useState({
         title: "",
         itemId: "",
         amount: "",
         category: "",
-        shopType: "",
-        shop: "",
         paymentMode: "Cash",
         bank: "icici",
         date: new Date().toISOString().split("T")[0],
@@ -92,83 +87,21 @@ const IncomeForm = ({
 
     /*
      * =====================================================
-     * LOAD SHOPS
-     * =====================================================
-     */
-
-    useEffect(() => {
-
-        const loadShops = async () => {
-
-            try {
-
-                setShopsLoading(true);
-
-                const response = await getShops({
-                    limit: 100,
-                    status: true
-                });
-
-                if (response.success) {
-
-                    const rows =
-                        response.data?.rows ||
-                        response.data?.data?.rows ||
-                        response.data?.data ||
-                        response.data ||
-                        [];
-
-                    setShops(
-                        Array.isArray(rows)
-                            ? rows
-                            : []
-                    );
-
-                } else {
-
-                    setShops([]);
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "Shop fetch error:",
-                    error
-                );
-
-                setShops([]);
-
-            } finally {
-
-                setShopsLoading(false);
-
-            }
-
-        };
-
-        loadShops();
-
-    }, []);
-
-
-    /*
-     * =====================================================
      * LOAD ITEMS BY CATEGORY
      * =====================================================
      */
 
     const loadItems = async (categoryId) => {
 
+        if (!categoryId) {
+
+            setItems([]);
+
+            return [];
+
+        }
+
         try {
-
-            if (!categoryId) {
-
-                setItems([]);
-
-                return [];
-
-            }
 
             setItemsLoading(true);
 
@@ -185,7 +118,6 @@ const IncomeForm = ({
                 status: true
 
             });
-
 
             if (response.success) {
 
@@ -248,35 +180,19 @@ const IncomeForm = ({
 
         }
 
-
         const categoryId =
             initialValues.category?._id ||
             initialValues.category ||
             "";
 
-
-        const shopId =
-            initialValues.shop?._id ||
-            initialValues.shop ||
-            "";
-
-
-        const shopType =
-            initialValues.shopType ||
-            initialValues.shop?.type ||
-            "";
-
-
         const title =
             initialValues.title ||
             "";
-
 
         const itemId =
             initialValues.item?._id ||
             initialValues.itemId ||
             "";
-
 
         setForm({
 
@@ -289,12 +205,6 @@ const IncomeForm = ({
 
             category:
                 categoryId,
-
-            shopType:
-                shopType,
-
-            shop:
-                shopId,
 
             paymentMode:
                 initialValues.paymentMode ||
@@ -337,7 +247,7 @@ const IncomeForm = ({
 
     /*
      * =====================================================
-     * HANDLE NORMAL CHANGE
+     * NORMAL CHANGE
      * =====================================================
      */
 
@@ -347,32 +257,6 @@ const IncomeForm = ({
             name,
             value
         } = e.target;
-
-
-        /*
-         * SHOP TYPE CHANGE
-         */
-
-        if (name === "shopType") {
-
-            setForm(prev => ({
-
-                ...prev,
-
-                shopType: value,
-
-                shop: ""
-
-            }));
-
-            return;
-
-        }
-
-
-        /*
-         * NORMAL FIELD
-         */
 
         setForm(prev => ({
 
@@ -396,7 +280,6 @@ const IncomeForm = ({
         const categoryId =
             e.target.value;
 
-
         setForm(prev => ({
 
             ...prev,
@@ -409,9 +292,7 @@ const IncomeForm = ({
 
         }));
 
-
         setItems([]);
-
 
         if (categoryId) {
 
@@ -433,14 +314,12 @@ const IncomeForm = ({
         const itemId =
             e.target.value;
 
-
         const selectedItem =
             items.find(
                 item =>
                     String(item._id) ===
                     String(itemId)
             );
-
 
         setForm(prev => ({
 
@@ -459,29 +338,6 @@ const IncomeForm = ({
 
     /*
      * =====================================================
-     * FILTER SHOPS BY SHOP TYPE
-     * =====================================================
-     */
-
-    const filteredShops = shops.filter(shop => {
-
-        if (!form.shopType) {
-
-            return false;
-
-        }
-
-
-        return (
-            String(shop.type).toUpperCase() ===
-            String(form.shopType).toUpperCase()
-        );
-
-    });
-
-
-    /*
-     * =====================================================
      * SUBMIT
      * =====================================================
      */
@@ -489,7 +345,6 @@ const IncomeForm = ({
     const handleSubmit = (e) => {
 
         e.preventDefault();
-
 
         if (!form.category) {
 
@@ -500,7 +355,6 @@ const IncomeForm = ({
             return;
 
         }
-
 
         if (
             !form.itemId &&
@@ -515,29 +369,6 @@ const IncomeForm = ({
 
         }
 
-
-        if (!form.shopType) {
-
-            alert(
-                "Please select Shop Type"
-            );
-
-            return;
-
-        }
-
-
-        if (!form.shop) {
-
-            alert(
-                "Please select Shop"
-            );
-
-            return;
-
-        }
-
-
         if (
             !form.amount ||
             Number(form.amount) <= 0
@@ -550,7 +381,6 @@ const IncomeForm = ({
             return;
 
         }
-
 
         onSubmit({
 
@@ -584,7 +414,6 @@ const IncomeForm = ({
 
         <div className="card shadow">
 
-
             {/* =====================================================
                 HEADER
             ===================================================== */}
@@ -594,7 +423,6 @@ const IncomeForm = ({
                 <h5 className="mb-0">
                     Income Details
                 </h5>
-
 
                 <button
                     type="button"
@@ -613,122 +441,6 @@ const IncomeForm = ({
 
                 <form onSubmit={handleSubmit}>
 
-
-                    {/* =================================================
-                        SHOP TYPE
-                    ================================================= */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Shop Type
-                        </label>
-
-
-                        <select
-                            className="form-select"
-                            name="shopType"
-                            value={form.shopType}
-                            onChange={handleChange}
-                            required
-                        >
-
-                            <option value="">
-                                Select Shop Type
-                            </option>
-
-
-                            <option value="ONLINE">
-                                ONLINE
-                            </option>
-
-
-                            <option value="OFFLINE">
-                                OFFLINE
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    {/* =================================================
-                        SHOP
-                    ================================================= */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Shop
-                        </label>
-
-
-                        <select
-                            className="form-select"
-                            name="shop"
-                            value={form.shop}
-                            onChange={handleChange}
-                            disabled={
-                                !form.shopType ||
-                                shopsLoading
-                            }
-                            required
-                        >
-
-                            <option value="">
-
-                                {shopsLoading
-
-                                    ? "Loading shops..."
-
-                                    : !form.shopType
-
-                                        ? "First select shop type"
-
-                                        : filteredShops.length === 0
-
-                                            ? "No shops found"
-
-                                            : "Select Shop"
-
-                                }
-
-                            </option>
-
-
-                            {filteredShops.map(shop => (
-
-                                <option
-                                    key={shop._id}
-                                    value={shop._id}
-                                >
-
-                                    {shop.name}
-
-                                </option>
-
-                            ))}
-
-                        </select>
-
-
-                        {form.shopType &&
-                            !shopsLoading &&
-                            filteredShops.length === 0 && (
-
-                                <small className="text-danger">
-
-                                    No{" "}
-                                    {form.shopType}
-                                    {" "}shops available
-
-                                </small>
-
-                            )}
-
-                    </div>
-
-
                     {/* =================================================
                         CATEGORY
                     ================================================= */}
@@ -738,7 +450,6 @@ const IncomeForm = ({
                         <label className="form-label">
                             Category
                         </label>
-
 
                         <select
                             className="form-select"
@@ -754,7 +465,6 @@ const IncomeForm = ({
                                 Select Category
                             </option>
 
-
                             {categories.map(
                                 category => (
 
@@ -766,11 +476,9 @@ const IncomeForm = ({
                                             category._id
                                         }
                                     >
-
                                         {
                                             category.name
                                         }
-
                                     </option>
 
                                 )
@@ -791,10 +499,11 @@ const IncomeForm = ({
                             Item
                         </label>
 
-
                         <select
                             className="form-select"
-                            value={selectedItemId}
+                            value={
+                                selectedItemId
+                            }
                             onChange={
                                 handleItemChange
                             }
@@ -825,16 +534,13 @@ const IncomeForm = ({
 
                             </option>
 
-
                             {items.map(item => (
 
                                 <option
                                     key={item._id}
                                     value={item._id}
                                 >
-
                                     {item.name}
-
                                 </option>
 
                             ))}
@@ -853,7 +559,6 @@ const IncomeForm = ({
                         <label className="form-label">
                             Amount
                         </label>
-
 
                         <input
                             type="number"
@@ -879,12 +584,15 @@ const IncomeForm = ({
                             Payment Mode
                         </label>
 
-
                         <select
                             className="form-select"
                             name="paymentMode"
-                            value={form.paymentMode}
-                            onChange={handleChange}
+                            value={
+                                form.paymentMode
+                            }
+                            onChange={
+                                handleChange
+                            }
                             required
                         >
 
@@ -911,7 +619,9 @@ const IncomeForm = ({
                             <option value="Amazon Pay">
                                 Amazon Pay
                             </option>
-
+                            <option value="Bank Transfer">
+                                Bank Transfer
+                            </option>
                             <option value="Other">
                                 Other
                             </option>
@@ -930,7 +640,6 @@ const IncomeForm = ({
                         <label className="form-label">
                             Bank
                         </label>
-
 
                         <select
                             className="form-select"
@@ -975,13 +684,13 @@ const IncomeForm = ({
                             Date
                         </label>
 
-
                         <input
                             type="date"
                             className="form-control"
                             name="date"
                             value={form.date}
                             onChange={handleChange}
+                            required
                         />
 
                     </div>
@@ -996,7 +705,6 @@ const IncomeForm = ({
                         <label className="form-label">
                             Note
                         </label>
-
 
                         <textarea
                             rows="3"
@@ -1019,8 +727,7 @@ const IncomeForm = ({
                         className="btn btn-primary"
                         disabled={
                             loading ||
-                            itemsLoading ||
-                            shopsLoading
+                            itemsLoading
                         }
                     >
 
