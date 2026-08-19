@@ -153,7 +153,7 @@ const SavingList = () => {
         "GPay",
         "Bhim",
         "Amazon Pay",
-        "Bank Transfer",
+        "BankTransfer",
         "Other"
     ];
 

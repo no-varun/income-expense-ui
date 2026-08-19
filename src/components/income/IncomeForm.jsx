@@ -616,10 +616,10 @@ const IncomeForm = ({
                                 Bhim
                             </option>
 
-                            <option value="Amazon Pay">
+                            <option value="AmazonPay">
                                 Amazon Pay
                             </option>
-                            <option value="Bank Transfer">
+                            <option value="BankTransfer">
                                 Bank Transfer
                             </option>
                             <option value="Other">

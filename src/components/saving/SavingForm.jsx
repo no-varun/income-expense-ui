@@ -515,8 +515,11 @@ const SavingForm = ({
                                 Bhim
                             </option>
 
-                            <option value="Amazon Pay">
+                            <option value="AmazonPay">
                                 Amazon Pay
+                            </option>
+                            <option value="BankTransfer">
+                                Bank Transfer
                             </option>
 
                             <option value="Other">
