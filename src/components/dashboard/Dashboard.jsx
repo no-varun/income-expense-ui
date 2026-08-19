@@ -41,13 +41,36 @@ const Dashboard = () => {
         );
     }
 
+    const bankWise = summary.bankWise || [];
+
+    const formatAmount = (amount) => {
+        const value = Number(amount || 0);
+
+        return value.toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+    };
+
+    const getBankName = (bank) => {
+        if (!bank) return "Unknown";
+
+        return bank.charAt(0).toUpperCase() + bank.slice(1);
+    };
+
     return (
         <div className="container-fluid">
+
             <h3 className="mb-4">Dashboard</h3>
+
+            {/* =====================================================
+                SUMMARY CARDS
+            ====================================================== */}
 
             <div className="row g-3">
 
                 {/* Today */}
+
                 <SummaryCard
                     title="Today's Income"
                     value={summary.todayIncome || 0}
@@ -61,6 +84,7 @@ const Dashboard = () => {
                 />
 
                 {/* Month */}
+
                 <SummaryCard
                     title="Monthly Income"
                     value={summary.monthIncome || 0}
@@ -80,6 +104,7 @@ const Dashboard = () => {
                 />
 
                 {/* Year */}
+
                 <SummaryCard
                     title="Yearly Income"
                     value={summary.yearIncome || 0}
@@ -99,6 +124,7 @@ const Dashboard = () => {
                 />
 
                 {/* Other */}
+
                 <SummaryCard
                     title="Current Balance"
                     value={summary.currentBalance || 0}
@@ -124,7 +150,183 @@ const Dashboard = () => {
                 />
             </div>
 
-            <RecentTransaction transactions={transactions} />
+            {/* =====================================================
+                BANK WISE SUMMARY
+            ====================================================== */}
+
+            <div className="card shadow-sm mt-4">
+
+                <div className="card-header bg-white">
+                    <h5 className="mb-0">
+                        Bank Wise Summary
+                    </h5>
+                </div>
+
+                <div className="card-body p-0">
+
+                    <div className="table-responsive">
+
+                        <table className="table table-bordered table-hover mb-0">
+
+                            <thead className="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Bank</th>
+                                    <th className="text-end">
+                                        Income
+                                    </th>
+                                    <th className="text-end">
+                                        Expense
+                                    </th>
+                                    <th className="text-end">
+                                        Saving
+                                    </th>
+                                    <th className="text-end">
+                                        Balance
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {bankWise.length > 0 ? (
+
+                                    bankWise.map((item, index) => (
+
+                                        <tr key={item.bank || index}>
+
+                                            <td>
+                                                {index + 1}
+                                            </td>
+
+                                            <td>
+                                                <strong>
+                                                    {getBankName(item.bank)}
+                                                </strong>
+                                            </td>
+
+                                            <td className="text-end text-success">
+                                                ₹ {formatAmount(item.income)}
+                                            </td>
+
+                                            <td className="text-end text-danger">
+                                                ₹ {formatAmount(item.expense)}
+                                            </td>
+
+                                            <td className="text-end text-info">
+                                                ₹ {formatAmount(item.saving)}
+                                            </td>
+
+                                            <td
+                                                className={`text-end fw-bold ${Number(item.balance || 0) >= 0
+                                                        ? "text-success"
+                                                        : "text-danger"
+                                                    }`}
+                                            >
+                                                ₹ {formatAmount(item.balance)}
+                                            </td>
+
+                                        </tr>
+
+                                    ))
+
+                                ) : (
+
+                                    <tr>
+                                        <td
+                                            colSpan="6"
+                                            className="text-center py-4"
+                                        >
+                                            No bank data found
+                                        </td>
+                                    </tr>
+
+                                )}
+
+                            </tbody>
+
+                            {/* =====================================================
+                                TOTAL
+                            ====================================================== */}
+
+                            {bankWise.length > 0 && (
+
+                                <tfoot className="table-light">
+
+                                    <tr>
+
+                                        <th colSpan="2">
+                                            Total
+                                        </th>
+
+                                        <th className="text-end text-success">
+                                            ₹{" "}
+                                            {formatAmount(
+                                                bankWise.reduce(
+                                                    (total, item) =>
+                                                        total +
+                                                        Number(item.income || 0),
+                                                    0
+                                                )
+                                            )}
+                                        </th>
+
+                                        <th className="text-end text-danger">
+                                            ₹{" "}
+                                            {formatAmount(
+                                                bankWise.reduce(
+                                                    (total, item) =>
+                                                        total +
+                                                        Number(item.expense || 0),
+                                                    0
+                                                )
+                                            )}
+                                        </th>
+
+                                        <th className="text-end text-info">
+                                            ₹{" "}
+                                            {formatAmount(
+                                                bankWise.reduce(
+                                                    (total, item) =>
+                                                        total +
+                                                        Number(item.saving || 0),
+                                                    0
+                                                )
+                                            )}
+                                        </th>
+
+                                        <th className="text-end">
+                                            ₹{" "}
+                                            {formatAmount(
+                                                bankWise.reduce(
+                                                    (total, item) =>
+                                                        total +
+                                                        Number(item.balance || 0),
+                                                    0
+                                                )
+                                            )}
+                                        </th>
+
+                                    </tr>
+
+                                </tfoot>
+                            )}
+
+                        </table>
+
+                    </div>
+
+                </div>
+            </div>
+
+            {/* =====================================================
+                RECENT TRANSACTIONS
+            ====================================================== */}
+
+            <RecentTransaction
+                transactions={transactions}
+            />
+
         </div>
     );
 };
